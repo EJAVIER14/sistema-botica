@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Sistema Botica</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif;
+            background: #f5f5f5; }
+        .contenido { padding: 40px 30px; }
+        h1 { color: #2E7D32; margin-bottom: 8px; }
+        .subtitulo { color: #666; margin-bottom: 40px; }
+        .grid { display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px; }
+        .tarjeta { background: white; padding: 30px;
+            border-radius: 12px; text-decoration: none;
+            color: #333; display: block;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+            border-left: 5px solid; }
+        .tarjeta:hover { transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15); }
+        .tarjeta-icono { font-size: 40px;
+            margin-bottom: 15px; }
+        .tarjeta h2 { font-size: 18px; margin-bottom: 8px; }
+        .tarjeta p { font-size: 13px; color: #888;
+            line-height: 1.5; }
+        .verde { border-color: #4CAF50; }
+        .azul { border-color: #2196F3; }
+        .naranja { border-color: #FF9800; }
+        .morado { border-color: #9C27B0; }
+        .rojo { border-color: #f44336; }
+        .cyan { border-color: #00BCD4; }
+    </style>
+</head>
+<body>
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<div class="contenido">
+    <h1>Bienvenido al Sistema de Botica</h1>
+    <p class="subtitulo">
+        Selecciona un módulo para comenzar
+    </p>
+
+    <div class="grid">
+        <a href="/productos" class="tarjeta verde">
+            <div class="tarjeta-icono">📦</div>
+            <h2>Productos</h2>
+            <p>Gestiona el catálogo de medicamentos
+                y productos de la botica</p>
+        </a>
+
+        <a href="/ventas" class="tarjeta azul">
+            <div class="tarjeta-icono">🛒</div>
+            <h2>Ventas</h2>
+            <p>Registra ventas y genera comprobantes
+                para los clientes</p>
+        </a>
+
+        <a href="/proveedores" class="tarjeta naranja">
+            <div class="tarjeta-icono">🚚</div>
+            <h2>Proveedores</h2>
+            <p>Administra los proveedores y
+                laboratorios de la botica</p>
+        </a>
+
+        <a href="/usuarios" class="tarjeta morado">
+            <div class="tarjeta-icono">👥</div>
+            <h2>Usuarios</h2>
+            <p>Gestiona los usuarios y roles
+                del sistema</p>
+        </a>
+
+        <a href="/alertas" class="tarjeta rojo">
+            <div class="tarjeta-icono">🔔</div>
+            <h2>Alertas</h2>
+            <p>Revisa productos con stock bajo
+                y fechas de vencimiento</p>
+        </a>
+
+        <a href="/reportes" class="tarjeta cyan">
+            <div class="tarjeta-icono">📊</div>
+            <h2>Reportes</h2>
+            <p>Consulta estadísticas de ventas
+                e ingresos del negocio</p>
+        </a>
+    </div>
+</div>
+</body>
+</html>

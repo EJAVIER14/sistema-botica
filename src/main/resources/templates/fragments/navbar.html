@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<nav th:fragment="navbar">
+    <style>
+        .navbar {
+            background-color: #2E7D32;
+            padding: 0 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 60px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .navbar-brand {
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .navbar-links {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+        .nav-link {
+            color: #C8E6C9;
+            text-decoration: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .nav-link:hover {
+            background-color: #1B5E20;
+            color: white;
+        }
+        .nav-link.activo {
+            background-color: #1B5E20;
+            color: white;
+            font-weight: bold;
+        }
+        .nav-alerta {
+            background-color: #f44336;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 11px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 3px;
+        }
+    </style>
+
+    <div class="navbar">
+        <!-- Logo -->
+        <a href="/" class="navbar-brand">
+            💊 Sistema Botica
+        </a>
+
+        <!-- Links de navegación -->
+        <div class="navbar-links">
+            <a href="/productos" class="nav-link">
+                📦 Productos
+            </a>
+            <a href="/ventas" class="nav-link">
+                🛒 Ventas
+            </a>
+            <a href="/proveedores" class="nav-link">
+                🚚 Proveedores
+            </a>
+            <a href="/usuarios" class="nav-link">
+                👥 Usuarios
+            </a>
+            <a href="/alertas" class="nav-link">
+                🔔 Alertas
+            </a>
+            <a href="/reportes" class="nav-link">
+                📊 Reportes
+            </a>
+        </div>
+    </div>
+</nav>
+
+</body>
+</html>

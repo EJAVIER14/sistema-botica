@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Usuarios</title>
+    <style>
+        body { font-family: Arial, sans-serif;
+            margin: 30px; background: #f5f5f5; }
+        h1 { color: #333; }
+        .btn-nuevo { background: #4CAF50; color: white;
+            padding: 10px 20px; text-decoration: none;
+            border-radius: 5px; display: inline-block;
+            margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse;
+            background: white; border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        th { background: #4CAF50; color: white;
+            padding: 12px 15px; text-align: left; }
+        td { padding: 10px 15px;
+            border-bottom: 1px solid #ddd; }
+        tr:hover { background: #f9f9f9; }
+        .btn-editar { background: #2196F3; color: white;
+            padding: 5px 12px; text-decoration: none;
+            border-radius: 4px; margin-right: 5px; }
+        .btn-eliminar { background: #f44336; color: white;
+            padding: 5px 12px; text-decoration: none;
+            border-radius: 4px; }
+        .rol-admin { background: #9C27B0; color: white;
+            padding: 3px 10px; border-radius: 20px;
+            font-size: 12px; }
+        .rol-cajero { background: #2196F3; color: white;
+            padding: 3px 10px; border-radius: 20px;
+            font-size: 12px; }
+        .rol-almacenero { background: #FF9800; color: white;
+            padding: 3px 10px; border-radius: 20px;
+            font-size: 12px; }
+        .activo-si { color: #4CAF50; font-weight: bold; }
+        .activo-no { color: #f44336; font-weight: bold; }
+    </style>
+</head>
+<body>
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+<h1>Usuarios - Botica</h1>
+<a href="/usuarios/nuevo" class="btn-nuevo">
+    + Nuevo Usuario
+</a>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Username</th>
+        <th>Rol</th>
+        <th>Activo</th>
+        <th>Acciones</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="u : ${usuarios}">
+        <td th:text="${u.id}"></td>
+        <td th:text="${u.nombre}"></td>
+        <td th:text="${u.username}"></td>
+        <td>
+                    <span th:text="${u.rol}"
+                          th:class="${u.rol == 'ADMIN'} ?
+                          'rol-admin' :
+                          (${u.rol == 'CAJERO'} ?
+                          'rol-cajero' : 'rol-almacenero')">
+                    </span>
+        </td>
+        <td>
+                    <span th:if="${u.activo}"
+                          class="activo-si">Sí</span>
+            <span th:unless="${u.activo}"
+                  class="activo-no">No</span>
+        </td>
+        <td>
+            <a th:href="@{/usuarios/editar/{id}
+                       (id=${u.id})}"
+               class="btn-editar">Editar</a>
+            <a th:href="@{/usuarios/eliminar/{id}
+                       (id=${u.id})}"
+               class="btn-eliminar"
+               onclick="return confirm(
+                       '¿Seguro que deseas eliminar?')">
+                Eliminar
+            </a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

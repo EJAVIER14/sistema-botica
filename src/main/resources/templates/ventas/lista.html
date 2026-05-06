@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Ventas</title>
+    <style>
+        body { font-family: Arial, sans-serif;
+            margin: 30px; background: #f5f5f5; }
+        h1 { color: #333; }
+        .btn-nuevo { background: #4CAF50; color: white;
+            padding: 10px 20px; text-decoration: none;
+            border-radius: 5px; display: inline-block;
+            margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse;
+            background: white; border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        th { background: #4CAF50; color: white;
+            padding: 12px 15px; text-align: left; }
+        td { padding: 10px 15px; border-bottom: 1px solid #ddd; }
+        tr:hover { background: #f9f9f9; }
+        .btn-ver { background: #2196F3; color: white;
+            padding: 5px 12px; text-decoration: none;
+            border-radius: 4px; }
+    </style>
+</head>
+<body>
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+<h1>Ventas - Botica</h1>
+<a href="/ventas/nueva" class="btn-nuevo">
+    + Nueva Venta
+</a>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Cliente</th>
+        <th>Fecha</th>
+        <th>Total</th>
+        <th>Acciones</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="venta : ${ventas}">
+        <td th:text="${venta.id}"></td>
+        <td th:text="${venta.cliente}"></td>
+        <td th:text="${#temporals.format(venta.fecha, 'dd/MM/yyyy HH:mm')}"></td>
+        <td th:text="'S/ ' + ${venta.total}"></td>
+        <td>
+            <a th:href="@{/ventas/detalle/{id}
+                       (id=${venta.id})}"
+               class="btn-ver">Ver detalle</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

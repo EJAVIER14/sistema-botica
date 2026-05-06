@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Proveedores</title>
+    <style>
+        body { font-family: Arial, sans-serif;
+            margin: 30px; background: #f5f5f5; }
+        h1 { color: #333; }
+        .btn-nuevo { background: #4CAF50; color: white;
+            padding: 10px 20px; text-decoration: none;
+            border-radius: 5px; display: inline-block;
+            margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse;
+            background: white; border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        th { background: #4CAF50; color: white;
+            padding: 12px 15px; text-align: left; }
+        td { padding: 10px 15px;
+            border-bottom: 1px solid #ddd; }
+        tr:hover { background: #f9f9f9; }
+        .btn-editar { background: #2196F3; color: white;
+            padding: 5px 12px; text-decoration: none;
+            border-radius: 4px; margin-right: 5px; }
+        .btn-eliminar { background: #f44336; color: white;
+            padding: 5px 12px; text-decoration: none;
+            border-radius: 4px; }
+    </style>
+</head>
+<body>
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+<h1>Proveedores - Botica</h1>
+<a href="/proveedores/nuevo" class="btn-nuevo">
+    + Nuevo Proveedor
+</a>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>RUC</th>
+        <th>Teléfono</th>
+        <th>Correo</th>
+        <th>Contacto</th>
+        <th>Acciones</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="p : ${proveedores}">
+        <td th:text="${p.id}"></td>
+        <td th:text="${p.nombre}"></td>
+        <td th:text="${p.ruc}"></td>
+        <td th:text="${p.telefono}"></td>
+        <td th:text="${p.correo}"></td>
+        <td th:text="${p.contacto}"></td>
+        <td>
+            <a th:href="@{/proveedores/editar/{id}
+                       (id=${p.id})}"
+               class="btn-editar">Editar</a>
+            <a th:href="@{/proveedores/eliminar/{id}
+                       (id=${p.id})}"
+               class="btn-eliminar"
+               onclick="return confirm(
+                       '¿Seguro que deseas eliminar?')">
+                Eliminar
+            </a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

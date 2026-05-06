@@ -1,0 +1,40 @@
+package com.botica.service;
+
+import com.botica.model.Producto;
+import com.botica.repository.ProductoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
+
+@Service
+@Transactional
+public class ProductoService {
+
+    @Autowired
+    private ProductoRepository repo;
+
+    public List<Producto> listarTodos() {
+        return repo.findAll();
+    }
+
+    public Producto guardar(Producto p) {
+        return repo.save(p);
+    }
+
+    public Producto buscarPorId(Long id) {
+        return repo.findById(id).orElse(null);
+    }
+
+    public void eliminar(Long id) {
+        repo.deleteById(id);
+    }
+
+    public List<Producto> buscarPorNombre(String nombre) {
+        return repo.findByNombreContaining(nombre);
+    }
+
+    public List<Producto> productosConStockBajo(Integer minimo) {
+        return repo.findByStockLessThan(minimo);
+    }
+}

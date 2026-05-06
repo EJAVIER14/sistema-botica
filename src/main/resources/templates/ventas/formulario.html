@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Nueva Venta</title>
+    <style>
+        body { font-family: Arial, sans-serif;
+            margin: 30px; background: #f5f5f5; }
+        h1 { color: #333; }
+        .formulario { background: white; padding: 30px;
+            border-radius: 8px; max-width: 600px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .campo { margin-bottom: 16px; }
+        label { display: block; margin-bottom: 5px;
+            font-weight: bold; color: #555; }
+        input, select { width: 100%; padding: 9px 12px;
+            border: 1px solid #ccc; border-radius: 5px;
+            font-size: 14px; box-sizing: border-box; }
+        .producto-fila { display: flex; gap: 10px;
+            margin-bottom: 10px; }
+        .producto-fila select { flex: 2; }
+        .producto-fila input { flex: 1; }
+        .btn-agregar { background: #FF9800; color: white;
+            padding: 8px 16px; border: none;
+            border-radius: 5px; cursor: pointer;
+            margin-bottom: 16px; }
+        .btn-guardar { background: #4CAF50; color: white;
+            padding: 10px 24px; border: none;
+            border-radius: 5px; font-size: 15px;
+            cursor: pointer; }
+        .btn-cancelar { background: #9e9e9e; color: white;
+            padding: 10px 24px; text-decoration: none;
+            border-radius: 5px; font-size: 15px;
+            margin-left: 10px; }
+    </style>
+</head>
+<body>
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+<h1>Nueva Venta</h1>
+<div class="formulario">
+    <form action="/ventas/guardar" method="post">
+
+        <div class="campo">
+            <label>Nombre del cliente</label>
+            <input type="text" name="cliente"
+                   placeholder="Ej: Juan Pérez"/>
+        </div>
+
+        <label>Productos</label>
+        <div id="productos-container">
+            <div class="producto-fila">
+                <select name="productoIds">
+                    <option th:each="p : ${productos}"
+                            th:value="${p.id}"
+                            th:text="${p.nombre} +
+                                ' (Stock: ' + ${p.stock} +
+                                ') - S/ ' + ${p.precio}">
+                    </option>
+                </select>
+                <input type="number" name="cantidades"
+                       placeholder="Cantidad" min="1"
+                       value="1"/>
+            </div>
+        </div>
+
+        <button type="button" class="btn-agregar"
+                onclick="agregarProducto()">
+            + Agregar otro producto
+        </button>
+
+        <br/>
+        <button type="submit" class="btn-guardar">
+            Registrar Venta
+        </button>
+        <a href="/ventas" class="btn-cancelar">
+            Cancelar
+        </a>
+
+    </form>
+</div>
+
+<script>
+    function agregarProducto() {
+        const container = document.getElementById(
+            'productos-container');
+        const fila = container.children[0].cloneNode(true);
+        container.appendChild(fila);
+    }
+</script>
+</body>
+</html>
