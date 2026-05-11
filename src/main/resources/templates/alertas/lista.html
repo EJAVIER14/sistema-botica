@@ -2,179 +2,168 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Alertas</title>
-    <style>
-        body { font-family: Arial, sans-serif;
-            margin: 30px; background: #f5f5f5; }
-        h1 { color: #333; }
-        .resumen { display: flex; gap: 20px;
-            margin-bottom: 30px; }
-        .tarjeta { background: white; padding: 20px;
-            border-radius: 8px; flex: 1; text-align: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .tarjeta h2 { margin: 0; font-size: 36px; }
-        .tarjeta p { margin: 5px 0 0;
-            color: #666; font-size: 14px; }
-        .color-rojo { border-top: 4px solid #f44336; }
-        .color-naranja { border-top: 4px solid #FF9800; }
-        .color-morado { border-top: 4px solid #9C27B0; }
-        .num-rojo { color: #f44336; }
-        .num-naranja { color: #FF9800; }
-        .num-morado { color: #9C27B0; }
-        .seccion { background: white; padding: 20px;
-            border-radius: 8px; margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .seccion h3 { margin-top: 0; padding-bottom: 10px;
-            border-bottom: 2px solid #eee; }
-        table { width: 100%; border-collapse: collapse; }
-        th { background: #f5f5f5; padding: 10px 15px;
-            text-align: left; color: #555; }
-        td { padding: 10px 15px;
-            border-bottom: 1px solid #eee; }
-        tr:hover { background: #fafafa; }
-        .badge-rojo { background: #ffebee; color: #c62828;
-            padding: 3px 10px; border-radius: 20px;
-            font-size: 12px; font-weight: bold; }
-        .badge-naranja { background: #fff3e0; color: #e65100;
-            padding: 3px 10px; border-radius: 20px;
-            font-size: 12px; font-weight: bold; }
-        .badge-morado { background: #f3e5f5; color: #6a1b9a;
-            padding: 3px 10px; border-radius: 20px;
-            font-size: 12px; font-weight: bold; }
-        .sin-alertas { color: #4CAF50; font-style: italic;
-            padding: 10px; }
-        .btn-productos { background: #4CAF50; color: white;
-            padding: 8px 16px; text-decoration: none;
-            border-radius: 5px; font-size: 13px; }
-    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
+<body class="bg-light">
+
 <nav th:replace="~{fragments/navbar :: navbar}"></nav>
-<h1>Alertas del Sistema</h1>
 
-<!-- Resumen de alertas -->
-<div class="resumen">
-    <div class="tarjeta color-rojo">
-        <h2 class="num-rojo"
-            th:text="${#lists.size(stockBajo)}">
-        </h2>
-        <p>Productos con stock bajo</p>
+<div class="container py-4">
+    <h2 class="fw-bold text-success mb-4">🔔 Alertas del Sistema</h2>
+
+    <!-- Resumen -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm border-start border-danger border-4">
+                <div class="card-body text-center">
+                    <h2 class="text-danger fw-bold"
+                        th:text="${#lists.size(stockBajo)}"></h2>
+                    <p class="text-muted mb-0">
+                        Productos con stock bajo
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm border-start border-warning border-4">
+                <div class="card-body text-center">
+                    <h2 class="text-warning fw-bold"
+                        th:text="${#lists.size(porVencer)}"></h2>
+                    <p class="text-muted mb-0">
+                        Productos por vencer (30 días)
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm border-start border-purple border-4"
+                 style="border-color: #9C27B0 !important;">
+                <div class="card-body text-center">
+                    <h2 class="fw-bold" style="color:#9C27B0"
+                        th:text="${#lists.size(vencidos)}"></h2>
+                    <p class="text-muted mb-0">
+                        Productos vencidos
+                    </p>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="tarjeta color-naranja">
-        <h2 class="num-naranja"
-            th:text="${#lists.size(porVencer)}">
-        </h2>
-        <p>Productos por vencer (30 días)</p>
+
+    <!-- Stock bajo -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-danger text-white fw-bold">
+            ⚠️ Productos con Stock Bajo (menos de 10 unidades)
+        </div>
+        <div class="card-body p-0">
+            <div th:if="${#lists.isEmpty(stockBajo)}"
+                 class="p-3 text-success">
+                ✅ Todos los productos tienen stock suficiente
+            </div>
+            <table th:unless="${#lists.isEmpty(stockBajo)}"
+                   class="table table-hover mb-0">
+                <thead class="table-light">
+                <tr>
+                    <th>Producto</th>
+                    <th>Categoría</th>
+                    <th>Stock actual</th>
+                    <th>Estado</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="p : ${stockBajo}">
+                    <td th:text="${p.nombre}"></td>
+                    <td th:text="${p.categoria}"></td>
+                    <td th:text="${p.stock}"></td>
+                    <td>
+                            <span class="badge bg-danger">
+                                Stock bajo
+                            </span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
-    <div class="tarjeta color-morado">
-        <h2 class="num-morado"
-            th:text="${#lists.size(vencidos)}">
-        </h2>
-        <p>Productos vencidos</p>
+
+    <!-- Por vencer -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-warning text-dark fw-bold">
+            📅 Productos por Vencer (próximos 30 días)
+        </div>
+        <div class="card-body p-0">
+            <div th:if="${#lists.isEmpty(porVencer)}"
+                 class="p-3 text-success">
+                ✅ No hay productos próximos a vencer
+            </div>
+            <table th:unless="${#lists.isEmpty(porVencer)}"
+                   class="table table-hover mb-0">
+                <thead class="table-light">
+                <tr>
+                    <th>Producto</th>
+                    <th>Categoría</th>
+                    <th>Fecha vencimiento</th>
+                    <th>Estado</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="p : ${porVencer}">
+                    <td th:text="${p.nombre}"></td>
+                    <td th:text="${p.categoria}"></td>
+                    <td th:text="${p.fechaVencimiento}"></td>
+                    <td>
+                            <span class="badge bg-warning text-dark">
+                                Por vencer
+                            </span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
+
+    <!-- Vencidos -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header text-white fw-bold"
+             style="background-color: #9C27B0">
+            🚨 Productos Vencidos
+        </div>
+        <div class="card-body p-0">
+            <div th:if="${#lists.isEmpty(vencidos)}"
+                 class="p-3 text-success">
+                ✅ No hay productos vencidos
+            </div>
+            <table th:unless="${#lists.isEmpty(vencidos)}"
+                   class="table table-hover mb-0">
+                <thead class="table-light">
+                <tr>
+                    <th>Producto</th>
+                    <th>Categoría</th>
+                    <th>Fecha vencimiento</th>
+                    <th>Estado</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="p : ${vencidos}">
+                    <td th:text="${p.nombre}"></td>
+                    <td th:text="${p.categoria}"></td>
+                    <td th:text="${p.fechaVencimiento}"></td>
+                    <td>
+                            <span class="badge"
+                                  style="background-color:#9C27B0">
+                                Vencido
+                            </span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <a href="/productos" class="btn btn-success">
+        → Ir a gestionar productos
+    </a>
 </div>
-
-<!-- Stock bajo -->
-<div class="seccion">
-    <h3>⚠️ Productos con Stock Bajo
-        (menos de 10 unidades)</h3>
-    <div th:if="${#lists.isEmpty(stockBajo)}"
-         class="sin-alertas">
-        ✅ Todos los productos tienen stock suficiente
-    </div>
-    <table th:unless="${#lists.isEmpty(stockBajo)}">
-        <thead>
-        <tr>
-            <th>Producto</th>
-            <th>Categoría</th>
-            <th>Stock actual</th>
-            <th>Estado</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="p : ${stockBajo}">
-            <td th:text="${p.nombre}"></td>
-            <td th:text="${p.categoria}"></td>
-            <td th:text="${p.stock}"></td>
-            <td>
-                        <span class="badge-rojo">
-                            Stock bajo
-                        </span>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-</div>
-
-<!-- Por vencer -->
-<div class="seccion">
-    <h3>📅 Productos por Vencer
-        (próximos 30 días)</h3>
-    <div th:if="${#lists.isEmpty(porVencer)}"
-         class="sin-alertas">
-        ✅ No hay productos próximos a vencer
-    </div>
-    <table th:unless="${#lists.isEmpty(porVencer)}">
-        <thead>
-        <tr>
-            <th>Producto</th>
-            <th>Categoría</th>
-            <th>Fecha vencimiento</th>
-            <th>Estado</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="p : ${porVencer}">
-            <td th:text="${p.nombre}"></td>
-            <td th:text="${p.categoria}"></td>
-            <td th:text="${p.fechaVencimiento}">
-            </td>
-            <td>
-                        <span class="badge-naranja">
-                            Por vencer
-                        </span>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-</div>
-
-<!-- Vencidos -->
-<div class="seccion">
-    <h3>🚨 Productos Vencidos</h3>
-    <div th:if="${#lists.isEmpty(vencidos)}"
-         class="sin-alertas">
-        ✅ No hay productos vencidos
-    </div>
-    <table th:unless="${#lists.isEmpty(vencidos)}">
-        <thead>
-        <tr>
-            <th>Producto</th>
-            <th>Categoría</th>
-            <th>Fecha vencimiento</th>
-            <th>Estado</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="p : ${vencidos}">
-            <td th:text="${p.nombre}"></td>
-            <td th:text="${p.categoria}"></td>
-            <td th:text="${p.fechaVencimiento}">
-            </td>
-            <td>
-                        <span class="badge-morado">
-                            Vencido
-                        </span>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-</div>
-
-<br/>
-<a href="/productos" class="btn-productos">
-    → Ir a gestionar productos
-</a>
-
 </body>
 </html>
