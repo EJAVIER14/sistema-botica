@@ -1,8 +1,9 @@
 package com.botica.controller;
 
 import com.botica.model.Usuario;
-import com.botica.service.UsuarioService;
+import com.botica.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -11,23 +12,32 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class HomeController {
 
     @Autowired
-    private UsuarioService usuarioService;
+    private UsuarioRepository usuarioRepository;
 
     @GetMapping("/")
     public String inicio() {
         return "index";
     }
 
-    @GetMapping("/crear-admin")
+    @GetMapping("/setup")
     @ResponseBody
-    public String crearAdmin() {
+    public String setup() {
+        usuarioRepository.deleteAll();
+
+        BCryptPasswordEncoder encoder =
+                new BCryptPasswordEncoder();
+        String password = encoder.encode("admin123");
+
         Usuario u = new Usuario();
         u.setNombre("Administrador");
-        u.setUsername("admin2");
-        u.setPassword("admin123");
+        u.setUsername("admin");
+        u.setPassword(password);
         u.setRol("ADMIN");
         u.setActivo(true);
-        usuarioService.guardar(u);
-        return "Admin creado exitosamente!";
+
+        usuarioRepository.save(u);
+
+        return "Usuario creado! Password length: " +
+                password.length() + " - Pass: " + password;
     }
 }

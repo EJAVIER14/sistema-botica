@@ -29,7 +29,7 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/css/**")
+                        .requestMatchers("/login", "/css/**", "/setup")
                         .permitAll()
                         .anyRequest().authenticated()
                 )
