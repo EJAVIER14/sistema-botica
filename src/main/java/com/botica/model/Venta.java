@@ -17,8 +17,14 @@ public class Venta {
     private Long id;
 
     private LocalDateTime fecha;
-    private Double total;
     private String cliente;
+    private String formaPago;
+    private Double subtotal;
+    private Double igv;
+    private Double descuento;
+    private Double total;
+    private Double montoRecibido;
+    private Double vuelto;
 
     @OneToMany(mappedBy = "venta",
             cascade = CascadeType.ALL)

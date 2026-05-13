@@ -12,14 +12,15 @@
 
 <div class="container py-4">
     <div class="row justify-content-center">
-        <div class="col-md-7">
+        <div class="col-md-8">
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">Nueva Venta</h5>
+                    <h5 class="mb-0">🛒 Nueva Venta</h5>
                 </div>
                 <div class="card-body p-4">
                     <form action="/ventas/guardar" method="post">
 
+                        <!-- Cliente -->
                         <div class="mb-3">
                             <label class="form-label fw-bold">
                                 Nombre del cliente
@@ -29,6 +30,7 @@
                                    placeholder="Ej: Juan Pérez"/>
                         </div>
 
+                        <!-- Productos -->
                         <label class="form-label fw-bold">
                             Productos
                         </label>
@@ -36,10 +38,12 @@
                             <div class="row mb-2 producto-fila">
                                 <div class="col-8">
                                     <select name="productoIds"
-                                            class="form-select">
+                                            class="form-select"
+                                            onchange="calcularTotal()">
                                         <option th:each="p : ${productos}"
                                                 th:value="${p.id}"
-                                                th:text="${p.nombre} + ' (Stock: ' + ${p.stock} + ') - S/ ' + ${p.precio}">
+                                                th:text="${p.nombre} + ' (Stock: ' + ${p.stock} + ') - S/ ' + ${p.precio}"
+                                                th:attr="data-precio=${p.precio}">
                                         </option>
                                     </select>
                                 </div>
@@ -48,7 +52,8 @@
                                            name="cantidades"
                                            class="form-control"
                                            placeholder="Cantidad"
-                                           min="1" value="1"/>
+                                           min="1" value="1"
+                                           onchange="calcularTotal()"/>
                                 </div>
                             </div>
                         </div>
@@ -59,13 +64,87 @@
                             + Agregar otro producto
                         </button>
 
-                        <div class="d-flex gap-2 mt-3">
+                        <hr/>
+
+                        <!-- Descuento y forma de pago -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    Descuento (S/)
+                                </label>
+                                <input type="number"
+                                       name="descuento"
+                                       id="descuento"
+                                       class="form-control"
+                                       step="0.01"
+                                       value="0"
+                                       onchange="calcularTotal()"/>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    Forma de pago
+                                </label>
+                                <select name="formaPago"
+                                        class="form-select">
+                                    <option value="Efectivo">
+                                        💵 Efectivo
+                                    </option>
+                                    <option value="Tarjeta">
+                                        💳 Tarjeta
+                                    </option>
+                                    <option value="Yape/Plin">
+                                        📱 Yape/Plin
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Monto recibido -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                Monto recibido (S/)
+                            </label>
+                            <input type="number"
+                                   name="montoRecibido"
+                                   id="montoRecibido"
+                                   class="form-control"
+                                   step="0.01"
+                                   value="0"
+                                   onchange="calcularVuelto()"/>
+                        </div>
+
+                        <!-- Resumen de totales -->
+                        <div class="card bg-light border-0 p-3 mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-muted">Subtotal (sin IGV):</span>
+                                <span id="txt-subtotal" class="fw-bold">S/ 0.00</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-muted">IGV (18%):</span>
+                                <span id="txt-igv" class="fw-bold">S/ 0.00</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-muted">Descuento:</span>
+                                <span id="txt-descuento" class="fw-bold text-danger">- S/ 0.00</span>
+                            </div>
+                            <hr class="my-1"/>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="fw-bold fs-5">Total:</span>
+                                <span id="txt-total" class="fw-bold fs-5 text-success">S/ 0.00</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Vuelto:</span>
+                                <span id="txt-vuelto" class="fw-bold text-primary">S/ 0.00</span>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
                             <button type="submit"
-                                    class="btn btn-success">
-                                Registrar Venta
+                                    class="btn btn-success btn-lg">
+                                ✅ Registrar Venta
                             </button>
                             <a href="/ventas"
-                               class="btn btn-secondary">
+                               class="btn btn-secondary btn-lg">
                                 Cancelar
                             </a>
                         </div>
@@ -77,11 +156,66 @@
 </div>
 
 <script>
+    function calcularTotal() {
+        let subtotalBruto = 0;
+        const filas = document.querySelectorAll('.producto-fila');
+
+        filas.forEach(fila => {
+            const select = fila.querySelector('select');
+            const cantidad = fila.querySelector('input[type=number]');
+            if (select && cantidad) {
+                const precio = parseFloat(
+                    select.options[select.selectedIndex]
+                        .getAttribute('data-precio')) || 0;
+                subtotalBruto += precio * parseFloat(cantidad.value || 0);
+            }
+        });
+
+        const descuento = parseFloat(
+            document.getElementById('descuento').value) || 0;
+        const subtotalConDescuento = subtotalBruto - descuento;
+        const subtotalSinIgv = subtotalConDescuento / 1.18;
+        const igv = subtotalConDescuento - subtotalSinIgv;
+        const total = subtotalConDescuento;
+
+        document.getElementById('txt-subtotal').textContent =
+            'S/ ' + subtotalSinIgv.toFixed(2);
+        document.getElementById('txt-igv').textContent =
+            'S/ ' + igv.toFixed(2);
+        document.getElementById('txt-descuento').textContent =
+            '- S/ ' + descuento.toFixed(2);
+        document.getElementById('txt-total').textContent =
+            'S/ ' + total.toFixed(2);
+
+        calcularVuelto();
+    }
+
+    function calcularVuelto() {
+        const totalText = document.getElementById('txt-total')
+            .textContent.replace('S/ ', '');
+        const total = parseFloat(totalText) || 0;
+        const recibido = parseFloat(
+            document.getElementById('montoRecibido').value) || 0;
+        const vuelto = recibido - total;
+
+        document.getElementById('txt-vuelto').textContent =
+            'S/ ' + (vuelto >= 0 ? vuelto.toFixed(2) : '0.00');
+    }
+
     function agregarProducto() {
         const container = document.getElementById('productos-container');
         const fila = container.children[0].cloneNode(true);
+        fila.querySelectorAll('select').forEach(s => {
+            s.addEventListener('change', calcularTotal);
+        });
+        fila.querySelectorAll('input').forEach(i => {
+            i.addEventListener('change', calcularTotal);
+        });
         container.appendChild(fila);
     }
+
+    // Calcular al cargar
+    window.onload = calcularTotal;
 </script>
 </body>
 </html>
