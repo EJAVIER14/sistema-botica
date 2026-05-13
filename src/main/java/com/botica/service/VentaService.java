@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -34,6 +35,7 @@ public class VentaService {
                                 List<Integer> cantidades) {
 
         venta.setFecha(LocalDateTime.now());
+        venta.setDetalles(new ArrayList<>());
         double total = 0.0;
 
         for (int i = 0; i < productoIds.size(); i++) {
