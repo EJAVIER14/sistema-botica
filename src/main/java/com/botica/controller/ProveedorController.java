@@ -14,6 +14,7 @@ public class ProveedorController {
     @Autowired
     private ProveedorService service;
 
+    // Ver lista de proveedores
     @GetMapping
     public String listar(Model model) {
         model.addAttribute("proveedores",
@@ -21,12 +22,14 @@ public class ProveedorController {
         return "proveedores/lista";
     }
 
+    // Abrir formulario nuevo proveedor
     @GetMapping("/nuevo")
     public String formularioNuevo(Model model) {
         model.addAttribute("proveedor", new Proveedor());
         return "proveedores/formulario";
     }
 
+    // Abrir formulario editar proveedor
     @GetMapping("/editar/{id}")
     public String formularioEditar(
             @PathVariable Long id, Model model) {
@@ -35,6 +38,7 @@ public class ProveedorController {
         return "proveedores/formulario";
     }
 
+    // Guardar proveedor nuevo o editado
     @PostMapping("/guardar")
     public String guardar(
             @ModelAttribute Proveedor proveedor) {
@@ -42,6 +46,7 @@ public class ProveedorController {
         return "redirect:/proveedores";
     }
 
+    // Eliminar proveedor
     @GetMapping("/eliminar/{id}")
     public String eliminar(@PathVariable Long id) {
         service.eliminar(id);
