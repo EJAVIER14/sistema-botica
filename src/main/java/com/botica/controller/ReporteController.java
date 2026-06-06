@@ -179,7 +179,10 @@ public class ReporteController {
         totalCell.setCellStyle(boldStyle);
 
         // Autoajustar columnas
-        for (int i = 0; i < cols.length; i++) sheet.autoSizeColumn(i);
+        sheet.setColumnWidth(0, 3000);
+        sheet.setColumnWidth(1, 8000);
+        sheet.setColumnWidth(2, 7000);
+        sheet.setColumnWidth(3, 5000);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         wb.write(out);
