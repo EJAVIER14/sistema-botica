@@ -12,35 +12,39 @@ import org.springframework.web.bind.annotation.*;
 public class ProveedorController {
 
     @Autowired
-    private ProveedorService proveedorService;
+    private ProveedorService service;
 
     @GetMapping
     public String listar(Model model) {
-        model.addAttribute("proveedores", proveedorService.listarTodos());
+        model.addAttribute("proveedores",
+                service.listarTodos());
         return "proveedores/lista";
     }
 
     @GetMapping("/nuevo")
-    public String nuevo(Model model) {
+    public String formularioNuevo(Model model) {
         model.addAttribute("proveedor", new Proveedor());
-        return "proveedores/form";
-    }
-
-    @PostMapping("/guardar")
-    public String guardar(@ModelAttribute Proveedor proveedor) {
-        proveedorService.guardar(proveedor);
-        return "redirect:/proveedores";
+        return "proveedores/formulario";
     }
 
     @GetMapping("/editar/{id}")
-    public String editar(@PathVariable Long id, Model model) {
-        model.addAttribute("proveedor", proveedorService.buscarPorId(id));
-        return "proveedores/form";
+    public String formularioEditar(
+            @PathVariable Long id, Model model) {
+        model.addAttribute("proveedor",
+                service.buscarPorId(id));
+        return "proveedores/formulario";
+    }
+
+    @PostMapping("/guardar")
+    public String guardar(
+            @ModelAttribute Proveedor proveedor) {
+        service.guardar(proveedor);
+        return "redirect:/proveedores";
     }
 
     @GetMapping("/eliminar/{id}")
     public String eliminar(@PathVariable Long id) {
-        proveedorService.eliminar(id);
+        service.eliminar(id);
         return "redirect:/proveedores";
     }
 }
