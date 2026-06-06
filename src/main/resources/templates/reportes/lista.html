@@ -30,9 +30,7 @@
                 <div class="card-body text-center">
                     <h2 class="text-primary fw-bold"
                         th:text="${ventasHoy}"></h2>
-                    <p class="text-muted mb-0">
-                        Ventas realizadas hoy
-                    </p>
+                    <p class="text-muted mb-0">Ventas realizadas hoy</p>
                 </div>
             </div>
         </div>
@@ -47,29 +45,36 @@
             <form action="/reportes" method="get">
                 <div class="row g-3 align-items-end">
                     <div class="col-md-4">
-                        <label class="form-label fw-bold">
-                            Fecha inicio
-                        </label>
+                        <label class="form-label fw-bold">Fecha inicio</label>
                         <input type="date" name="inicio"
                                class="form-control"
                                th:value="${inicio}"/>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label fw-bold">
-                            Fecha fin
-                        </label>
+                        <label class="form-label fw-bold">Fecha fin</label>
                         <input type="date" name="fin"
                                class="form-control"
                                th:value="${fin}"/>
                     </div>
                     <div class="col-md-4">
-                        <button type="submit"
-                                class="btn btn-primary w-100">
+                        <button type="submit" class="btn btn-primary w-100">
                             Buscar
                         </button>
                     </div>
                 </div>
             </form>
+
+            <!-- Botones de descarga -->
+            <div class="d-flex gap-2 mt-3">
+                <a th:href="@{/reportes/pdf(inicio=${inicio},fin=${fin})}"
+                   class="btn btn-danger">
+                    📄 Descargar PDF
+                </a>
+                <a th:href="@{/reportes/excel(inicio=${inicio},fin=${fin})}"
+                   class="btn btn-success">
+                    📊 Descargar Excel
+                </a>
+            </div>
 
             <!-- Resumen del período -->
             <div class="row g-3 mt-3">
@@ -77,8 +82,7 @@
                     <div class="card border-0 bg-light">
                         <div class="card-body text-center">
                             <h4 class="text-warning fw-bold"
-                                th:text="'S/ ' + ${totalIngresos}">
-                            </h4>
+                                th:text="'S/ ' + ${totalIngresos}"></h4>
                             <p class="text-muted mb-0 small">
                                 Total ingresos del período
                             </p>
@@ -88,10 +92,8 @@
                 <div class="col-md-6">
                     <div class="card border-0 bg-light">
                         <div class="card-body text-center">
-                            <h4 class="fw-bold"
-                                style="color:#9C27B0"
-                                th:text="${cantidadVentas}">
-                            </h4>
+                            <h4 class="fw-bold" style="color:#9C27B0"
+                                th:text="${cantidadVentas}"></h4>
                             <p class="text-muted mb-0 small">
                                 Ventas en el período
                             </p>
@@ -151,15 +153,13 @@
                 <tbody>
                 <tr th:each="p, i : ${productosMasVendidos}">
                     <td>
-                            <span class="badge bg-success"
-                                  th:text="${i.index + 1}">
-                            </span>
+                        <span class="badge bg-success"
+                              th:text="${i.index + 1}"></span>
                     </td>
                     <td th:text="${p[0]}"></td>
                     <td>
-                            <span class="badge bg-primary"
-                                  th:text="${p[1]}">
-                            </span>
+                        <span class="badge bg-primary"
+                              th:text="${p[1]}"></span>
                     </td>
                 </tr>
                 </tbody>
