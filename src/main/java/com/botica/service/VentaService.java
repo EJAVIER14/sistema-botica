@@ -22,6 +22,13 @@ public class VentaService {
     @Autowired
     private ProductoRepository productoRepository;
 
+    // Lista para guardar productos con stock bajo
+    private List<String> stockBajoProductos = new ArrayList<>();
+
+    public List<String> getStockBajoProductos() {
+        return stockBajoProductos;
+    }
+
     public List<Venta> listarTodas() {
         return ventaRepository.findAll();
     }
@@ -38,6 +45,9 @@ public class VentaService {
         venta.setFecha(LocalDateTime.now());
         venta.setDetalles(new ArrayList<>());
 
+        // Limpiar lista antes de cada venta
+        stockBajoProductos.clear();
+
         double subtotal = 0.0;
 
         for (int i = 0; i < productoIds.size(); i++) {
@@ -48,9 +58,16 @@ public class VentaService {
 
             int cantidad = cantidades.get(i);
 
-            // Descontar stock
-            producto.setStock(producto.getStock() - cantidad);
+            // Descontar stock y verificar si es bajo
+            int nuevoStock = producto.getStock() - cantidad;
+            producto.setStock(nuevoStock);
             productoRepository.save(producto);
+
+            if (nuevoStock <= 10) {
+                stockBajoProductos.add(
+                        producto.getNombre() + " (stock: " + nuevoStock + ")"
+                );
+            }
 
             // Crear detalle
             DetalleVenta detalle = new DetalleVenta();
