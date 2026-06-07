@@ -11,6 +11,21 @@
 <nav th:replace="~{fragments/navbar :: navbar}"></nav>
 
 <div class="container py-4">
+
+    <!-- ALERTA DE STOCK BAJO -->
+    <div th:if="${alertaStock}"
+         class="alert alert-warning alert-dismissible fade show d-flex align-items-center gap-2"
+         role="alert">
+        <span style="font-size: 1.4rem;">⚠️</span>
+        <div>
+            <strong>Alerta de Stock Bajo:</strong>
+            <span th:text="${alertaStock}"></span>
+            <br>
+            <small>Considera reabastecer estos productos pronto.</small>
+        </div>
+        <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+    </div>
+
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold text-success mb-0">🛒 Ventas</h2>
         <a href="/ventas/nueva" class="btn btn-success">
@@ -48,5 +63,7 @@
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
