@@ -18,42 +18,42 @@
                     <h5 class="mb-0">🛒 Nueva Venta</h5>
                 </div>
                 <div class="card-body p-4">
-                    <form action="/ventas/guardar" method="post">
+                    <form action="/ventas/guardar" method="post" id="formVenta">
 
                         <!-- Cliente -->
                         <div class="mb-3">
-                            <label class="form-label fw-bold">
-                                Nombre del cliente
-                            </label>
+                            <label class="form-label fw-bold">Nombre del cliente</label>
                             <input type="text" name="cliente"
                                    class="form-control"
                                    placeholder="Ej: Juan Pérez"/>
                         </div>
 
                         <!-- Productos -->
-                        <label class="form-label fw-bold">
-                            Productos
-                        </label>
+                        <label class="form-label fw-bold">Productos</label>
                         <div id="productos-container">
                             <div class="row mb-2 producto-fila">
                                 <div class="col-8">
                                     <select name="productoIds"
                                             class="form-select"
-                                            onchange="calcularTotal()">
+                                            onchange="actualizarStock(this); calcularTotal();">
                                         <option th:each="p : ${productos}"
                                                 th:value="${p.id}"
                                                 th:text="${p.nombre} + ' (Stock: ' + ${p.stock} + ') - S/ ' + ${p.precio}"
-                                                th:attr="data-precio=${p.precio}">
+                                                th:attr="data-precio=${p.precio}, data-stock=${p.stock}">
                                         </option>
                                     </select>
                                 </div>
                                 <div class="col-4">
                                     <input type="number"
                                            name="cantidades"
-                                           class="form-control"
+                                           class="form-control cantidad-input"
                                            placeholder="Cantidad"
                                            min="1" value="1"
-                                           onchange="calcularTotal()"/>
+                                           oninput="validarStock(this); calcularTotal();"/>
+                                    <!-- Mensaje de error stock -->
+                                    <small class="text-danger stock-error d-none">
+                                        ⚠️ Stock insuficiente
+                                    </small>
                                 </div>
                             </div>
                         </div>
@@ -69,48 +69,36 @@
                         <!-- Descuento y forma de pago -->
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label class="form-label fw-bold">
-                                    Descuento (S/)
-                                </label>
+                                <label class="form-label fw-bold">Descuento (S/)</label>
                                 <input type="number"
                                        name="descuento"
                                        id="descuento"
                                        class="form-control"
                                        step="0.01"
                                        value="0"
-                                       onchange="calcularTotal()"/>
+                                       oninput="calcularTotal()"/>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-bold">
-                                    Forma de pago
-                                </label>
-                                <select name="formaPago"
-                                        class="form-select">
-                                    <option value="Efectivo">
-                                        💵 Efectivo
-                                    </option>
-                                    <option value="Tarjeta">
-                                        💳 Tarjeta
-                                    </option>
-                                    <option value="Yape/Plin">
-                                        📱 Yape/Plin
-                                    </option>
+                                <label class="form-label fw-bold">Forma de pago</label>
+                                <select name="formaPago" class="form-select"
+                                        onchange="manejarFormaPago(this)">
+                                    <option value="Efectivo">💵 Efectivo</option>
+                                    <option value="Tarjeta">💳 Tarjeta</option>
+                                    <option value="Yape/Plin">📱 Yape/Plin</option>
                                 </select>
                             </div>
                         </div>
 
                         <!-- Monto recibido -->
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">
-                                Monto recibido (S/)
-                            </label>
+                        <div class="mb-3" id="fila-monto">
+                            <label class="form-label fw-bold">Monto recibido (S/)</label>
                             <input type="number"
                                    name="montoRecibido"
                                    id="montoRecibido"
                                    class="form-control"
                                    step="0.01"
                                    value="0"
-                                   onchange="calcularVuelto()"/>
+                                   oninput="calcularVuelto()"/>
                         </div>
 
                         <!-- Resumen de totales -->
@@ -139,12 +127,11 @@
                         </div>
 
                         <div class="d-flex gap-2">
-                            <button type="submit"
+                            <button type="submit" id="btn-registrar"
                                     class="btn btn-success btn-lg">
                                 ✅ Registrar Venta
                             </button>
-                            <a href="/ventas"
-                               class="btn btn-secondary btn-lg">
+                            <a href="/ventas" class="btn btn-secondary btn-lg">
                                 Cancelar
                             </a>
                         </div>
@@ -156,6 +143,38 @@
 </div>
 
 <script>
+    // 1. VALIDAR STOCK — bloquea si la cantidad supera el stock
+    function actualizarStock(select) {
+        const fila = select.closest('.producto-fila');
+        const input = fila.querySelector('.cantidad-input');
+        const stockDisponible = parseInt(
+            select.options[select.selectedIndex].getAttribute('data-stock')) || 0;
+        input.max = stockDisponible;
+        validarStock(input);
+    }
+
+    function validarStock(input) {
+        const fila = input.closest('.producto-fila');
+        const select = fila.querySelector('select');
+        const stockDisponible = parseInt(
+            select.options[select.selectedIndex].getAttribute('data-stock')) || 0;
+        const cantidad = parseInt(input.value) || 0;
+        const errorMsg = fila.querySelector('.stock-error');
+        const btnRegistrar = document.getElementById('btn-registrar');
+
+        if (cantidad > stockDisponible) {
+            input.classList.add('is-invalid');
+            errorMsg.classList.remove('d-none');
+            errorMsg.textContent = '⚠️ Stock disponible: ' + stockDisponible;
+            btnRegistrar.disabled = true;
+        } else {
+            input.classList.remove('is-invalid');
+            errorMsg.classList.add('d-none');
+            btnRegistrar.disabled = false;
+        }
+    }
+
+    // 2. CALCULAR TOTAL — descuento automático al escribir
     function calcularTotal() {
         let subtotalBruto = 0;
         const filas = document.querySelectorAll('.producto-fila');
@@ -187,6 +206,12 @@
         document.getElementById('txt-total').textContent =
             'S/ ' + total.toFixed(2);
 
+        // 3. MONTO RECIBIDO AUTOMÁTICO — se llena con el total
+        const formaPago = document.querySelector('select[name=formaPago]').value;
+        if (formaPago !== 'Efectivo') {
+            document.getElementById('montoRecibido').value = total.toFixed(2);
+        }
+
         calcularVuelto();
     }
 
@@ -202,20 +227,56 @@
             'S/ ' + (vuelto >= 0 ? vuelto.toFixed(2) : '0.00');
     }
 
+    // Maneja forma de pago: si no es efectivo, llena monto automático
+    function manejarFormaPago(select) {
+        const totalText = document.getElementById('txt-total')
+            .textContent.replace('S/ ', '');
+        const total = parseFloat(totalText) || 0;
+        const filaMonto = document.getElementById('fila-monto');
+        const montoInput = document.getElementById('montoRecibido');
+
+        if (select.value !== 'Efectivo') {
+            montoInput.value = total.toFixed(2);
+            filaMonto.style.opacity = '0.6';
+        } else {
+            filaMonto.style.opacity = '1';
+            montoInput.value = '0';
+        }
+        calcularVuelto();
+    }
+
     function agregarProducto() {
         const container = document.getElementById('productos-container');
         const fila = container.children[0].cloneNode(true);
-        fila.querySelectorAll('select').forEach(s => {
-            s.addEventListener('change', calcularTotal);
+        const nuevaInput = fila.querySelector('.cantidad-input');
+        nuevaInput.value = 1;
+
+        const select = fila.querySelector('select');
+        select.addEventListener('change', function () {
+            actualizarStock(this);
+            calcularTotal();
         });
-        fila.querySelectorAll('input').forEach(i => {
-            i.addEventListener('change', calcularTotal);
+        nuevaInput.addEventListener('input', function () {
+            validarStock(this);
+            calcularTotal();
         });
+
+        // Inicializar stock del primer producto clonado
+        const stockInicial = parseInt(
+            select.options[select.selectedIndex].getAttribute('data-stock')) || 0;
+        nuevaInput.max = stockInicial;
+
         container.appendChild(fila);
+        calcularTotal();
     }
 
-    // Calcular al cargar
-    window.onload = calcularTotal;
+    // Inicializar al cargar
+    window.onload = function () {
+        // Poner max stock en el primer select
+        const primerSelect = document.querySelector('.producto-fila select');
+        if (primerSelect) actualizarStock(primerSelect);
+        calcularTotal();
+    };
 </script>
 </body>
 </html>
