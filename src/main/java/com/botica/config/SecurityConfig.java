@@ -36,6 +36,7 @@ public class SecurityConfig {
                         // Solo ADMIN
                         .requestMatchers("/usuarios/**").hasRole("ADMIN")
                         .requestMatchers("/reportes/**").hasRole("ADMIN")
+                        .requestMatchers("/inventario/**").hasRole("ADMIN")
 
                         // ADMIN y ALMACENERO
                         .requestMatchers("/proveedores/**").hasAnyRole("ADMIN", "ALMACENERO")

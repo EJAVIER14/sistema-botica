@@ -34,7 +34,7 @@
 
                 <!-- ADMIN y ALMACENERO -->
                 <li class="nav-item"
-                    sec:authorize="hasAnyRole('ADMIN', 'ALMACENERO')">
+                    sec:authorize="hasAnyRole('ADMIN','ALMACENERO')">
                     <a class="nav-link" href="/proveedores">🚚 Proveedores</a>
                 </li>
 
@@ -46,6 +46,10 @@
                 <li class="nav-item"
                     sec:authorize="hasRole('ADMIN')">
                     <a class="nav-link" href="/reportes">📊 Reportes</a>
+                </li>
+                <li class="nav-item"
+                    sec:authorize="hasRole('ADMIN')">
+                    <a class="nav-link" href="/inventario">📋 Inventario</a>
                 </li>
 
             </ul>
