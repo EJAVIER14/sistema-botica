@@ -2,6 +2,7 @@ package com.botica.service;
 
 import com.botica.model.Producto;
 import com.botica.repository.ProductoRepository;
+import com.botica.service.MovimientoInventarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +14,9 @@ public class ProductoService {
 
     @Autowired
     private ProductoRepository repo;
+
+    @Autowired
+    private MovimientoInventarioService movimientoService;
 
     public List<Producto> listarTodos() {
         return repo.findAll();
@@ -36,5 +40,27 @@ public class ProductoService {
 
     public List<Producto> productosConStockBajo(Integer minimo) {
         return repo.findByStockLessThan(minimo);
+    }
+
+    // Registrar entrada de stock
+    public void registrarEntrada(Long productoId, Integer cantidad, String usuario) {
+        Producto producto = repo.findById(productoId).orElse(null);
+        if (producto == null) return;
+
+        int stockAnterior = producto.getStock();
+        int stockNuevo = stockAnterior + cantidad;
+
+        producto.setStock(stockNuevo);
+        repo.save(producto);
+
+        movimientoService.registrarMovimiento(
+                producto,
+                "ENTRADA",
+                cantidad,
+                stockAnterior,
+                stockNuevo,
+                "REABASTECIMIENTO",
+                usuario
+        );
     }
 }

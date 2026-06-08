@@ -15,8 +15,7 @@
         <h2 class="fw-bold text-success mb-0">
             📦 Productos
         </h2>
-        <a href="/productos/nuevo"
-           class="btn btn-success">
+        <a href="/productos/nuevo" class="btn btn-success">
             + Nuevo Producto
         </a>
     </div>
@@ -40,19 +39,23 @@
                     <td th:text="${producto.id}"></td>
                     <td th:text="${producto.nombre}"></td>
                     <td>
-                            <span class="badge bg-secondary"
-                                  th:text="${producto.categoria}">
-                            </span>
+                        <span class="badge bg-secondary"
+                              th:text="${producto.categoria}">
+                        </span>
                     </td>
                     <td th:text="'S/ ' + ${producto.precio}"></td>
                     <td>
-                            <span th:text="${producto.stock}"
-                                  th:class="${producto.stock < 10} ?
-                                  'badge bg-danger' : 'badge bg-success'">
-                            </span>
+                        <span th:text="${producto.stock}"
+                              th:class="${producto.stock < 10} ?
+                              'badge bg-danger' : 'badge bg-success'">
+                        </span>
                     </td>
                     <td th:text="${producto.fechaVencimiento}"></td>
                     <td>
+                        <a th:href="@{/productos/entrada/{id}(id=${producto.id})}"
+                           class="btn btn-success btn-sm me-1">
+                            ⬆️ Entrada
+                        </a>
                         <a th:href="@{/productos/editar/{id}(id=${producto.id})}"
                            class="btn btn-primary btn-sm me-1">
                             Editar
@@ -69,5 +72,7 @@
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
