@@ -28,6 +28,30 @@
                                    placeholder="Ej: Juan Pérez"/>
                         </div>
 
+                        <!-- DNI y RUC -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">DNI</label>
+                                <input type="text"
+                                       name="dni"
+                                       class="form-control"
+                                       placeholder="Ej: 12345678"
+                                       maxlength="8"
+                                       oninput="this.value=this.value.replace(/[^0-9]/g,'')"/>
+                                <small class="text-muted">Solo números, 8 dígitos</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">RUC <span class="text-muted fw-normal">(opcional)</span></label>
+                                <input type="text"
+                                       name="ruc"
+                                       class="form-control"
+                                       placeholder="Ej: 20512345678"
+                                       maxlength="11"
+                                       oninput="this.value=this.value.replace(/[^0-9]/g,'')"/>
+                                <small class="text-muted">Solo números, 11 dígitos</small>
+                            </div>
+                        </div>
+
                         <!-- Productos -->
                         <label class="form-label fw-bold">Productos</label>
                         <div id="productos-container">
@@ -50,7 +74,6 @@
                                            placeholder="Cantidad"
                                            min="1" value="1"
                                            oninput="validarStock(this); calcularTotal();"/>
-                                    <!-- Mensaje de error stock -->
                                     <small class="text-danger stock-error d-none">
                                         ⚠️ Stock insuficiente
                                     </small>
@@ -143,7 +166,6 @@
 </div>
 
 <script>
-    // 1. VALIDAR STOCK — bloquea si la cantidad supera el stock
     function actualizarStock(select) {
         const fila = select.closest('.producto-fila');
         const input = fila.querySelector('.cantidad-input');
@@ -174,7 +196,6 @@
         }
     }
 
-    // 2. CALCULAR TOTAL — descuento automático al escribir
     function calcularTotal() {
         let subtotalBruto = 0;
         const filas = document.querySelectorAll('.producto-fila');
@@ -206,7 +227,6 @@
         document.getElementById('txt-total').textContent =
             'S/ ' + total.toFixed(2);
 
-        // 3. MONTO RECIBIDO AUTOMÁTICO — se llena con el total
         const formaPago = document.querySelector('select[name=formaPago]').value;
         if (formaPago !== 'Efectivo') {
             document.getElementById('montoRecibido').value = total.toFixed(2);
@@ -227,7 +247,6 @@
             'S/ ' + (vuelto >= 0 ? vuelto.toFixed(2) : '0.00');
     }
 
-    // Maneja forma de pago: si no es efectivo, llena monto automático
     function manejarFormaPago(select) {
         const totalText = document.getElementById('txt-total')
             .textContent.replace('S/ ', '');
@@ -261,7 +280,6 @@
             calcularTotal();
         });
 
-        // Inicializar stock del primer producto clonado
         const stockInicial = parseInt(
             select.options[select.selectedIndex].getAttribute('data-stock')) || 0;
         nuevaInput.max = stockInicial;
@@ -270,9 +288,7 @@
         calcularTotal();
     }
 
-    // Inicializar al cargar
     window.onload = function () {
-        // Poner max stock en el primer select
         const primerSelect = document.querySelector('.producto-fila select');
         if (primerSelect) actualizarStock(primerSelect);
         calcularTotal();

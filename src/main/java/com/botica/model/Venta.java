@@ -18,6 +18,8 @@ public class Venta {
 
     private LocalDateTime fecha;
     private String cliente;
+    private String dni;
+    private String ruc;
     private String formaPago;
     private Double subtotal;
     private Double igv;
