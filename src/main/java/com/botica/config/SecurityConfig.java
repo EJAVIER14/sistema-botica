@@ -24,14 +24,28 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(
-            HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/css/**", "/setup")
-                        .permitAll()
+
+                        // Públicas
+                        .requestMatchers("/login", "/css/**", "/setup").permitAll()
+
+                        // Solo ADMIN
+                        .requestMatchers("/usuarios/**").hasRole("ADMIN")
+                        .requestMatchers("/reportes/**").hasRole("ADMIN")
+                        .requestMatchers("/proveedores/**").hasRole("ADMIN")
+                        .requestMatchers("/productos/nuevo").hasRole("ADMIN")
+                        .requestMatchers("/productos/editar/**").hasRole("ADMIN")
+                        .requestMatchers("/productos/eliminar/**").hasRole("ADMIN")
+
+                        // ADMIN y VENDEDOR
+                        .requestMatchers("/productos/**").hasAnyRole("ADMIN", "VENDEDOR")
+                        .requestMatchers("/ventas/**").hasAnyRole("ADMIN", "VENDEDOR")
+                        .requestMatchers("/alertas/**").hasAnyRole("ADMIN", "VENDEDOR")
+
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
@@ -44,23 +58,21 @@ public class SecurityConfig {
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login")
                         .permitAll()
+                )
+                .exceptionHandling(ex -> ex
+                        .accessDeniedPage("/acceso-denegado")
                 );
 
         return http.build();
     }
 
     @Bean
-    public AuthenticationManager authManager(
-            HttpSecurity http) throws Exception {
-
+    public AuthenticationManager authManager(HttpSecurity http) throws Exception {
         AuthenticationManagerBuilder builder =
-                http.getSharedObject(
-                        AuthenticationManagerBuilder.class);
-
+                http.getSharedObject(AuthenticationManagerBuilder.class);
         builder
                 .userDetailsService(userDetailsService)
                 .passwordEncoder(passwordEncoder());
-
         return builder.build();
     }
 }

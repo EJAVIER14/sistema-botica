@@ -12,11 +12,14 @@ public class LoginController {
     public String login(
             @RequestParam(required = false) String error,
             Model model) {
-
         if (error != null) {
-            model.addAttribute("error",
-                    "Usuario o contraseña incorrectos");
+            model.addAttribute("error", "Usuario o contraseña incorrectos");
         }
         return "login";
+    }
+
+    @GetMapping("/acceso-denegado")
+    public String accesoDenegado() {
+        return "acceso-denegado";
     }
 }
