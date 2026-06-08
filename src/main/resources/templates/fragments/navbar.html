@@ -5,65 +5,53 @@
 <nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark" style="background-color: #2E7D32;">
     <div class="container-fluid px-4">
 
-        <!-- Logo -->
         <a class="navbar-brand fw-bold" href="/">
             💊 Sistema Botica
         </a>
 
-        <!-- Botón móvil -->
         <button class="navbar-toggler" type="button"
                 data-bs-toggle="collapse"
                 data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
 
-        <!-- Links -->
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
 
-                <!-- ADMIN y VENDEDOR -->
+                <!-- TODOS -->
                 <li class="nav-item">
-                    <a class="nav-link" href="/productos">
-                        📦 Productos
-                    </a>
+                    <a class="nav-link" href="/productos">📦 Productos</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/ventas">
-                        🛒 Ventas
-                    </a>
+                    <a class="nav-link" href="/alertas">🔔 Alertas</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/alertas">
-                        🔔 Alertas
-                    </a>
+
+                <!-- ADMIN y CAJERO -->
+                <li class="nav-item"
+                    sec:authorize="hasAnyRole('ADMIN', 'CAJERO')">
+                    <a class="nav-link" href="/ventas">🛒 Ventas</a>
+                </li>
+
+                <!-- ADMIN y ALMACENERO -->
+                <li class="nav-item"
+                    sec:authorize="hasAnyRole('ADMIN', 'ALMACENERO')">
+                    <a class="nav-link" href="/proveedores">🚚 Proveedores</a>
                 </li>
 
                 <!-- Solo ADMIN -->
                 <li class="nav-item"
                     sec:authorize="hasRole('ADMIN')">
-                    <a class="nav-link" href="/proveedores">
-                        🚚 Proveedores
-                    </a>
+                    <a class="nav-link" href="/usuarios">👥 Usuarios</a>
                 </li>
                 <li class="nav-item"
                     sec:authorize="hasRole('ADMIN')">
-                    <a class="nav-link" href="/usuarios">
-                        👥 Usuarios
-                    </a>
-                </li>
-                <li class="nav-item"
-                    sec:authorize="hasRole('ADMIN')">
-                    <a class="nav-link" href="/reportes">
-                        📊 Reportes
-                    </a>
+                    <a class="nav-link" href="/reportes">📊 Reportes</a>
                 </li>
 
             </ul>
 
-            <!-- Cerrar sesión -->
             <form th:action="@{/logout}" method="post" class="d-flex">
-                <button type="submit"
-                        class="btn btn-outline-light btn-sm">
+                <button type="submit" class="btn btn-outline-light btn-sm">
                     🚪 Cerrar sesión
                 </button>
             </form>

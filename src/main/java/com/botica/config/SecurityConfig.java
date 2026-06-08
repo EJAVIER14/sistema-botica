@@ -36,15 +36,19 @@ public class SecurityConfig {
                         // Solo ADMIN
                         .requestMatchers("/usuarios/**").hasRole("ADMIN")
                         .requestMatchers("/reportes/**").hasRole("ADMIN")
-                        .requestMatchers("/proveedores/**").hasRole("ADMIN")
-                        .requestMatchers("/productos/nuevo").hasRole("ADMIN")
-                        .requestMatchers("/productos/editar/**").hasRole("ADMIN")
-                        .requestMatchers("/productos/eliminar/**").hasRole("ADMIN")
 
-                        // ADMIN y VENDEDOR
-                        .requestMatchers("/productos/**").hasAnyRole("ADMIN", "VENDEDOR")
-                        .requestMatchers("/ventas/**").hasAnyRole("ADMIN", "VENDEDOR")
-                        .requestMatchers("/alertas/**").hasAnyRole("ADMIN", "VENDEDOR")
+                        // ADMIN y ALMACENERO
+                        .requestMatchers("/proveedores/**").hasAnyRole("ADMIN", "ALMACENERO")
+                        .requestMatchers("/productos/nuevo").hasAnyRole("ADMIN", "ALMACENERO")
+                        .requestMatchers("/productos/editar/**").hasAnyRole("ADMIN", "ALMACENERO")
+                        .requestMatchers("/productos/eliminar/**").hasAnyRole("ADMIN", "ALMACENERO")
+
+                        // ADMIN, CAJERO y ALMACENERO
+                        .requestMatchers("/productos/**").hasAnyRole("ADMIN", "CAJERO", "ALMACENERO")
+                        .requestMatchers("/alertas/**").hasAnyRole("ADMIN", "CAJERO", "ALMACENERO")
+
+                        // ADMIN y CAJERO
+                        .requestMatchers("/ventas/**").hasAnyRole("ADMIN", "CAJERO")
 
                         .anyRequest().authenticated()
                 )
