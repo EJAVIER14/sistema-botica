@@ -40,6 +40,8 @@
                 <tr>
                     <th>ID</th>
                     <th>Cliente</th>
+                    <th>DNI</th>
+                    <th>RUC</th>
                     <th>Fecha</th>
                     <th>Total</th>
                     <th>Acciones</th>
@@ -49,6 +51,8 @@
                 <tr th:each="venta : ${ventas}">
                     <td th:text="${venta.id}"></td>
                     <td th:text="${venta.cliente}"></td>
+                    <td th:text="${venta.dni != null and venta.dni != '' ? venta.dni : '-'}"></td>
+                    <td th:text="${venta.ruc != null and venta.ruc != '' ? venta.ruc : '-'}"></td>
                     <td th:text="${#temporals.format(venta.fecha,'dd/MM/yyyy HH:mm')}"></td>
                     <td th:text="'S/ ' + ${venta.total}"></td>
                     <td>

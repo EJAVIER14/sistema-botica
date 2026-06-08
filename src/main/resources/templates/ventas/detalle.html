@@ -37,8 +37,7 @@
                         <p class="text-muted small mb-0"
                            th:text="'N° ' + ${venta.id}"></p>
                         <p class="text-muted small"
-                           th:text="${#temporals.format(
-                           venta.fecha,'dd/MM/yyyy HH:mm')}">
+                           th:text="${#temporals.format(venta.fecha,'dd/MM/yyyy HH:mm')}">
                         </p>
                     </div>
 
@@ -47,6 +46,16 @@
                         <p class="mb-1 small">
                             <strong>Cliente:</strong>
                             <span th:text="${venta.cliente}"></span>
+                        </p>
+                        <p class="mb-1 small"
+                           th:if="${venta.dni != null and venta.dni != ''}">
+                            <strong>DNI:</strong>
+                            <span th:text="${venta.dni}"></span>
+                        </p>
+                        <p class="mb-1 small"
+                           th:if="${venta.ruc != null and venta.ruc != ''}">
+                            <strong>RUC:</strong>
+                            <span th:text="${venta.ruc}"></span>
                         </p>
                         <p class="mb-0 small">
                             <strong>Forma de pago:</strong>
@@ -68,18 +77,10 @@
                         </thead>
                         <tbody>
                         <tr th:each="d : ${venta.detalles}">
-                            <td class="small"
-                                th:text="${d.producto.nombre}">
-                            </td>
-                            <td class="small text-center"
-                                th:text="${d.cantidad}">
-                            </td>
-                            <td class="small text-end"
-                                th:text="'S/ ' + ${d.precioUnitario}">
-                            </td>
-                            <td class="small text-end"
-                                th:text="'S/ ' + ${d.subtotal}">
-                            </td>
+                            <td class="small" th:text="${d.producto.nombre}"></td>
+                            <td class="small text-center" th:text="${d.cantidad}"></td>
+                            <td class="small text-end" th:text="'S/ ' + ${d.precioUnitario}"></td>
+                            <td class="small text-end" th:text="'S/ ' + ${d.subtotal}"></td>
                         </tr>
                         </tbody>
                     </table>
@@ -99,15 +100,12 @@
                          th:if="${venta.descuento > 0}">
                         <span>Descuento:</span>
                         <span class="text-danger"
-                              th:text="'- S/ ' + ${venta.descuento}">
-                        </span>
+                              th:text="'- S/ ' + ${venta.descuento}"></span>
                     </div>
                     <hr/>
                     <div class="d-flex justify-content-between fw-bold mb-1">
                         <span>TOTAL:</span>
-                        <span class="text-success"
-                              th:text="'S/ ' + ${venta.total}">
-                        </span>
+                        <span class="text-success" th:text="'S/ ' + ${venta.total}"></span>
                     </div>
                     <div class="d-flex justify-content-between small mb-1">
                         <span>Monto recibido:</span>
@@ -116,8 +114,7 @@
                     <div class="d-flex justify-content-between small">
                         <span>Vuelto:</span>
                         <span class="text-primary fw-bold"
-                              th:text="'S/ ' + ${venta.vuelto}">
-                        </span>
+                              th:text="'S/ ' + ${venta.vuelto}"></span>
                     </div>
 
                     <hr/>
@@ -133,8 +130,7 @@
                         class="btn btn-success">
                     🖨️ Imprimir Boleta
                 </button>
-                <a href="/ventas"
-                   class="btn btn-secondary">
+                <a href="/ventas" class="btn btn-secondary">
                     ← Volver
                 </a>
             </div>
