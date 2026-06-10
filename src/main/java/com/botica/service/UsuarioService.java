@@ -27,16 +27,13 @@ public class UsuarioService {
     }
 
     public Usuario guardar(Usuario u) {
-        // Encripta la contraseña antes de guardar
         u.setPassword(encoder.encode(u.getPassword()));
         u.setActivo(true);
         return repo.save(u);
     }
 
     public Usuario actualizar(Usuario u) {
-        // Al editar no se cambia la contraseña
-        Usuario existente = repo.findById(u.getId())
-                .orElse(null);
+        Usuario existente = repo.findById(u.getId()).orElse(null);
         if (existente != null) {
             existente.setNombre(u.getNombre());
             existente.setUsername(u.getUsername());
@@ -45,6 +42,21 @@ public class UsuarioService {
             return repo.save(existente);
         }
         return null;
+    }
+
+    // Cambiar contraseña de un usuario existente
+    public boolean cambiarPassword(Long id, String passwordActual, String passwordNueva) {
+        Usuario usuario = repo.findById(id).orElse(null);
+        if (usuario == null) return false;
+
+        // Verifica que la contraseña actual sea correcta
+        if (!encoder.matches(passwordActual, usuario.getPassword())) {
+            return false;
+        }
+
+        usuario.setPassword(encoder.encode(passwordNueva));
+        repo.save(usuario);
+        return true;
     }
 
     public void eliminar(Long id) {
