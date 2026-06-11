@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Sistema Botica</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <style>
         .card-stat { border-radius: 12px; border: none; }
         .tabla-ventas tr:hover { background: #f8f9fa; }
@@ -21,69 +21,43 @@
 
     <!-- Título -->
     <div class="mb-4">
-        <h2 class="fw-bold text-success mb-0">
-            📊 Resumen del Día
-        </h2>
+        <h2 class="fw-bold text-success mb-0">📊 Resumen del Día</h2>
         <p class="text-muted" id="fecha-hoy"></p>
     </div>
 
     <!-- Tarjetas resumen -->
     <div class="row g-3 mb-4">
-        <div class="col-md-3">
-            <div class="card card-stat shadow-sm
-                        border-start border-success border-4">
+        <div class="col-6 col-md-3">
+            <div class="card card-stat shadow-sm border-start border-success border-4">
                 <div class="card-body">
-                    <p class="text-muted small mb-1">
-                        Ingresos de hoy
-                    </p>
-                    <h3 class="fw-bold text-success mb-0"
-                        th:text="'S/ ' + ${totalHoy}">
-                    </h3>
+                    <p class="text-muted small mb-1">Ingresos de hoy</p>
+                    <h3 class="fw-bold text-success mb-0" th:text="'S/ ' + ${totalHoy}"></h3>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card card-stat shadow-sm
-                        border-start border-primary border-4">
+        <div class="col-6 col-md-3">
+            <div class="card card-stat shadow-sm border-start border-primary border-4">
                 <div class="card-body">
-                    <p class="text-muted small mb-1">
-                        Ventas realizadas hoy
-                    </p>
-                    <h3 class="fw-bold text-primary mb-0"
-                        th:text="${ventasHoy}">
-                    </h3>
+                    <p class="text-muted small mb-1">Ventas realizadas hoy</p>
+                    <h3 class="fw-bold text-primary mb-0" th:text="${ventasHoy}"></h3>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card card-stat shadow-sm
-                        border-start border-danger border-4">
+        <div class="col-6 col-md-3">
+            <div class="card card-stat shadow-sm border-start border-danger border-4">
                 <div class="card-body">
-                    <p class="text-muted small mb-1">
-                        Stock crítico
-                    </p>
-                    <h3 class="fw-bold text-danger mb-0"
-                        th:text="${stockCritico}">
-                    </h3>
-                    <small class="text-danger">
-                        Requieren reposición
-                    </small>
+                    <p class="text-muted small mb-1">Stock crítico</p>
+                    <h3 class="fw-bold text-danger mb-0" th:text="${stockCritico}"></h3>
+                    <small class="text-danger">Requieren reposición</small>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card card-stat shadow-sm
-                        border-start border-warning border-4">
+        <div class="col-6 col-md-3">
+            <div class="card card-stat shadow-sm border-start border-warning border-4">
                 <div class="card-body">
-                    <p class="text-muted small mb-1">
-                        Por vencer (30d)
-                    </p>
-                    <h3 class="fw-bold text-warning mb-0"
-                        th:text="${porVencer}">
-                    </h3>
-                    <small class="text-warning">
-                        Productos en alerta
-                    </small>
+                    <p class="text-muted small mb-1">Por vencer (30d)</p>
+                    <h3 class="fw-bold text-warning mb-0" th:text="${porVencer}"></h3>
+                    <small class="text-warning">Productos en alerta</small>
                 </div>
             </div>
         </div>
@@ -95,57 +69,32 @@
         <!-- Alertas activas -->
         <div class="col-md-6">
             <div class="card shadow-sm border-0 h-100">
-                <div class="card-header bg-white fw-bold
-                            border-bottom">
+                <div class="card-header bg-white fw-bold border-bottom">
                     🔔 Alertas Activas
-                    <a href="/alertas"
-                       class="float-end text-success
-                              text-decoration-none small">
-                        Ver todas →
-                    </a>
+                    <a href="/alertas" class="float-end text-success text-decoration-none small">Ver todas →</a>
                 </div>
                 <div class="card-body p-0">
                     <table class="table mb-0">
                         <tbody>
                         <tr th:each="p : ${alertasVencidos}">
-                            <td>
-                                    <span class="badge badge-vencido">
-                                        Vencido
-                                    </span>
-                            </td>
+                            <td><span class="badge badge-vencido">Vencido</span></td>
                             <td th:text="${p.nombre}"></td>
-                            <td class="text-muted small"
-                                th:text="${p.fechaVencimiento}">
-                            </td>
+                            <td class="text-muted small" th:text="${p.fechaVencimiento}"></td>
                         </tr>
                         <tr th:each="p : ${alertasStock}">
-                            <td>
-                                    <span class="badge badge-stock">
-                                        Stock mín.
-                                    </span>
-                            </td>
+                            <td><span class="badge badge-stock">Stock mín.</span></td>
                             <td th:text="${p.nombre}"></td>
-                            <td class="text-muted small"
-                                th:text="${p.stock} + ' unid.'">
-                            </td>
+                            <td class="text-muted small" th:text="${p.stock} + ' unid.'"></td>
                         </tr>
                         <tr th:each="p : ${alertasVencimiento}">
-                            <td>
-                                    <span class="badge badge-dias">
-                                        30 días
-                                    </span>
-                            </td>
+                            <td><span class="badge badge-dias">30 días</span></td>
                             <td th:text="${p.nombre}"></td>
-                            <td class="text-muted small"
-                                th:text="'Vence ' + ${p.fechaVencimiento}">
-                            </td>
+                            <td class="text-muted small" th:text="'Vence ' + ${p.fechaVencimiento}"></td>
                         </tr>
                         </tbody>
                     </table>
                     <div class="p-3 text-success text-center"
-                         th:if="${#lists.isEmpty(alertasVencidos)}
-                         and ${#lists.isEmpty(alertasStock)}
-                         and ${#lists.isEmpty(alertasVencimiento)}">
+                         th:if="${#lists.isEmpty(alertasVencidos)} and ${#lists.isEmpty(alertasStock)} and ${#lists.isEmpty(alertasVencimiento)}">
                         ✅ No hay alertas activas
                     </div>
                 </div>
@@ -155,36 +104,22 @@
         <!-- Últimas ventas -->
         <div class="col-md-6">
             <div class="card shadow-sm border-0 h-100">
-                <div class="card-header bg-white fw-bold
-                            border-bottom">
+                <div class="card-header bg-white fw-bold border-bottom">
                     🛒 Últimas Ventas
-                    <a href="/ventas"
-                       class="float-end text-success
-                              text-decoration-none small">
-                        Ver todas →
-                    </a>
+                    <a href="/ventas" class="float-end text-success text-decoration-none small">Ver todas →</a>
                 </div>
                 <div class="card-body p-0">
                     <table class="table tabla-ventas mb-0">
                         <tbody>
                         <tr th:each="v : ${ultimasVentas}">
-                            <td>
-                                    <span class="text-muted small"
-                                          th:text="${#temporals.format(
-                                          v.fecha,'HH:mm')}">
-                                    </span>
-                            </td>
-                            <td th:text="'Venta #' + ${v.id}">
-                            </td>
+                            <td><span class="text-muted small" th:text="${#temporals.format(v.fecha,'HH:mm')}"></span></td>
+                            <td th:text="'Venta #' + ${v.id}"></td>
                             <td th:text="${v.cliente}"></td>
-                            <td class="text-success fw-bold"
-                                th:text="'S/ ' + ${v.total}">
-                            </td>
+                            <td class="text-success fw-bold" th:text="'S/ ' + ${v.total}"></td>
                         </tr>
                         </tbody>
                     </table>
-                    <div class="p-3 text-muted text-center"
-                         th:if="${#lists.isEmpty(ultimasVentas)}">
+                    <div class="p-3 text-muted text-center" th:if="${#lists.isEmpty(ultimasVentas)}">
                         No hay ventas registradas
                     </div>
                 </div>
@@ -195,65 +130,51 @@
     <!-- Accesos rápidos -->
     <div class="row g-3">
         <div class="col-12">
-            <h5 class="fw-bold text-muted">
-                Accesos Rápidos
-            </h5>
+            <h5 class="fw-bold text-muted">Accesos Rápidos</h5>
         </div>
-        <div class="col-md-2">
-            <a href="/productos"
-               class="text-decoration-none">
-                <div class="card shadow-sm border-0
-                            text-center p-3">
+        <div class="col-4 col-md-2">
+            <a href="/productos" class="text-decoration-none">
+                <div class="card shadow-sm border-0 text-center p-3">
                     <div class="fs-2">📦</div>
                     <small class="fw-bold">Productos</small>
                 </div>
             </a>
         </div>
-        <div class="col-md-2">
-            <a href="/ventas/nueva"
-               class="text-decoration-none">
-                <div class="card shadow-sm border-0
-                            text-center p-3">
+        <div class="col-4 col-md-2">
+            <a href="/ventas/nueva" class="text-decoration-none">
+                <div class="card shadow-sm border-0 text-center p-3">
                     <div class="fs-2">🛒</div>
                     <small class="fw-bold">Nueva Venta</small>
                 </div>
             </a>
         </div>
-        <div class="col-md-2">
-            <a href="/proveedores"
-               class="text-decoration-none">
-                <div class="card shadow-sm border-0
-                            text-center p-3">
+        <div class="col-4 col-md-2">
+            <a href="/proveedores" class="text-decoration-none">
+                <div class="card shadow-sm border-0 text-center p-3">
                     <div class="fs-2">🚚</div>
                     <small class="fw-bold">Proveedores</small>
                 </div>
             </a>
         </div>
-        <div class="col-md-2">
-            <a href="/usuarios"
-               class="text-decoration-none">
-                <div class="card shadow-sm border-0
-                            text-center p-3">
+        <div class="col-4 col-md-2">
+            <a href="/usuarios" class="text-decoration-none">
+                <div class="card shadow-sm border-0 text-center p-3">
                     <div class="fs-2">👥</div>
                     <small class="fw-bold">Usuarios</small>
                 </div>
             </a>
         </div>
-        <div class="col-md-2">
-            <a href="/alertas"
-               class="text-decoration-none">
-                <div class="card shadow-sm border-0
-                            text-center p-3">
+        <div class="col-4 col-md-2">
+            <a href="/alertas" class="text-decoration-none">
+                <div class="card shadow-sm border-0 text-center p-3">
                     <div class="fs-2">🔔</div>
                     <small class="fw-bold">Alertas</small>
                 </div>
             </a>
         </div>
-        <div class="col-md-2">
-            <a href="/reportes"
-               class="text-decoration-none">
-                <div class="card shadow-sm border-0
-                            text-center p-3">
+        <div class="col-4 col-md-2">
+            <a href="/reportes" class="text-decoration-none">
+                <div class="card shadow-sm border-0 text-center p-3">
                     <div class="fs-2">📊</div>
                     <small class="fw-bold">Reportes</small>
                 </div>
@@ -264,11 +185,12 @@
 
 <script>
     const fecha = new Date();
-    const opciones = { weekday: 'long', year: 'numeric',
-        month: 'long', day: 'numeric' };
+    const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     document.getElementById('fecha-hoy').textContent =
-        fecha.toLocaleDateString('es-PE', opciones)
-            .toUpperCase();
+        fecha.toLocaleDateString('es-PE', opciones).toUpperCase();
 </script>
+
+<!-- Bootstrap JS al final -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmB0LKZG2iHKDCu3v7oUSMrRBGE" crossorigin="anonymous"></script>
 </body>
 </html>
