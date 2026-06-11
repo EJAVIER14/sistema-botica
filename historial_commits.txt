@@ -1,0 +1,32 @@
+ab41d77 feat: mostrar ocultar contraseña en formulario
+67eed49 feat: cambiar contraseña de usuarios
+eb36e1f feat: agregar template entrada.html
+84ae19f feat: registrar entrada de stock en inventario
+9bb0958 feat: historial de movimientos de inventario
+a28a412 feat: agregar DNI y RUC en lista y detalle de ventas
+9bfa38c feat: agregar DNI y RUC en formulario de ventas
+a80036c feat: permisos para roles ADMIN, CAJERO y ALMACENERO
+be98caf feat: permisos por rol ADMIN y VENDEDOR
+10d9459 feat: validar stock, descuento y monto automatico en ventas
+c853cdb feat: alerta visual de stock bajo en ventas
+a20d52f feat: alerta de stock bajo al registrar venta
+8a4b40b Adjust column widths in ReporteController
+a9bc470 Add CRUD operations for Proveedor entity
+2e41baa Refactor ProveedorController to use service variable
+c8b1d66 Refactor ReporteController to ProveedorController
+6c44eae Update ReporteController.java
+39cbaf4 Refactor ProveedorController to handle reports
+e742c1c feat: exportar reportes a PDF y Excel
+4cfdbc0 fix: corregir aplication.properties
+f19237e agregar igv descuento forma pago y boleta
+8f5f504 fix lista detalles venta
+4fed5e6 deshabilitar csrf
+1dbaa0d dashboard con resumen del dia
+1bcff33 bootstrap en formulario usuarios
+c158ca3 eliminar endpoint setup por seguridad
+8ccae7a permitir acceso a setup
+2aac3fd endpoint crear admin
+0c64530 configuracion para Railway
+7bb9010 diseño Bootstrap agregado
+41abc99 agregado modulo login
+48bd2b9 primer commit - sistema botica completo
