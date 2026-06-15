@@ -18,7 +18,11 @@ public class OrdenEntrada {
 
     private LocalDateTime fecha;
     private String observacion;
-    private String estado; // PENDIENTE, RECIBIDO
+    private String estado;
+
+    // Archivos adjuntos
+    private String fotoNombre;
+    private String documentoNombre;
 
     @ManyToOne
     @JoinColumn(name = "proveedor_id")

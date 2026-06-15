@@ -16,7 +16,11 @@
                     <h5 class="mb-0">📦 Nueva Orden de Entrada</h5>
                 </div>
                 <div class="card-body p-4">
-                    <form action="/inventario/orden/guardar" method="post">
+
+                    <!-- enctype multipart para subir archivos -->
+                    <form action="/inventario/orden/guardar"
+                          method="post"
+                          enctype="multipart/form-data">
 
                         <!-- Proveedor -->
                         <div class="mb-3">
@@ -46,7 +50,7 @@
                                     <select name="productoIds" class="form-select">
                                         <option th:each="p : ${productos}"
                                                 th:value="${p.id}"
-                                                th:text="${p.nombre} + ' (Stock actual: ' + ${p.stock} + ')'">
+                                                th:text="${p.nombre} + ' (Stock: ' + ${p.stock} + ')'">
                                         </option>
                                     </select>
                                 </div>
@@ -63,6 +67,34 @@
                                 onclick="agregarProducto()">
                             + Agregar otro producto
                         </button>
+
+                        <hr/>
+
+                        <!-- Foto de mercadería -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                📷 Foto de la mercadería
+                            </label>
+                            <input type="file" name="foto"
+                                   class="form-control"
+                                   accept="image/jpeg,image/png,image/jpg"/>
+                            <div class="form-text">
+                                Formatos permitidos: JPG, PNG. Máx. 5MB
+                            </div>
+                        </div>
+
+                        <!-- Documento / Factura -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                📄 Documento / Factura del proveedor
+                            </label>
+                            <input type="file" name="documento"
+                                   class="form-control"
+                                   accept="application/pdf"/>
+                            <div class="form-text">
+                                Solo PDF. Máx. 5MB
+                            </div>
+                        </div>
 
                         <hr/>
 
@@ -85,8 +117,7 @@
     function agregarProducto() {
         const container = document.getElementById('productos-container');
         const fila = container.children[0].cloneNode(true);
-        const input = fila.querySelector('input[type=number]');
-        input.value = 1;
+        fila.querySelector('input[type=number]').value = 1;
         container.appendChild(fila);
     }
 </script>
