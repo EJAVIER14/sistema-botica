@@ -9,7 +9,73 @@
 <body class="bg-light">
 <nav th:replace="~{fragments/navbar :: navbar}"></nav>
 <div class="container-fluid py-4 px-3">
-    <h2 class="fw-bold text-success mb-4">📋 Historial de Movimientos</h2>
+
+    <!-- Alerta éxito -->
+    <div th:if="${exito}" class="alert alert-success alert-dismissible fade show" role="alert">
+        ✅ <span th:text="${exito}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Encabezado -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-success mb-0">📋 Inventario</h2>
+        <a href="/inventario/orden/nueva" class="btn btn-success btn-sm">
+            + Nueva Orden de Entrada
+        </a>
+    </div>
+
+    <!-- ÓRDENES DE ENTRADA -->
+    <h5 class="fw-bold text-muted mb-3">📦 Órdenes de Entrada</h5>
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-success">
+                    <tr>
+                        <th>ID</th>
+                        <th>Fecha</th>
+                        <th>Proveedor</th>
+                        <th>Observación</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="orden : ${ordenes}">
+                        <td th:text="${orden.id}"></td>
+                        <td th:text="${#temporals.format(orden.fecha,'dd/MM/yyyy HH:mm')}"></td>
+                        <td th:text="${orden.proveedor != null ? orden.proveedor.nombre : '-'}"></td>
+                        <td th:text="${orden.observacion}"></td>
+                        <td>
+                            <span th:if="${orden.estado == 'PENDIENTE'}"
+                                  class="badge bg-warning text-dark">⏳ PENDIENTE</span>
+                            <span th:if="${orden.estado == 'RECIBIDO'}"
+                                  class="badge bg-success">✅ RECIBIDO</span>
+                        </td>
+                        <td>
+                            <form th:if="${orden.estado == 'PENDIENTE'}"
+                                  th:action="@{/inventario/orden/recibir/{id}(id=${orden.id})}"
+                                  method="post" style="display:inline;">
+                                <button type="submit" class="btn btn-success btn-sm"
+                                        onclick="return confirm('¿Confirmar recepción de esta orden?')">
+                                    ✅ Recibir
+                                </button>
+                            </form>
+                            <span th:if="${orden.estado == 'RECIBIDO'}"
+                                  class="text-muted small">Completada</span>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(ordenes)}">
+                        <td colspan="6" class="text-center text-muted py-3">No hay órdenes registradas</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- HISTORIAL DE MOVIMIENTOS -->
+    <h5 class="fw-bold text-muted mb-3">🔄 Historial de Movimientos</h5>
     <div class="card shadow-sm border-0">
         <div class="card-body p-0">
             <div class="table-responsive">
