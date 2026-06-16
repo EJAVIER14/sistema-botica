@@ -6,288 +6,299 @@
     <title>Nueva Venta</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .producto-sugerencias {
-            position: absolute;
-            z-index: 1000;
-            width: 100%;
-            max-height: 200px;
-            overflow-y: auto;
-            border: 1px solid #dee2e6;
-            border-radius: 0 0 8px 8px;
-            background: white;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        .sugerencia-item {
-            padding: 8px 12px;
+        .producto-card {
             cursor: pointer;
-            border-bottom: 1px solid #f0f0f0;
-            font-size: 14px;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.2s;
         }
-        .sugerencia-item:hover { background: #e8f5e9; }
-        .producto-busqueda { position: relative; }
+        .producto-card:hover {
+            border-color: #2E7D32;
+            background: #e8f5e9;
+            transform: translateY(-2px);
+        }
+        .carrito-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 8px;
+        }
+        .panel-izquierdo {
+            height: calc(100vh - 80px);
+            overflow-y: auto;
+        }
+        .panel-derecho {
+            height: calc(100vh - 80px);
+            overflow-y: auto;
+            background: white;
+            border-left: 2px solid #e0e0e0;
+            padding: 16px;
+        }
+        .badge-stock-bajo { background-color: #ff9800; }
+        .btn-cantidad {
+            width: 28px; height: 28px;
+            padding: 0;
+            font-size: 16px;
+            line-height: 1;
+        }
     </style>
 </head>
 <body class="bg-light">
 
 <nav th:replace="~{fragments/navbar :: navbar}"></nav>
 
-<div class="container py-4">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">🛒 Nueva Venta</h5>
+<!-- Datos de productos -->
+<script th:inline="javascript">
+    const todosProductos = /*[[${productos}]]*/ [];
+</script>
+
+<div class="container-fluid px-0">
+    <div class="row g-0">
+
+        <!-- ═══ PANEL IZQUIERDO — Buscador y productos ═══ -->
+        <div class="col-md-7 panel-izquierdo p-3">
+            <h5 class="fw-bold text-success mb-3">🛒 Nueva Venta</h5>
+
+            <!-- Buscador -->
+            <div class="input-group mb-3">
+                <span class="input-group-text bg-success text-white">🔍</span>
+                <input type="text" id="buscador" class="form-control form-control-lg"
+                       placeholder="Buscar producto por nombre..."
+                       oninput="filtrarProductos(this.value)"
+                       autocomplete="off"/>
+            </div>
+
+            <!-- Grid de productos -->
+            <div class="row g-2" id="grid-productos">
+                <!-- Se llena dinámicamente -->
+            </div>
+        </div>
+
+        <!-- ═══ PANEL DERECHO — Carrito y cobro ═══ -->
+        <div class="col-md-5 panel-derecho">
+
+            <!-- Formulario oculto que se envía -->
+            <form action="/ventas/guardar" method="post" id="formVenta">
+                <input type="hidden" name="cliente" id="h-cliente"/>
+                <input type="hidden" name="dni" id="h-dni"/>
+                <input type="hidden" name="ruc" id="h-ruc"/>
+                <input type="hidden" name="descuento" id="h-descuento" value="0"/>
+                <input type="hidden" name="formaPago" id="h-formaPago" value="Efectivo"/>
+                <input type="hidden" name="montoRecibido" id="h-montoRecibido" value="0"/>
+                <div id="hidden-productos"></div>
+            </form>
+
+            <!-- Cliente -->
+            <h6 class="fw-bold text-muted mb-2">👤 Datos del cliente</h6>
+            <input type="text" id="cliente" class="form-control form-control-sm mb-2"
+                   placeholder="Nombre del cliente" oninput="document.getElementById('h-cliente').value=this.value"/>
+            <div class="row g-2 mb-3">
+                <div class="col-6">
+                    <input type="text" id="dni" class="form-control form-control-sm"
+                           placeholder="DNI (8 dígitos)" maxlength="8"
+                           oninput="this.value=this.value.replace(/[^0-9]/g,''); document.getElementById('h-dni').value=this.value"/>
                 </div>
-                <div class="card-body p-4">
-                    <form action="/ventas/guardar" method="post" id="formVenta">
-
-                        <!-- Cliente -->
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Nombre del cliente</label>
-                            <input type="text" name="cliente" class="form-control" placeholder="Ej: Juan Pérez"/>
-                        </div>
-
-                        <!-- DNI y RUC -->
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">DNI</label>
-                                <input type="text" name="dni" class="form-control"
-                                       placeholder="Ej: 12345678" maxlength="8"
-                                       oninput="this.value=this.value.replace(/[^0-9]/g,'')"/>
-                                <small class="text-muted">Solo números, 8 dígitos</small>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">RUC <span class="text-muted fw-normal">(opcional)</span></label>
-                                <input type="text" name="ruc" class="form-control"
-                                       placeholder="Ej: 20512345678" maxlength="11"
-                                       oninput="this.value=this.value.replace(/[^0-9]/g,'')"/>
-                                <small class="text-muted">Solo números, 11 dígitos</small>
-                            </div>
-                        </div>
-
-                        <!-- Datos de productos en JSON para búsqueda -->
-                        <script th:inline="javascript">
-                            const todosProductos = /*[[${productos}]]*/ [];
-                        </script>
-
-                        <!-- Productos -->
-                        <label class="form-label fw-bold">Productos</label>
-                        <div id="productos-container"></div>
-
-                        <button type="button" class="btn btn-warning btn-sm mb-3" onclick="agregarFila()">
-                            + Agregar otro producto
-                        </button>
-
-                        <hr/>
-
-                        <!-- Descuento y forma de pago -->
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Descuento (S/)</label>
-                                <input type="number" name="descuento" id="descuento"
-                                       class="form-control" step="0.01" value="0"
-                                       oninput="calcularTotal()"/>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Forma de pago</label>
-                                <select name="formaPago" class="form-select" onchange="manejarFormaPago(this)">
-                                    <option value="Efectivo">💵 Efectivo</option>
-                                    <option value="Tarjeta">💳 Tarjeta</option>
-                                    <option value="Yape/Plin">📱 Yape/Plin</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Monto recibido -->
-                        <div class="mb-3" id="fila-monto">
-                            <label class="form-label fw-bold">Monto recibido (S/)</label>
-                            <input type="number" name="montoRecibido" id="montoRecibido"
-                                   class="form-control" step="0.01" value="0"
-                                   oninput="calcularVuelto()"/>
-                        </div>
-
-                        <!-- Resumen -->
-                        <div class="card bg-light border-0 p-3 mb-3">
-                            <div class="d-flex justify-content-between mb-1">
-                                <span class="text-muted">Subtotal (sin IGV):</span>
-                                <span id="txt-subtotal" class="fw-bold">S/ 0.00</span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-1">
-                                <span class="text-muted">IGV (18%):</span>
-                                <span id="txt-igv" class="fw-bold">S/ 0.00</span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-1">
-                                <span class="text-muted">Descuento:</span>
-                                <span id="txt-descuento" class="fw-bold text-danger">- S/ 0.00</span>
-                            </div>
-                            <hr class="my-1"/>
-                            <div class="d-flex justify-content-between mb-1">
-                                <span class="fw-bold fs-5">Total:</span>
-                                <span id="txt-total" class="fw-bold fs-5 text-success">S/ 0.00</span>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <span class="text-muted">Vuelto:</span>
-                                <span id="txt-vuelto" class="fw-bold text-primary">S/ 0.00</span>
-                            </div>
-                        </div>
-
-                        <div class="d-flex gap-2">
-                            <button type="submit" id="btn-registrar" class="btn btn-success btn-lg">
-                                ✅ Registrar Venta
-                            </button>
-                            <a href="/ventas" class="btn btn-secondary btn-lg">Cancelar</a>
-                        </div>
-                    </form>
+                <div class="col-6">
+                    <input type="text" id="ruc" class="form-control form-control-sm"
+                           placeholder="RUC (opcional)" maxlength="11"
+                           oninput="this.value=this.value.replace(/[^0-9]/g,''); document.getElementById('h-ruc').value=this.value"/>
                 </div>
+            </div>
+
+            <hr/>
+
+            <!-- Carrito -->
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="fw-bold mb-0">🧺 Carrito</h6>
+                <span class="badge bg-success" id="total-items">0 items</span>
+            </div>
+
+            <div id="carrito-items">
+                <div class="text-muted text-center py-3 small" id="carrito-vacio">
+                    Selecciona productos del panel izquierdo
+                </div>
+            </div>
+
+            <hr/>
+
+            <!-- Descuento -->
+            <div class="row g-2 mb-2">
+                <div class="col-6">
+                    <label class="form-label small fw-bold">Descuento (S/)</label>
+                    <input type="number" id="descuento" class="form-control form-control-sm"
+                           value="0" step="0.01" min="0"
+                           oninput="document.getElementById('h-descuento').value=this.value; calcularTotal()"/>
+                </div>
+                <div class="col-6">
+                    <label class="form-label small fw-bold">Forma de pago</label>
+                    <div class="d-flex gap-1">
+                        <button type="button" class="btn btn-success btn-sm flex-fill pago-btn active"
+                                onclick="setPago('Efectivo', this)">💵</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm flex-fill pago-btn"
+                                onclick="setPago('Tarjeta', this)">💳</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm flex-fill pago-btn"
+                                onclick="setPago('Yape/Plin', this)">📱</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monto recibido -->
+            <div class="mb-2">
+                <label class="form-label small fw-bold">Monto recibido (S/)</label>
+                <input type="number" id="montoRecibido" class="form-control form-control-sm"
+                       value="0" step="0.01"
+                       oninput="document.getElementById('h-montoRecibido').value=this.value; calcularVuelto()"/>
+            </div>
+
+            <!-- Totales -->
+            <div class="bg-light rounded p-3 mb-3">
+                <div class="d-flex justify-content-between small mb-1">
+                    <span class="text-muted">Subtotal (sin IGV):</span>
+                    <span id="txt-subtotal" class="fw-bold">S/ 0.00</span>
+                </div>
+                <div class="d-flex justify-content-between small mb-1">
+                    <span class="text-muted">IGV (18%):</span>
+                    <span id="txt-igv" class="fw-bold">S/ 0.00</span>
+                </div>
+                <div class="d-flex justify-content-between small mb-1">
+                    <span class="text-muted">Descuento:</span>
+                    <span id="txt-descuento" class="fw-bold text-danger">- S/ 0.00</span>
+                </div>
+                <hr class="my-1"/>
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="fw-bold">Total:</span>
+                    <span id="txt-total" class="fw-bold fs-5 text-success">S/ 0.00</span>
+                </div>
+                <div class="d-flex justify-content-between small">
+                    <span class="text-muted">Vuelto:</span>
+                    <span id="txt-vuelto" class="fw-bold text-primary">S/ 0.00</span>
+                </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="d-grid gap-2">
+                <button type="button" class="btn btn-success btn-lg"
+                        onclick="registrarVenta()">
+                    ✅ Cobrar y registrar venta
+                </button>
+                <a href="/ventas" class="btn btn-outline-secondary">Cancelar</a>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // Campos ocultos para enviar al servidor
-    let productosSeleccionados = [];
+    let carrito = {}; // { id: { nombre, precio, stock, cantidad } }
 
-    function agregarFila(productoInicial = null) {
-        const container = document.getElementById('productos-container');
-        const index = container.children.length;
-
-        const fila = document.createElement('div');
-        fila.className = 'producto-fila mb-3 p-3 border rounded bg-white';
-        fila.innerHTML = `
-            <div class="row align-items-start g-2">
-                <div class="col-md-6">
-                    <label class="form-label small fw-bold text-muted">🔍 Buscar producto</label>
-                    <div class="producto-busqueda">
-                        <input type="text"
-                               class="form-control busqueda-input"
-                               placeholder="Escribe el nombre del producto..."
-                               autocomplete="off"
-                               oninput="buscarProducto(this)"/>
-                        <div class="producto-sugerencias d-none"></div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label small fw-bold text-muted">Cantidad</label>
-                    <input type="number" name="cantidades"
-                           class="form-control cantidad-input"
-                           min="1" value="1"
-                           oninput="validarStock(this); calcularTotal();"
-                           disabled/>
-                    <small class="text-danger stock-error d-none">⚠️ Stock insuficiente</small>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label small fw-bold text-muted">Precio</label>
-                    <input type="text" class="form-control precio-display bg-light" readonly placeholder="S/ 0.00"/>
-                </div>
-                <div class="col-md-1 d-flex align-items-end">
-                    <button type="button" class="btn btn-outline-danger btn-sm"
-                            onclick="eliminarFila(this)" title="Eliminar">🗑️</button>
-                </div>
-            </div>
-            <div class="mt-2">
-                <span class="producto-info text-muted small"></span>
-            </div>
-            <input type="hidden" name="productoIds" value="" class="producto-id-hidden"/>
-        `;
-
-        container.appendChild(fila);
-        calcularTotal();
-    }
-
-    function buscarProducto(input) {
-        const fila = input.closest('.producto-fila');
-        const sugerencias = fila.querySelector('.producto-sugerencias');
-        const texto = input.value.toLowerCase().trim();
-
-        if (texto.length < 1) {
-            sugerencias.classList.add('d-none');
+    // Renderizar grid de productos
+    function renderizarProductos(lista) {
+        const grid = document.getElementById('grid-productos');
+        if (lista.length === 0) {
+            grid.innerHTML = '<div class="col-12 text-muted text-center py-4">No se encontraron productos</div>';
             return;
         }
-
-        const productos = todosProductos.filter(p =>
-            p.nombre.toLowerCase().includes(texto)
-        );
-
-        if (productos.length === 0) {
-            sugerencias.innerHTML = '<div class="sugerencia-item text-muted">No se encontraron productos</div>';
-            sugerencias.classList.remove('d-none');
-            return;
-        }
-
-        sugerencias.innerHTML = productos.map(p => `
-            <div class="sugerencia-item"
-                 onclick="seleccionarProducto(this, ${p.id}, '${p.nombre}', ${p.precio}, ${p.stock})">
-                <strong>${p.nombre}</strong>
-                <span class="float-end">
-                    <span class="badge ${p.stock < 10 ? 'bg-danger' : 'bg-success'}">
+        grid.innerHTML = lista.map(p => `
+            <div class="col-6 col-lg-4">
+                <div class="producto-card p-2 text-center" onclick="agregarAlCarrito(${p.id}, '${p.nombre}', ${p.precio}, ${p.stock})">
+                    <div class="fs-3 mb-1">💊</div>
+                    <div class="fw-bold small">${p.nombre}</div>
+                    <div class="text-success fw-bold">S/ ${p.precio.toFixed(2)}</div>
+                    <span class="badge ${p.stock < 10 ? 'bg-warning text-dark' : 'bg-success'} mt-1">
                         Stock: ${p.stock}
                     </span>
-                    <span class="text-success fw-bold ms-2">S/ ${p.precio}</span>
-                </span>
+                </div>
             </div>
         `).join('');
-
-        sugerencias.classList.remove('d-none');
     }
 
-    function seleccionarProducto(el, id, nombre, precio, stock) {
-        const fila = el.closest('.producto-fila');
-        const sugerencias = fila.querySelector('.producto-sugerencias');
-        const busquedaInput = fila.querySelector('.busqueda-input');
-        const cantidadInput = fila.querySelector('.cantidad-input');
-        const precioDisplay = fila.querySelector('.precio-display');
-        const productoInfo = fila.querySelector('.producto-info');
-        const hiddenId = fila.querySelector('.producto-id-hidden');
+    function filtrarProductos(texto) {
+        const filtrados = todosProductos.filter(p =>
+            p.nombre.toLowerCase().includes(texto.toLowerCase())
+        );
+        renderizarProductos(filtrados);
+    }
 
-        busquedaInput.value = nombre;
-        hiddenId.value = id;
-        cantidadInput.max = stock;
-        cantidadInput.disabled = false;
-        cantidadInput.value = 1;
-        precioDisplay.value = 'S/ ' + precio.toFixed(2);
-        productoInfo.innerHTML = `✅ <strong>${nombre}</strong> — Stock disponible: <strong>${stock}</strong> unidades`;
-
-        // Guardar datos en dataset
-        cantidadInput.dataset.precio = precio;
-        cantidadInput.dataset.stock = stock;
-
-        sugerencias.classList.add('d-none');
+    function agregarAlCarrito(id, nombre, precio, stock) {
+        if (stock <= 0) {
+            alert('⚠️ ' + nombre + ' no tiene stock disponible');
+            return;
+        }
+        if (carrito[id]) {
+            if (carrito[id].cantidad >= stock) {
+                alert('⚠️ Stock máximo alcanzado: ' + stock + ' unidades');
+                return;
+            }
+            carrito[id].cantidad++;
+        } else {
+            carrito[id] = { nombre, precio, stock, cantidad: 1 };
+        }
+        renderizarCarrito();
         calcularTotal();
     }
 
-    function eliminarFila(btn) {
-        const container = document.getElementById('productos-container');
-        if (container.children.length > 1) {
-            btn.closest('.producto-fila').remove();
-            calcularTotal();
+    function cambiarCantidad(id, delta) {
+        if (!carrito[id]) return;
+        carrito[id].cantidad += delta;
+        if (carrito[id].cantidad <= 0) {
+            delete carrito[id];
+        } else if (carrito[id].cantidad > carrito[id].stock) {
+            carrito[id].cantidad = carrito[id].stock;
         }
+        renderizarCarrito();
+        calcularTotal();
     }
 
-    function validarStock(input) {
-        const stock = parseInt(input.dataset.stock) || 0;
-        const cantidad = parseInt(input.value) || 0;
-        const errorMsg = input.closest('.producto-fila').querySelector('.stock-error');
-        const btnRegistrar = document.getElementById('btn-registrar');
+    function eliminarDelCarrito(id) {
+        delete carrito[id];
+        renderizarCarrito();
+        calcularTotal();
+    }
 
-        if (cantidad > stock) {
-            input.classList.add('is-invalid');
-            errorMsg.classList.remove('d-none');
-            errorMsg.textContent = '⚠️ Stock disponible: ' + stock;
-            btnRegistrar.disabled = true;
-        } else {
-            input.classList.remove('is-invalid');
-            errorMsg.classList.add('d-none');
-            btnRegistrar.disabled = false;
+    function renderizarCarrito() {
+        const container = document.getElementById('carrito-items');
+        const vacio = document.getElementById('carrito-vacio');
+        const ids = Object.keys(carrito);
+
+        if (ids.length === 0) {
+            container.innerHTML = '<div class="text-muted text-center py-3 small">Selecciona productos del panel izquierdo</div>';
+            document.getElementById('total-items').textContent = '0 items';
+            return;
         }
+
+        document.getElementById('total-items').textContent = ids.length + ' items';
+        container.innerHTML = ids.map(id => {
+            const item = carrito[id];
+            return `
+                <div class="carrito-item">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="small fw-bold">${item.nombre}</div>
+                        <button type="button" class="btn btn-link btn-sm text-danger p-0"
+                                onclick="eliminarDelCarrito(${id})">✕</button>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-1">
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="button" class="btn btn-outline-secondary btn-cantidad"
+                                    onclick="cambiarCantidad(${id}, -1)">−</button>
+                            <span class="fw-bold">${item.cantidad}</span>
+                            <button type="button" class="btn btn-outline-success btn-cantidad"
+                                    onclick="cambiarCantidad(${id}, 1)">+</button>
+                        </div>
+                        <div class="text-success fw-bold">
+                            S/ ${(item.precio * item.cantidad).toFixed(2)}
+                        </div>
+                    </div>
+                    <div class="text-muted" style="font-size:11px">
+                        S/ ${item.precio.toFixed(2)} x ${item.cantidad}
+                    </div>
+                </div>
+            `;
+        }).join('');
     }
 
     function calcularTotal() {
         let subtotalBruto = 0;
-        document.querySelectorAll('.producto-fila').forEach(fila => {
-            const cantidad = fila.querySelector('.cantidad-input');
-            const precio = parseFloat(cantidad?.dataset.precio) || 0;
-            subtotalBruto += precio * (parseFloat(cantidad?.value) || 0);
+        Object.values(carrito).forEach(item => {
+            subtotalBruto += item.precio * item.cantidad;
         });
 
         const descuento = parseFloat(document.getElementById('descuento').value) || 0;
@@ -301,10 +312,8 @@
         document.getElementById('txt-descuento').textContent = '- S/ ' + descuento.toFixed(2);
         document.getElementById('txt-total').textContent = 'S/ ' + total.toFixed(2);
 
-        const formaPago = document.querySelector('select[name=formaPago]').value;
-        if (formaPago !== 'Efectivo') {
-            document.getElementById('montoRecibido').value = total.toFixed(2);
-        }
+        document.getElementById('h-montoRecibido').value = total.toFixed(2);
+        document.getElementById('montoRecibido').value = total.toFixed(2);
         calcularVuelto();
     }
 
@@ -312,31 +321,42 @@
         const total = parseFloat(document.getElementById('txt-total').textContent.replace('S/ ', '')) || 0;
         const recibido = parseFloat(document.getElementById('montoRecibido').value) || 0;
         document.getElementById('txt-vuelto').textContent = 'S/ ' + (recibido >= total ? (recibido - total).toFixed(2) : '0.00');
+        document.getElementById('h-montoRecibido').value = recibido;
     }
 
-    function manejarFormaPago(select) {
-        const total = parseFloat(document.getElementById('txt-total').textContent.replace('S/ ', '')) || 0;
-        const montoInput = document.getElementById('montoRecibido');
-        const filaMonto = document.getElementById('fila-monto');
-        if (select.value !== 'Efectivo') {
-            montoInput.value = total.toFixed(2);
-            filaMonto.style.opacity = '0.6';
-        } else {
-            filaMonto.style.opacity = '1';
-            montoInput.value = '0';
-        }
-        calcularVuelto();
+    function setPago(tipo, btn) {
+        document.querySelectorAll('.pago-btn').forEach(b => {
+            b.classList.remove('btn-success');
+            b.classList.add('btn-outline-secondary');
+        });
+        btn.classList.remove('btn-outline-secondary');
+        btn.classList.add('btn-success');
+        document.getElementById('h-formaPago').value = tipo;
     }
 
-    // Cerrar sugerencias al hacer clic fuera
-    document.addEventListener('click', function(e) {
-        if (!e.target.closest('.producto-busqueda')) {
-            document.querySelectorAll('.producto-sugerencias').forEach(s => s.classList.add('d-none'));
+    function registrarVenta() {
+        if (Object.keys(carrito).length === 0) {
+            alert('⚠️ Agrega al menos un producto al carrito');
+            return;
         }
-    });
 
-    // Iniciar con una fila
-    window.onload = function() { agregarFila(); };
+        // Llenar campos ocultos
+        const hiddenContainer = document.getElementById('hidden-productos');
+        hiddenContainer.innerHTML = '';
+        Object.entries(carrito).forEach(([id, item]) => {
+            hiddenContainer.innerHTML += `
+                <input type="hidden" name="productoIds" value="${id}"/>
+                <input type="hidden" name="cantidades" value="${item.cantidad}"/>
+            `;
+        });
+
+        document.getElementById('formVenta').submit();
+    }
+
+    // Inicializar
+    window.onload = function() {
+        renderizarProductos(todosProductos);
+    };
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
