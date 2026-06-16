@@ -4,96 +4,152 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Sistema Botica</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .card-stat { border-radius: 12px; border: none; }
-        .tabla-ventas tr:hover { background: #f8f9fa; }
-        .badge-vencido { background: #dc3545; }
-        .badge-stock { background: #fd7e14; }
-        .badge-dias { background: #ffc107; color:#333; }
+        body { background: #f0f2f5; }
+        .navbar-custom { background: linear-gradient(135deg, #1B5E20, #2E7D32); }
+        .card-stat {
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: transform 0.2s;
+        }
+        .card-stat:hover { transform: translateY(-4px); }
+        .card-stat .icono {
+            width: 56px; height: 56px;
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px;
+        }
+        .icono-green { background: #e8f5e9; }
+        .icono-blue { background: #e3f2fd; }
+        .icono-red { background: #fce4ec; }
+        .icono-yellow { background: #fff8e1; }
+        .card-alerta { border-radius: 14px; border: none; box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+        .badge-vencido { background: #e53935; font-size: 11px; }
+        .badge-stock { background: #f57c00; font-size: 11px; }
+        .badge-dias { background: #f9a825; color:#333; font-size: 11px; }
+        .venta-row { border-left: 3px solid #2E7D32; padding-left: 10px; margin-bottom: 10px; }
+        .acceso-card {
+            border-radius: 14px; border: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            transition: all 0.2s; cursor: pointer;
+        }
+        .acceso-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+        .acceso-icono {
+            width: 52px; height: 52px;
+            border-radius: 12px;
+            display: flex; align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin: 0 auto 8px;
+        }
+        .section-title {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #9e9e9e;
+            font-weight: 600;
+        }
     </style>
 </head>
-<body class="bg-light">
+<body>
 
 <nav th:replace="~{fragments/navbar :: navbar}"></nav>
 
 <div class="container-fluid py-4 px-4">
 
-    <!-- Título -->
-    <div class="mb-4">
-        <h2 class="fw-bold text-success mb-0">📊 Resumen del Día</h2>
-        <p class="text-muted" id="fecha-hoy"></p>
+    <!-- Encabezado -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold mb-0" style="color:#1B5E20">📊 Resumen del Día</h4>
+            <p class="text-muted small mb-0" id="fecha-hoy"></p>
+        </div>
+        <a href="/ventas/nueva" class="btn btn-success px-4 rounded-pill shadow-sm">
+            + Nueva Venta
+        </a>
     </div>
 
     <!-- Tarjetas resumen -->
     <div class="row g-3 mb-4">
         <div class="col-6 col-md-3">
-            <div class="card card-stat shadow-sm border-start border-success border-4">
-                <div class="card-body">
-                    <p class="text-muted small mb-1">Ingresos de hoy</p>
-                    <h3 class="fw-bold text-success mb-0" th:text="'S/ ' + ${totalHoy}"></h3>
+            <div class="card card-stat p-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="icono icono-green">💰</div>
+                    <div>
+                        <p class="text-muted small mb-1">Ingresos hoy</p>
+                        <h4 class="fw-bold text-success mb-0" th:text="'S/ ' + ${totalHoy}"></h4>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="col-6 col-md-3">
-            <div class="card card-stat shadow-sm border-start border-primary border-4">
-                <div class="card-body">
-                    <p class="text-muted small mb-1">Ventas realizadas hoy</p>
-                    <h3 class="fw-bold text-primary mb-0" th:text="${ventasHoy}"></h3>
+            <div class="card card-stat p-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="icono icono-blue">🛒</div>
+                    <div>
+                        <p class="text-muted small mb-1">Ventas hoy</p>
+                        <h4 class="fw-bold text-primary mb-0" th:text="${ventasHoy}"></h4>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="col-6 col-md-3">
-            <div class="card card-stat shadow-sm border-start border-danger border-4">
-                <div class="card-body">
-                    <p class="text-muted small mb-1">Stock crítico</p>
-                    <h3 class="fw-bold text-danger mb-0" th:text="${stockCritico}"></h3>
-                    <small class="text-danger">Requieren reposición</small>
+            <div class="card card-stat p-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="icono icono-red">⚠️</div>
+                    <div>
+                        <p class="text-muted small mb-1">Stock crítico</p>
+                        <h4 class="fw-bold text-danger mb-0" th:text="${stockCritico}"></h4>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="col-6 col-md-3">
-            <div class="card card-stat shadow-sm border-start border-warning border-4">
-                <div class="card-body">
-                    <p class="text-muted small mb-1">Por vencer (30d)</p>
-                    <h3 class="fw-bold text-warning mb-0" th:text="${porVencer}"></h3>
-                    <small class="text-warning">Productos en alerta</small>
+            <div class="card card-stat p-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="icono icono-yellow">📅</div>
+                    <div>
+                        <p class="text-muted small mb-1">Por vencer (30d)</p>
+                        <h4 class="fw-bold text-warning mb-0" th:text="${porVencer}"></h4>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Alertas y últimas ventas -->
+    <!-- Alertas y Ventas -->
     <div class="row g-3 mb-4">
 
-        <!-- Alertas activas -->
-        <div class="col-md-6">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-header bg-white fw-bold border-bottom">
-                    🔔 Alertas Activas
-                    <a href="/alertas" class="float-end text-success text-decoration-none small">Ver todas →</a>
+        <!-- Alertas -->
+        <div class="col-md-5">
+            <div class="card card-alerta h-100">
+                <div class="card-header bg-white border-0 pt-3 pb-0 px-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="section-title">🔔 Alertas Activas</span>
+                        <a href="/alertas" class="text-success text-decoration-none small fw-bold">Ver todas →</a>
+                    </div>
                 </div>
-                <div class="card-body p-0">
-                    <table class="table mb-0">
-                        <tbody>
-                        <tr th:each="p : ${alertasVencidos}">
-                            <td><span class="badge badge-vencido">Vencido</span></td>
-                            <td th:text="${p.nombre}"></td>
-                            <td class="text-muted small" th:text="${p.fechaVencimiento}"></td>
-                        </tr>
-                        <tr th:each="p : ${alertasStock}">
-                            <td><span class="badge badge-stock">Stock mín.</span></td>
-                            <td th:text="${p.nombre}"></td>
-                            <td class="text-muted small" th:text="${p.stock} + ' unid.'"></td>
-                        </tr>
-                        <tr th:each="p : ${alertasVencimiento}">
-                            <td><span class="badge badge-dias">30 días</span></td>
-                            <td th:text="${p.nombre}"></td>
-                            <td class="text-muted small" th:text="'Vence ' + ${p.fechaVencimiento}"></td>
-                        </tr>
-                        </tbody>
-                    </table>
-                    <div class="p-3 text-success text-center"
+                <div class="card-body px-4 py-2">
+                    <div th:each="p : ${alertasVencidos}" class="d-flex align-items-center gap-2 py-2 border-bottom">
+                        <span class="badge badge-vencido">Vencido</span>
+                        <span class="small fw-bold flex-fill" th:text="${p.nombre}"></span>
+                        <span class="text-muted" style="font-size:11px" th:text="${p.fechaVencimiento}"></span>
+                    </div>
+                    <div th:each="p : ${alertasStock}" class="d-flex align-items-center gap-2 py-2 border-bottom">
+                        <span class="badge badge-stock">Stock</span>
+                        <span class="small fw-bold flex-fill" th:text="${p.nombre}"></span>
+                        <span class="text-muted" style="font-size:11px" th:text="${p.stock} + ' und.'"></span>
+                    </div>
+                    <div th:each="p : ${alertasVencimiento}" class="d-flex align-items-center gap-2 py-2 border-bottom">
+                        <span class="badge badge-dias">30 días</span>
+                        <span class="small fw-bold flex-fill" th:text="${p.nombre}"></span>
+                        <span class="text-muted" style="font-size:11px" th:text="${p.fechaVencimiento}"></span>
+                    </div>
+                    <div class="py-3 text-center text-success small"
                          th:if="${#lists.isEmpty(alertasVencidos)} and ${#lists.isEmpty(alertasStock)} and ${#lists.isEmpty(alertasVencimiento)}">
                         ✅ No hay alertas activas
                     </div>
@@ -101,86 +157,91 @@
             </div>
         </div>
 
-        <!-- Últimas ventas -->
-        <div class="col-md-6">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-header bg-white fw-bold border-bottom">
-                    🛒 Últimas Ventas
-                    <a href="/ventas" class="float-end text-success text-decoration-none small">Ver todas →</a>
+        <!-- Últimas Ventas -->
+        <div class="col-md-7">
+            <div class="card card-alerta h-100">
+                <div class="card-header bg-white border-0 pt-3 pb-0 px-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="section-title">🛒 Últimas Ventas</span>
+                        <a href="/ventas" class="text-success text-decoration-none small fw-bold">Ver todas →</a>
+                    </div>
                 </div>
-                <div class="card-body p-0">
-                    <table class="table tabla-ventas mb-0">
-                        <tbody>
-                        <tr th:each="v : ${ultimasVentas}">
-                            <td><span class="text-muted small" th:text="${#temporals.format(v.fecha,'HH:mm')}"></span></td>
-                            <td th:text="'Venta #' + ${v.id}"></td>
-                            <td th:text="${v.cliente}"></td>
-                            <td class="text-success fw-bold" th:text="'S/ ' + ${v.total}"></td>
-                        </tr>
-                        </tbody>
-                    </table>
-                    <div class="p-3 text-muted text-center" th:if="${#lists.isEmpty(ultimasVentas)}">
-                        No hay ventas registradas
+                <div class="card-body px-4 py-2">
+                    <div th:each="v : ${ultimasVentas}" class="venta-row py-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="fw-bold small" th:text="'Venta #' + ${v.id}"></span>
+                                <span class="text-muted small ms-2" th:text="${v.cliente}"></span>
+                            </div>
+                            <div class="text-end">
+                                <span class="fw-bold text-success" th:text="'S/ ' + ${v.total}"></span>
+                                <div class="text-muted" style="font-size:11px"
+                                     th:text="${#temporals.format(v.fecha,'HH:mm')}"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="py-3 text-center text-muted small"
+                         th:if="${#lists.isEmpty(ultimasVentas)}">
+                        No hay ventas registradas hoy
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Accesos rápidos -->
+    <!-- Accesos Rápidos -->
+    <p class="section-title mb-3">⚡ Accesos Rápidos</p>
     <div class="row g-3">
-        <div class="col-12">
-            <h5 class="fw-bold text-muted">Accesos Rápidos</h5>
-        </div>
         <div class="col-4 col-md-2">
             <a href="/productos" class="text-decoration-none">
-                <div class="card shadow-sm border-0 text-center p-3">
-                    <div class="fs-2">📦</div>
-                    <small class="fw-bold">Productos</small>
+                <div class="card acceso-card p-3 text-center">
+                    <div class="acceso-icono bg-success bg-opacity-10">📦</div>
+                    <small class="fw-bold text-dark">Productos</small>
                 </div>
             </a>
         </div>
         <div class="col-4 col-md-2">
             <a href="/ventas/nueva" class="text-decoration-none">
-                <div class="card shadow-sm border-0 text-center p-3">
-                    <div class="fs-2">🛒</div>
-                    <small class="fw-bold">Nueva Venta</small>
+                <div class="card acceso-card p-3 text-center">
+                    <div class="acceso-icono bg-primary bg-opacity-10">🛒</div>
+                    <small class="fw-bold text-dark">Nueva Venta</small>
                 </div>
             </a>
         </div>
         <div class="col-4 col-md-2">
             <a href="/proveedores" class="text-decoration-none">
-                <div class="card shadow-sm border-0 text-center p-3">
-                    <div class="fs-2">🚚</div>
-                    <small class="fw-bold">Proveedores</small>
+                <div class="card acceso-card p-3 text-center">
+                    <div class="acceso-icono bg-warning bg-opacity-10">🚚</div>
+                    <small class="fw-bold text-dark">Proveedores</small>
                 </div>
             </a>
         </div>
         <div class="col-4 col-md-2">
             <a href="/usuarios" class="text-decoration-none">
-                <div class="card shadow-sm border-0 text-center p-3">
-                    <div class="fs-2">👥</div>
-                    <small class="fw-bold">Usuarios</small>
+                <div class="card acceso-card p-3 text-center">
+                    <div class="acceso-icono bg-info bg-opacity-10">👥</div>
+                    <small class="fw-bold text-dark">Usuarios</small>
                 </div>
             </a>
         </div>
         <div class="col-4 col-md-2">
             <a href="/alertas" class="text-decoration-none">
-                <div class="card shadow-sm border-0 text-center p-3">
-                    <div class="fs-2">🔔</div>
-                    <small class="fw-bold">Alertas</small>
+                <div class="card acceso-card p-3 text-center">
+                    <div class="acceso-icono bg-danger bg-opacity-10">🔔</div>
+                    <small class="fw-bold text-dark">Alertas</small>
                 </div>
             </a>
         </div>
         <div class="col-4 col-md-2">
             <a href="/reportes" class="text-decoration-none">
-                <div class="card shadow-sm border-0 text-center p-3">
-                    <div class="fs-2">📊</div>
-                    <small class="fw-bold">Reportes</small>
+                <div class="card acceso-card p-3 text-center">
+                    <div class="acceso-icono bg-success bg-opacity-10">📊</div>
+                    <small class="fw-bold text-dark">Reportes</small>
                 </div>
             </a>
         </div>
     </div>
+
 </div>
 
 <script>
@@ -189,8 +250,6 @@
     document.getElementById('fecha-hoy').textContent =
         fecha.toLocaleDateString('es-PE', opciones).toUpperCase();
 </script>
-
-<!-- Bootstrap JS al final -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmB0LKZG2iHKDCu3v7oUSMrRBGE" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
