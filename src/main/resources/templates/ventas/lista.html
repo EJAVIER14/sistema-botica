@@ -5,48 +5,101 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Ventas</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #f0f2f5; }
+        .card-main { border-radius: 16px; border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        .tabla-header { background: linear-gradient(135deg, #1B5E20, #2E7D32); color: white; }
+        .tabla-header th { font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 16px; border: none; color: white; }
+        .tabla-row td { padding: 12px 16px; vertical-align: middle; border-bottom: 1px solid #f0f0f0; }
+        .tabla-row:hover { background: #f8fff8; }
+        .btn-accion { width: 32px; height: 32px; padding: 0; border-radius: 8px; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; }
+        .search-box { border-radius: 12px; border: 2px solid #e0e0e0; padding: 10px 16px; }
+        .search-box:focus { border-color: #2E7D32; box-shadow: 0 0 0 3px rgba(46,125,50,0.1); outline: none; }
+        .total-text { color: #2E7D32; font-weight: 700; }
+        .forma-badge { font-size: 11px; padding: 4px 10px; border-radius: 20px; }
+    </style>
 </head>
-<body class="bg-light">
+<body>
 <nav th:replace="~{fragments/navbar :: navbar}"></nav>
-<div class="container-fluid py-4 px-3">
-    <div th:if="${alertaStock}" class="alert alert-warning alert-dismissible fade show d-flex align-items-center gap-2" role="alert">
-        <span style="font-size: 1.4rem;">⚠️</span>
+<div class="container-fluid py-4 px-4">
+
+    <!-- Alerta stock bajo -->
+    <div th:if="${alertaStock}"
+         class="alert alert-warning alert-dismissible fade show d-flex align-items-center gap-2 rounded-3 mb-4" role="alert">
+        <span style="font-size:1.4rem">⚠️</span>
         <div>
-            <strong>Alerta de Stock Bajo:</strong>
+            <strong>Stock Bajo:</strong>
             <span th:text="${alertaStock}"></span>
             <br><small>Considera reabastecer estos productos pronto.</small>
         </div>
         <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
     </div>
+
+    <!-- Encabezado -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-success mb-0">🛒 Ventas</h2>
-        <a href="/ventas/nueva" class="btn btn-success btn-sm">+ Nueva</a>
+        <div>
+            <h4 class="fw-bold mb-0" style="color:#1B5E20">🛒 Historial de Ventas</h4>
+            <p class="text-muted small mb-0">Registro de todas las transacciones</p>
+        </div>
+        <a href="/ventas/nueva" class="btn btn-success px-4 rounded-pill shadow-sm">+ Nueva Venta</a>
     </div>
-    <div class="card shadow-sm border-0">
+
+    <!-- Buscador -->
+    <div class="mb-4">
+        <input type="text" class="form-control search-box" style="max-width:400px"
+               placeholder="🔍 Buscar por cliente o ID..."
+               oninput="filtrarVentas(this.value)"/>
+    </div>
+
+    <!-- Tabla -->
+    <div class="card card-main">
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="table-success">
+                <table class="table mb-0" id="tabla-ventas">
+                    <thead class="tabla-header">
                     <tr>
-                        <th>ID</th>
+                        <th>#</th>
                         <th>Cliente</th>
-                        <th>DNI</th>
-                        <th>RUC</th>
+                        <th>DNI / RUC</th>
                         <th>Fecha</th>
+                        <th>Forma de Pago</th>
                         <th>Total</th>
                         <th>Acciones</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="venta : ${ventas}">
-                        <td th:text="${venta.id}"></td>
-                        <td th:text="${venta.cliente}"></td>
-                        <td th:text="${venta.dni != null and venta.dni != '' ? venta.dni : '-'}"></td>
-                        <td th:text="${venta.ruc != null and venta.ruc != '' ? venta.ruc : '-'}"></td>
-                        <td th:text="${#temporals.format(venta.fecha,'dd/MM/yyyy HH:mm')}"></td>
-                        <td th:text="'S/ ' + ${venta.total}"></td>
+                    <tr class="tabla-row" th:each="venta : ${ventas}">
+                        <td><span style="color:#9e9e9e;font-size:12px;font-weight:600" th:text="'#' + ${venta.id}"></span></td>
                         <td>
-                            <a th:href="@{/ventas/detalle/{id}(id=${venta.id})}" class="btn btn-primary btn-sm">Ver</a>
+                            <div class="d-flex align-items-center gap-2">
+                                <div style="width:34px;height:34px;background:#e8f5e9;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;">👤</div>
+                                <span style="font-weight:600;font-size:14px" th:text="${venta.cliente}"></span>
+                            </div>
+                        </td>
+                        <td>
+                            <div style="font-size:12px">
+                                <span th:if="${venta.dni != null and venta.dni != ''}">
+                                    <span class="text-muted">DNI:</span> <strong th:text="${venta.dni}"></strong>
+                                </span>
+                                <span th:if="${venta.ruc != null and venta.ruc != ''}">
+                                    <br><span class="text-muted">RUC:</span> <strong th:text="${venta.ruc}"></strong>
+                                </span>
+                                <span th:if="${(venta.dni == null or venta.dni == '') and (venta.ruc == null or venta.ruc == '')}" class="text-muted">—</span>
+                            </div>
+                        </td>
+                        <td style="font-size:13px;color:#616161" th:text="${#temporals.format(venta.fecha,'dd/MM/yyyy HH:mm')}"></td>
+                        <td>
+                            <span class="forma-badge"
+                                  th:text="${venta.formaPago}"
+                                  th:class="${venta.formaPago == 'Efectivo'} ? 'forma-badge bg-success bg-opacity-10 text-success' :
+                                            (${venta.formaPago == 'Tarjeta'} ? 'forma-badge bg-primary bg-opacity-10 text-primary' :
+                                            'forma-badge bg-info bg-opacity-10 text-info')">
+                            </span>
+                        </td>
+                        <td><span class="total-text" th:text="'S/ ' + ${venta.total}"></span></td>
+                        <td>
+                            <a th:href="@{/ventas/detalle/{id}(id=${venta.id})}"
+                               class="btn btn-accion btn-primary" title="Ver detalle">👁️</a>
                         </td>
                     </tr>
                     </tbody>
@@ -55,6 +108,17 @@
         </div>
     </div>
 </div>
+
+<script>
+    function filtrarVentas(texto) {
+        const filas = document.querySelectorAll('.tabla-row');
+        const t = texto.toLowerCase();
+        filas.forEach(f => {
+            const txt = f.textContent.toLowerCase();
+            f.style.display = txt.includes(t) ? '' : 'none';
+        });
+    }
+</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

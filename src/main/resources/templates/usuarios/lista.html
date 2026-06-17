@@ -5,51 +5,97 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Usuarios</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #f0f2f5; }
+        .card-main { border-radius: 16px; border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        .tabla-header { background: linear-gradient(135deg, #1B5E20, #2E7D32); }
+        .tabla-header th { font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 16px; border: none; color: white; }
+        .tabla-row td { padding: 12px 16px; vertical-align: middle; border-bottom: 1px solid #f0f0f0; }
+        .tabla-row:hover { background: #f8fff8; }
+        .btn-accion { width: 32px; height: 32px; padding: 0; border-radius: 8px; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; }
+        .avatar { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; color: white; }
+        .search-box { border-radius: 12px; border: 2px solid #e0e0e0; padding: 10px 16px; }
+        .search-box:focus { border-color: #2E7D32; box-shadow: 0 0 0 3px rgba(46,125,50,0.1); outline: none; }
+    </style>
 </head>
-<body class="bg-light">
+<body>
 <nav th:replace="~{fragments/navbar :: navbar}"></nav>
-<div class="container-fluid py-4 px-3">
-    <div th:if="${exito}" class="alert alert-success alert-dismissible fade show" role="alert">
+<div class="container-fluid py-4 px-4">
+
+    <div th:if="${exito}" class="alert alert-success alert-dismissible fade show rounded-3 mb-4" role="alert">
         ✅ <span th:text="${exito}"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
+
+    <!-- Encabezado -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-success mb-0">👥 Usuarios</h2>
-        <a href="/usuarios/nuevo" class="btn btn-success btn-sm">+ Nuevo</a>
+        <div>
+            <h4 class="fw-bold mb-0" style="color:#1B5E20">👥 Gestión de Usuarios</h4>
+            <p class="text-muted small mb-0">Administra los accesos al sistema</p>
+        </div>
+        <a href="/usuarios/nuevo" class="btn btn-success px-4 rounded-pill shadow-sm">+ Nuevo Usuario</a>
     </div>
-    <div class="card shadow-sm border-0">
+
+    <!-- Buscador -->
+    <div class="mb-4">
+        <input type="text" class="form-control search-box" style="max-width:400px"
+               placeholder="🔍 Buscar por nombre o username..."
+               oninput="filtrar(this.value)"/>
+    </div>
+
+    <!-- Tabla -->
+    <div class="card card-main">
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="table-success">
+                <table class="table mb-0" id="tabla-usuarios">
+                    <thead class="tabla-header">
                     <tr>
-                        <th>ID</th>
-                        <th>Nombre</th>
+                        <th>#</th>
+                        <th>Usuario</th>
                         <th>Username</th>
                         <th>Rol</th>
-                        <th>Activo</th>
+                        <th>Estado</th>
                         <th>Acciones</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="u : ${usuarios}">
-                        <td th:text="${u.id}"></td>
-                        <td th:text="${u.nombre}"></td>
-                        <td th:text="${u.username}"></td>
+                    <tr class="tabla-row" th:each="u : ${usuarios}">
+                        <td><span style="color:#9e9e9e;font-size:12px;font-weight:600" th:text="${u.id}"></span></td>
                         <td>
-                            <span th:text="${u.rol}"
-                                  th:class="${u.rol == 'ADMIN'} ? 'badge bg-danger' :
-                                  (${u.rol == 'CAJERO'} ? 'badge bg-primary' : 'badge bg-warning text-dark')"
-                                  style="font-size:12px;"></span>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="avatar"
+                                     th:style="${u.rol == 'ADMIN'} ? 'background:#c62828' :
+                                               (${u.rol == 'CAJERO'} ? 'background:#1565C0' : 'background:#e65100')"
+                                     th:text="${u.nombre != null and u.nombre.length() > 0 ? u.nombre.substring(0,1).toUpperCase() : '?'}">
+                                </div>
+                                <div>
+                                    <div style="font-weight:600;font-size:14px" th:text="${u.nombre}"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="font-size:13px;color:#616161;font-family:monospace" th:text="${u.username}"></td>
+                        <td>
+                            <span style="font-size:11px;padding:5px 12px;border-radius:20px;font-weight:600"
+                                  th:text="${u.rol}"
+                                  th:class="${u.rol == 'ADMIN'} ? 'badge bg-danger bg-opacity-10 text-danger' :
+                                            (${u.rol == 'CAJERO'} ? 'badge bg-primary bg-opacity-10 text-primary' :
+                                            'badge bg-warning bg-opacity-10 text-warning')">
+                            </span>
                         </td>
                         <td>
-                            <span th:if="${u.activo}" class="badge bg-success">Sí</span>
-                            <span th:unless="${u.activo}" class="badge bg-danger">No</span>
+                            <span th:if="${u.activo}"
+                                  style="font-size:11px;padding:5px 12px;border-radius:20px;font-weight:600"
+                                  class="badge bg-success bg-opacity-10 text-success">● Activo</span>
+                            <span th:unless="${u.activo}"
+                                  style="font-size:11px;padding:5px 12px;border-radius:20px;font-weight:600"
+                                  class="badge bg-danger bg-opacity-10 text-danger">● Inactivo</span>
                         </td>
                         <td>
-                            <a th:href="@{/usuarios/editar/{id}(id=${u.id})}" class="btn btn-primary btn-sm me-1">✏️</a>
-                            <a th:href="@{/usuarios/cambiar-password/{id}(id=${u.id})}" class="btn btn-warning btn-sm me-1">🔑</a>
-                            <a th:href="@{/usuarios/eliminar/{id}(id=${u.id})}" class="btn btn-danger btn-sm" onclick="return confirm('¿Seguro?')">🗑️</a>
+                            <div class="d-flex gap-1">
+                                <a th:href="@{/usuarios/editar/{id}(id=${u.id})}" class="btn btn-accion btn-primary" title="Editar">✏️</a>
+                                <a th:href="@{/usuarios/cambiar-password/{id}(id=${u.id})}" class="btn btn-accion btn-warning" title="Cambiar contraseña">🔑</a>
+                                <a th:href="@{/usuarios/eliminar/{id}(id=${u.id})}" class="btn btn-accion btn-danger" title="Eliminar" onclick="return confirm('¿Seguro?')">🗑️</a>
+                            </div>
                         </td>
                     </tr>
                     </tbody>
@@ -58,6 +104,16 @@
         </div>
     </div>
 </div>
+
+<script>
+    function filtrar(texto) {
+        const filas = document.querySelectorAll('.tabla-row');
+        const t = texto.toLowerCase();
+        filas.forEach(f => {
+            f.style.display = f.textContent.toLowerCase().includes(t) ? '' : 'none';
+        });
+    }
+</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
