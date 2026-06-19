@@ -2,21 +2,154 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Acceso Denegado</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #f0f2f5; }
+
+        .denied-card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.10);
+            padding: 60px 40px;
+            text-align: center;
+            max-width: 520px;
+            margin: 0 auto;
+        }
+
+        .icon-wrapper {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #fce4ec, #f8bbd0);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            position: relative;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .icon-wrapper .emoji { font-size: 56px; }
+
+        .denied-title {
+            font-size: 26px;
+            font-weight: 800;
+            color: #212121;
+            margin-bottom: 12px;
+        }
+
+        .denied-subtitle {
+            color: #757575;
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+
+        .error-code {
+            display: inline-block;
+            background: #fce4ec;
+            color: #c62828;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 6px 16px;
+            border-radius: 20px;
+            margin: 16px 0 28px;
+            letter-spacing: 0.5px;
+        }
+
+        .info-box {
+            background: #f8f9fa;
+            border-radius: 14px;
+            padding: 16px 20px;
+            margin-bottom: 28px;
+            text-align: left;
+        }
+
+        .info-box p {
+            font-size: 13px;
+            color: #616161;
+            margin: 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .btn-volver {
+            background: linear-gradient(135deg, #1B5E20, #2E7D32);
+            color: white;
+            border: none;
+            padding: 14px 36px;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.2s;
+            box-shadow: 0 4px 16px rgba(46,125,50,0.3);
+        }
+
+        .btn-volver:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(46,125,50,0.4);
+            color: white;
+        }
+
+        .btn-volver-atras {
+            background: #f5f5f5;
+            color: #616161;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.2s;
+            margin-left: 10px;
+        }
+
+        .btn-volver-atras:hover { background: #eeeeee; color: #424242; }
+    </style>
 </head>
-<body class="bg-light">
+<body>
 <nav th:replace="~{fragments/navbar :: navbar}"></nav>
-<div class="container py-5 text-center">
-    <div class="card shadow-sm border-0 p-5">
-        <h1 class="text-danger mb-3">🚫 Acceso Denegado</h1>
-        <p class="text-muted fs-5">
-            No tienes permisos para acceder a esta sección.
+
+<div class="container py-5">
+    <div class="denied-card">
+
+        <div class="icon-wrapper">
+            <span class="emoji">🔒</span>
+        </div>
+
+        <h1 class="denied-title">Acceso Restringido</h1>
+        <p class="denied-subtitle">
+            No tienes los permisos necesarios para acceder a esta sección del sistema.
         </p>
-        <a href="/" class="btn btn-success mt-3">
-            Volver al inicio
-        </a>
+
+        <span class="error-code">ERROR 403 · FORBIDDEN</span>
+
+        <div class="info-box">
+            <p>
+                <span>💡</span>
+                <span>Si crees que esto es un error o necesitas acceso a esta sección, contacta con el administrador del sistema para que actualice tus permisos.</span>
+            </p>
+        </div>
+
+        <div>
+            <a href="/" class="btn-volver">🏠 Volver al inicio</a>
+            <a href="javascript:history.back()" class="btn-volver-atras">← Regresar</a>
+        </div>
+
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
