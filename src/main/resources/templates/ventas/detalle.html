@@ -3,140 +3,252 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Detalle de Venta</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Boleta de Venta</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        body { background: #f0f2f5; }
+
+        .boleta-wrapper { max-width: 420px; margin: 0 auto; }
+
+        .boleta {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Borde dentado superior tipo ticket */
+        .boleta::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 6px;
+            background: repeating-linear-gradient(90deg, #2E7D32 0 8px, transparent 8px 16px);
+        }
+
+        .boleta-header {
+            background: linear-gradient(135deg, #1B5E20, #2E7D32);
+            padding: 28px 24px 24px;
+            text-align: center;
+            color: white;
+        }
+
+        .boleta-header .logo { font-size: 36px; margin-bottom: 6px; }
+        .boleta-header h4 { font-weight: 800; margin: 0; font-size: 20px; }
+        .boleta-header p { opacity: 0.8; margin: 2px 0 0; font-size: 12px; }
+
+        .boleta-numero {
+            background: rgba(255,255,255,0.15);
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            margin-top: 12px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .boleta-body { padding: 24px; }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 8px;
+            color: #424242;
+        }
+        .info-row strong { color: #212121; }
+
+        .dashed-line {
+            border: none;
+            border-top: 2px dashed #e0e0e0;
+            margin: 16px 0;
+        }
+
+        .productos-table { width: 100%; font-size: 13px; }
+        .productos-table th {
+            text-align: left;
+            color: #9e9e9e;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding-bottom: 8px;
+            font-weight: 600;
+        }
+        .productos-table td { padding: 8px 0; border-bottom: 1px solid #f5f5f5; }
+        .producto-nombre { font-weight: 600; color: #212121; }
+
+        .totales-box {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+        .total-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; color: #616161; }
+        .total-final {
+            display: flex; justify-content: space-between;
+            font-size: 20px; font-weight: 800; color: #1B5E20;
+            padding-top: 10px; margin-top: 6px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .pago-info {
+            display: flex; justify-content: space-between;
+            background: #e8f5e9; border-radius: 10px;
+            padding: 10px 14px; margin-top: 12px; font-size: 13px;
+        }
+
+        .boleta-footer {
+            text-align: center;
+            padding: 20px 24px 24px;
+            color: #9e9e9e;
+            font-size: 12px;
+        }
+
+        .boleta-footer .gracias {
+            font-size: 14px;
+            font-weight: 700;
+            color: #2E7D32;
+            margin-bottom: 4px;
+        }
+
+        .badge-pago {
+            font-size: 11px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
         @media print {
+            body { background: white; }
             .no-print { display: none !important; }
-            .boleta { max-width: 300px; margin: auto; }
+            .boleta { box-shadow: none; max-width: 320px; }
+            .boleta-wrapper { max-width: 320px; }
         }
     </style>
 </head>
-<body class="bg-light">
+<body>
 
 <nav th:replace="~{fragments/navbar :: navbar}" class="no-print"></nav>
 
 <div class="container py-4">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
+    <div class="boleta-wrapper">
 
-            <!-- Boleta -->
-            <div class="card shadow-sm border-0 boleta" id="boleta">
-                <div class="card-body p-4">
+        <div class="boleta" id="boleta">
 
-                    <!-- Encabezado -->
-                    <div class="text-center mb-3">
-                        <h4 class="fw-bold text-success mb-0">
-                            💊 Sistema Botica
-                        </h4>
-                        <p class="text-muted small mb-0">
-                            Botica del Pueblo
-                        </p>
-                        <hr/>
-                        <h5 class="fw-bold">BOLETA DE VENTA</h5>
-                        <p class="text-muted small mb-0"
-                           th:text="'N° ' + ${venta.id}"></p>
-                        <p class="text-muted small"
-                           th:text="${#temporals.format(venta.fecha,'dd/MM/yyyy HH:mm')}">
-                        </p>
-                    </div>
-
-                    <!-- Datos del cliente -->
-                    <div class="mb-3">
-                        <p class="mb-1 small">
-                            <strong>Cliente:</strong>
-                            <span th:text="${venta.cliente}"></span>
-                        </p>
-                        <p class="mb-1 small"
-                           th:if="${venta.dni != null and venta.dni != ''}">
-                            <strong>DNI:</strong>
-                            <span th:text="${venta.dni}"></span>
-                        </p>
-                        <p class="mb-1 small"
-                           th:if="${venta.ruc != null and venta.ruc != ''}">
-                            <strong>RUC:</strong>
-                            <span th:text="${venta.ruc}"></span>
-                        </p>
-                        <p class="mb-0 small">
-                            <strong>Forma de pago:</strong>
-                            <span th:text="${venta.formaPago}"></span>
-                        </p>
-                    </div>
-
-                    <hr/>
-
-                    <!-- Productos -->
-                    <table class="table table-sm mb-0">
-                        <thead>
-                        <tr>
-                            <th class="small">Producto</th>
-                            <th class="small text-center">Cant.</th>
-                            <th class="small text-end">P.Unit</th>
-                            <th class="small text-end">Total</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="d : ${venta.detalles}">
-                            <td class="small" th:text="${d.producto.nombre}"></td>
-                            <td class="small text-center" th:text="${d.cantidad}"></td>
-                            <td class="small text-end" th:text="'S/ ' + ${d.precioUnitario}"></td>
-                            <td class="small text-end" th:text="'S/ ' + ${d.subtotal}"></td>
-                        </tr>
-                        </tbody>
-                    </table>
-
-                    <hr/>
-
-                    <!-- Totales -->
-                    <div class="d-flex justify-content-between small mb-1">
-                        <span>Subtotal (sin IGV):</span>
-                        <span th:text="'S/ ' + ${venta.subtotal}"></span>
-                    </div>
-                    <div class="d-flex justify-content-between small mb-1">
-                        <span>IGV (18%):</span>
-                        <span th:text="'S/ ' + ${venta.igv}"></span>
-                    </div>
-                    <div class="d-flex justify-content-between small mb-1"
-                         th:if="${venta.descuento > 0}">
-                        <span>Descuento:</span>
-                        <span class="text-danger"
-                              th:text="'- S/ ' + ${venta.descuento}"></span>
-                    </div>
-                    <hr/>
-                    <div class="d-flex justify-content-between fw-bold mb-1">
-                        <span>TOTAL:</span>
-                        <span class="text-success" th:text="'S/ ' + ${venta.total}"></span>
-                    </div>
-                    <div class="d-flex justify-content-between small mb-1">
-                        <span>Monto recibido:</span>
-                        <span th:text="'S/ ' + ${venta.montoRecibido}"></span>
-                    </div>
-                    <div class="d-flex justify-content-between small">
-                        <span>Vuelto:</span>
-                        <span class="text-primary fw-bold"
-                              th:text="'S/ ' + ${venta.vuelto}"></span>
-                    </div>
-
-                    <hr/>
-                    <p class="text-center small text-muted mb-0">
-                        ¡Gracias por su compra!
-                    </p>
+            <!-- Header -->
+            <div class="boleta-header">
+                <div class="logo">💊</div>
+                <h4>Sistema Botica</h4>
+                <p>Botica del Pueblo</p>
+                <div class="boleta-numero">
+                    🧾 BOLETA N° <span th:text="${#numbers.formatInteger(venta.id, 6)}">000001</span>
                 </div>
             </div>
 
-            <!-- Botones -->
-            <div class="d-flex gap-2 mt-3 no-print">
-                <button onclick="window.print()"
-                        class="btn btn-success">
-                    🖨️ Imprimir Boleta
-                </button>
-                <a href="/ventas" class="btn btn-secondary">
-                    ← Volver
-                </a>
+            <div class="boleta-body">
+
+                <!-- Fecha -->
+                <div class="info-row">
+                    <span>📅 Fecha y hora</span>
+                    <strong th:text="${#temporals.format(venta.fecha,'dd/MM/yyyy HH:mm')}"></strong>
+                </div>
+
+                <!-- Cliente -->
+                <div class="info-row">
+                    <span>👤 Cliente</span>
+                    <strong th:text="${venta.cliente}"></strong>
+                </div>
+                <div class="info-row" th:if="${venta.dni != null and venta.dni != ''}">
+                    <span>🆔 DNI</span>
+                    <strong th:text="${venta.dni}"></strong>
+                </div>
+                <div class="info-row" th:if="${venta.ruc != null and venta.ruc != ''}">
+                    <span>🏢 RUC</span>
+                    <strong th:text="${venta.ruc}"></strong>
+                </div>
+
+                <hr class="dashed-line"/>
+
+                <!-- Productos -->
+                <table class="productos-table">
+                    <thead>
+                    <tr>
+                        <th style="width:40%">Producto</th>
+                        <th class="text-center" style="width:15%">Cant.</th>
+                        <th class="text-end" style="width:20%">P.Unit</th>
+                        <th class="text-end" style="width:25%">Total</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="d : ${venta.detalles}">
+                        <td class="producto-nombre" th:text="${d.producto.nombre}"></td>
+                        <td class="text-center" th:text="${d.cantidad}"></td>
+                        <td class="text-end" th:text="'S/ ' + ${d.precioUnitario}"></td>
+                        <td class="text-end fw-bold" th:text="'S/ ' + ${d.subtotal}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <!-- Totales -->
+                <div class="totales-box">
+                    <div class="total-row">
+                        <span>Subtotal (sin IGV)</span>
+                        <span th:text="'S/ ' + ${venta.subtotal}"></span>
+                    </div>
+                    <div class="total-row">
+                        <span>IGV (18%)</span>
+                        <span th:text="'S/ ' + ${venta.igv}"></span>
+                    </div>
+                    <div class="total-row" th:if="${venta.descuento > 0}" style="color:#e53935">
+                        <span>Descuento</span>
+                        <span th:text="'- S/ ' + ${venta.descuento}"></span>
+                    </div>
+                    <div class="total-final">
+                        <span>TOTAL</span>
+                        <span th:text="'S/ ' + ${venta.total}"></span>
+                    </div>
+                </div>
+
+                <!-- Pago -->
+                <div class="pago-info">
+                    <span>
+                        <span class="badge-pago"
+                              th:text="${venta.formaPago}"
+                              th:style="${venta.formaPago == 'Efectivo'} ? 'background:#c8e6c9;color:#1b5e20' :
+                                        (${venta.formaPago == 'Tarjeta'} ? 'background:#bbdefb;color:#0d47a1' :
+                                        'background:#e1bee7;color:#4a148c')">
+                        </span>
+                    </span>
+                    <span>
+                        Recibido: <strong th:text="'S/ ' + ${venta.montoRecibido}"></strong>
+                        &nbsp;|&nbsp;
+                        Vuelto: <strong style="color:#1565C0" th:text="'S/ ' + ${venta.vuelto}"></strong>
+                    </span>
+                </div>
             </div>
 
+            <!-- Footer -->
+            <div class="boleta-footer">
+                <div class="gracias">¡Gracias por su compra! 💚</div>
+                <p style="margin:0">Conserve esta boleta para cualquier reclamo</p>
+                <p style="margin:4px 0 0">Sistema Botica · www.sistemabotica.com</p>
+            </div>
         </div>
+
+        <!-- Botones -->
+        <div class="d-flex gap-2 mt-3 no-print">
+            <button onclick="window.print()" class="btn btn-success rounded-pill flex-fill">
+                🖨️ Imprimir Boleta
+            </button>
+            <a href="/ventas" class="btn btn-outline-secondary rounded-pill flex-fill">
+                ← Volver a Ventas
+            </a>
+        </div>
+
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
