@@ -1,6 +1,8 @@
 package com.botica.repository;
 
 import com.botica.model.Producto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,20 +16,18 @@ public interface ProductoRepository
 
     List<Producto> findByNombreContaining(String nombre);
 
-    // Productos con stock menor al mínimo
+    // Búsqueda paginada por nombre (ignora mayúsculas/minúsculas)
+    Page<Producto> findByNombreContainingIgnoreCase(String nombre, Pageable pageable);
+
     List<Producto> findByStockLessThan(Integer stock);
 
-    // Productos que vencen antes de una fecha
     @Query("SELECT p FROM Producto p WHERE " +
             "p.fechaVencimiento IS NOT NULL AND " +
             "p.fechaVencimiento <= :fecha")
-    List<Producto> findProductosPorVencer(
-            @Param("fecha") LocalDate fecha);
+    List<Producto> findProductosPorVencer(@Param("fecha") LocalDate fecha);
 
-    // Productos ya vencidos
     @Query("SELECT p FROM Producto p WHERE " +
             "p.fechaVencimiento IS NOT NULL AND " +
             "p.fechaVencimiento < :hoy")
-    List<Producto> findProductosVencidos(
-            @Param("hoy") LocalDate hoy);
+    List<Producto> findProductosVencidos(@Param("hoy") LocalDate hoy);
 }

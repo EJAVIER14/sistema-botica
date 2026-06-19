@@ -3,6 +3,8 @@ package com.botica.controller;
 import com.botica.model.Producto;
 import com.botica.service.ProductoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,8 +23,20 @@ public class ProductoController {
     private ProductoService service;
 
     @GetMapping
-    public String listar(Model model) {
-        model.addAttribute("productos", service.listarTodos());
+    public String listar(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "") String buscar,
+            Model model) {
+
+        Page<Producto> paginaProductos = service.listarPaginado(page, 10, buscar);
+
+        model.addAttribute("paginaProductos", paginaProductos);
+        model.addAttribute("productos", paginaProductos.getContent());
+        model.addAttribute("paginaActual", page);
+        model.addAttribute("totalPaginas", paginaProductos.getTotalPages());
+        model.addAttribute("totalElementos", paginaProductos.getTotalElements());
+        model.addAttribute("buscar", buscar);
+
         return "productos/lista";
     }
 
@@ -51,14 +65,12 @@ public class ProductoController {
         return "redirect:/productos";
     }
 
-    // Abrir formulario de entrada de stock
     @GetMapping("/entrada/{id}")
     public String formularioEntrada(@PathVariable Long id, Model model) {
         model.addAttribute("producto", service.buscarPorId(id));
         return "productos/entrada";
     }
 
-    // Guardar entrada de stock
     @PostMapping("/entrada/guardar")
     public String guardarEntrada(
             @RequestParam Long productoId,
