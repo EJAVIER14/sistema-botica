@@ -17,6 +17,23 @@
         .search-box:focus { border-color: #2E7D32; box-shadow: 0 0 0 3px rgba(46,125,50,0.1); outline: none; }
         .total-text { color: #2E7D32; font-weight: 700; }
         .forma-badge { font-size: 11px; padding: 4px 10px; border-radius: 20px; }
+
+        .pagination-wrapper {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 16px 20px; border-top: 1px solid #f0f0f0;
+        }
+        .pagination-info { font-size: 13px; color: #9e9e9e; }
+        .pagination-btns { display: flex; gap: 6px; }
+        .page-btn {
+            min-width: 36px; height: 36px; padding: 0 10px;
+            border-radius: 8px; border: 1px solid #e0e0e0;
+            background: white; color: #616161; font-size: 13px;
+            font-weight: 600; display: flex; align-items: center; justify-content: center;
+            text-decoration: none; transition: all 0.2s;
+        }
+        .page-btn:hover { background: #f1f8e9; border-color: #2E7D32; color: #1B5E20; }
+        .page-btn.active { background: #2E7D32; border-color: #2E7D32; color: white; }
+        .page-btn.disabled { opacity: 0.4; pointer-events: none; }
     </style>
 </head>
 <body>
@@ -46,16 +63,18 @@
 
     <!-- Buscador -->
     <div class="mb-4">
-        <input type="text" class="form-control search-box" style="max-width:400px"
-               placeholder="🔍 Buscar por cliente o ID..."
-               oninput="filtrarVentas(this.value)"/>
+        <form action="/ventas" method="get">
+            <input type="text" name="buscar" class="form-control search-box" style="max-width:400px"
+                   placeholder="🔍 Buscar por cliente..."
+                   th:value="${buscar}"/>
+        </form>
     </div>
 
     <!-- Tabla -->
     <div class="card card-main">
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table mb-0" id="tabla-ventas">
+                <table class="table mb-0">
                     <thead class="tabla-header">
                     <tr>
                         <th>#</th>
@@ -105,20 +124,42 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- Estado vacío -->
+            <div class="text-center py-5" th:if="${#lists.isEmpty(ventas)}">
+                <div style="font-size:48px;">🛒</div>
+                <h5 class="text-muted mt-2">No se encontraron ventas</h5>
+            </div>
+
+            <!-- Paginación -->
+            <div class="pagination-wrapper" th:if="${totalPaginas > 1}">
+                <span class="pagination-info">
+                    Página <strong th:text="${paginaActual + 1}"></strong> de <strong th:text="${totalPaginas}"></strong>
+                    — <span th:text="${totalElementos}"></span> ventas en total
+                </span>
+                <div class="pagination-btns">
+                    <a th:if="${paginaActual > 0}"
+                       th:href="@{/ventas(page=${paginaActual - 1}, buscar=${buscar})}"
+                       class="page-btn">←</a>
+                    <span th:if="${paginaActual == 0}" class="page-btn disabled">←</span>
+
+                    <a th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}"
+                       th:if="${i >= paginaActual - 2 and i <= paginaActual + 2}"
+                       th:href="@{/ventas(page=${i}, buscar=${buscar})}"
+                       th:class="${i == paginaActual} ? 'page-btn active' : 'page-btn'"
+                       th:text="${i + 1}">
+                    </a>
+
+                    <a th:if="${paginaActual < totalPaginas - 1}"
+                       th:href="@{/ventas(page=${paginaActual + 1}, buscar=${buscar})}"
+                       class="page-btn">→</a>
+                    <span th:if="${paginaActual == totalPaginas - 1}" class="page-btn disabled">→</span>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-<script>
-    function filtrarVentas(texto) {
-        const filas = document.querySelectorAll('.tabla-row');
-        const t = texto.toLowerCase();
-        filas.forEach(f => {
-            const txt = f.textContent.toLowerCase();
-            f.style.display = txt.includes(t) ? '' : 'none';
-        });
-    }
-</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

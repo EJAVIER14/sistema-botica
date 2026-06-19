@@ -6,6 +6,9 @@ import com.botica.model.Venta;
 import com.botica.repository.ProductoRepository;
 import com.botica.repository.VentaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
@@ -33,6 +36,16 @@ public class VentaService {
 
     public List<Venta> listarTodas() {
         return ventaRepository.findAll();
+    }
+
+    // Listar con paginación y búsqueda opcional por cliente
+    public Page<Venta> listarPaginado(int page, int size, String buscar) {
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by("fecha").descending());
+
+        if (buscar != null && !buscar.trim().isEmpty()) {
+            return ventaRepository.findByClienteContainingIgnoreCase(buscar, pageRequest);
+        }
+        return ventaRepository.findAll(pageRequest);
     }
 
     public Venta buscarPorId(Long id) {
@@ -63,15 +76,9 @@ public class VentaService {
             producto.setStock(nuevoStock);
             productoRepository.save(producto);
 
-            // Registrar movimiento de SALIDA por VENTA
             movimientoService.registrarMovimiento(
-                    producto,
-                    "SALIDA",
-                    cantidad,
-                    stockAnterior,
-                    nuevoStock,
-                    "VENTA",
-                    venta.getCliente()
+                    producto, "SALIDA", cantidad, stockAnterior, nuevoStock,
+                    "VENTA", venta.getCliente()
             );
 
             if (nuevoStock <= 10) {

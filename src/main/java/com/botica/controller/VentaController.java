@@ -4,6 +4,7 @@ import com.botica.model.Venta;
 import com.botica.service.ProductoService;
 import com.botica.service.VentaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -22,8 +23,19 @@ public class VentaController {
     private ProductoService productoService;
 
     @GetMapping
-    public String listar(Model model) {
-        model.addAttribute("ventas", ventaService.listarTodas());
+    public String listar(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "") String buscar,
+            Model model) {
+
+        Page<Venta> paginaVentas = ventaService.listarPaginado(page, 10, buscar);
+
+        model.addAttribute("ventas", paginaVentas.getContent());
+        model.addAttribute("paginaActual", page);
+        model.addAttribute("totalPaginas", paginaVentas.getTotalPages());
+        model.addAttribute("totalElementos", paginaVentas.getTotalElements());
+        model.addAttribute("buscar", buscar);
+
         return "ventas/lista";
     }
 
@@ -44,7 +56,6 @@ public class VentaController {
         venta.setDetalles(new ArrayList<>());
         ventaService.registrarVenta(venta, productoIds, cantidades);
 
-        // Verificar stock bajo y mostrar alerta
         List<String> stockBajo = ventaService.getStockBajoProductos();
         if (!stockBajo.isEmpty()) {
             redirectAttributes.addFlashAttribute("alertaStock",

@@ -1,6 +1,8 @@
 package com.botica.repository;
 
 import com.botica.model.Venta;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,13 +14,14 @@ import java.util.List;
 public interface VentaRepository
         extends JpaRepository<Venta, Long> {
 
-    // Ventas entre dos fechas
     List<Venta> findByFechaBetween(
             LocalDateTime inicio,
             LocalDateTime fin
     );
 
-    // Total de ventas del día
+    // Paginado con búsqueda por cliente
+    Page<Venta> findByClienteContainingIgnoreCase(String cliente, Pageable pageable);
+
     @Query("SELECT COALESCE(SUM(v.total), 0) " +
             "FROM Venta v WHERE v.fecha >= :inicio " +
             "AND v.fecha <= :fin")
@@ -27,7 +30,6 @@ public interface VentaRepository
             @Param("fin") LocalDateTime fin
     );
 
-    // Productos más vendidos
     @Query("SELECT d.producto.nombre, " +
             "SUM(d.cantidad) as total " +
             "FROM DetalleVenta d " +
@@ -35,7 +37,6 @@ public interface VentaRepository
             "ORDER BY total DESC")
     List<Object[]> productosMasVendidos();
 
-    // Contar ventas del día
     @Query("SELECT COUNT(v) FROM Venta v " +
             "WHERE v.fecha >= :inicio " +
             "AND v.fecha <= :fin")
