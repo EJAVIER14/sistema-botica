@@ -1,6 +1,8 @@
 package com.botica.repository;
 
 import com.botica.model.MovimientoInventario;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;
@@ -11,4 +13,7 @@ public interface MovimientoInventarioRepository
 
     List<MovimientoInventario> findByProductoIdOrderByFechaDesc(Long productoId);
     List<MovimientoInventario> findAllByOrderByFechaDesc();
+
+    // Paginado ordenado por fecha descendente
+    Page<MovimientoInventario> findAllByOrderByFechaDesc(Pageable pageable);
 }

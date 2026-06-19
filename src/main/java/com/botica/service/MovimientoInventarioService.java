@@ -4,6 +4,8 @@ import com.botica.model.MovimientoInventario;
 import com.botica.model.Producto;
 import com.botica.repository.MovimientoInventarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -37,6 +39,12 @@ public class MovimientoInventarioService {
 
     public List<MovimientoInventario> listarTodos() {
         return repo.findAllByOrderByFechaDesc();
+    }
+
+    // Listar paginado
+    public Page<MovimientoInventario> listarPaginado(int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        return repo.findAllByOrderByFechaDesc(pageRequest);
     }
 
     public List<MovimientoInventario> listarPorProducto(Long productoId) {

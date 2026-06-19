@@ -1,10 +1,12 @@
 package com.botica.controller;
 
+import com.botica.model.MovimientoInventario;
 import com.botica.service.MovimientoInventarioService;
 import com.botica.service.OrdenEntradaService;
 import com.botica.service.ProductoService;
 import com.botica.service.ProveedorService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,8 +32,17 @@ public class InventarioController {
     private ProveedorService proveedorService;
 
     @GetMapping
-    public String verInventario(Model model) {
-        model.addAttribute("movimientos", movimientoService.listarTodos());
+    public String verInventario(
+            @RequestParam(defaultValue = "0") int page,
+            Model model) {
+
+        Page<MovimientoInventario> paginaMovimientos = movimientoService.listarPaginado(page, 10);
+
+        model.addAttribute("movimientos", paginaMovimientos.getContent());
+        model.addAttribute("paginaActual", page);
+        model.addAttribute("totalPaginas", paginaMovimientos.getTotalPages());
+        model.addAttribute("totalElementos", paginaMovimientos.getTotalElements());
+
         model.addAttribute("ordenes", ordenService.listarTodas());
         return "inventario/lista";
     }
