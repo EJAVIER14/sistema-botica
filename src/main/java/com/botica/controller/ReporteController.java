@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/reportes")
@@ -50,10 +51,15 @@ public class ReporteController {
         model.addAttribute("productosMasVendidos", reporteService.productosMasVendidos());
         model.addAttribute("totalHoy", reporteService.totalHoy());
         model.addAttribute("ventasHoy", reporteService.ventasHoy());
+
+        // Datos para el gráfico
+        Map<String, Double> ventasPorDia = reporteService.ventasPorDia(inicio, fin);
+        model.addAttribute("chartLabels", ventasPorDia.keySet());
+        model.addAttribute("chartData", ventasPorDia.values());
+
         return "reportes/lista";
     }
 
-    // ─── DESCARGA PDF ────────────────────────────────────────────
     @GetMapping("/pdf")
     public ResponseEntity<byte[]> descargarPdf(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
@@ -69,7 +75,6 @@ public class ReporteController {
         PdfWriter.getInstance(doc, out);
         doc.open();
 
-        // Título
         com.itextpdf.text.Font titleFont = new com.itextpdf.text.Font(
                 com.itextpdf.text.Font.FontFamily.HELVETICA, 18,
                 com.itextpdf.text.Font.BOLD,
@@ -83,7 +88,6 @@ public class ReporteController {
         doc.add(new Paragraph("Total ventas: " + ventas.size()));
         doc.add(new Paragraph(" "));
 
-        // Tabla
         PdfPTable tabla = new PdfPTable(4);
         tabla.setWidthPercentage(100);
         tabla.setWidths(new float[]{1, 3, 3, 2});
@@ -101,8 +105,7 @@ public class ReporteController {
             tabla.addCell(cell);
         }
 
-        DateTimeFormatter fmtFecha =
-                DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        DateTimeFormatter fmtFecha = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
         for (Venta v : ventas) {
             tabla.addCell(String.valueOf(v.getId()));
             tabla.addCell(v.getCliente() != null ? v.getCliente() : "-");
@@ -114,13 +117,11 @@ public class ReporteController {
         doc.close();
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=reporte_ventas.pdf")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=reporte_ventas.pdf")
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(out.toByteArray());
     }
 
-    // ─── DESCARGA EXCEL ──────────────────────────────────────────
     @GetMapping("/excel")
     public ResponseEntity<byte[]> descargarExcel(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
@@ -133,7 +134,6 @@ public class ReporteController {
         Workbook wb = new XSSFWorkbook();
         Sheet sheet = wb.createSheet("Ventas");
 
-        // Estilo encabezado
         CellStyle headerStyle = wb.createCellStyle();
         Font headerFont = wb.createFont();
         headerFont.setBold(true);
@@ -143,7 +143,6 @@ public class ReporteController {
         headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         headerStyle.setAlignment(HorizontalAlignment.CENTER);
 
-        // Fila de encabezados
         Row header = sheet.createRow(0);
         String[] cols = {"ID", "Cliente", "Fecha", "Total (S/)"};
         for (int i = 0; i < cols.length; i++) {
@@ -152,20 +151,16 @@ public class ReporteController {
             cell.setCellStyle(headerStyle);
         }
 
-        // Filas de datos
-        DateTimeFormatter fmtFecha =
-                DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        DateTimeFormatter fmtFecha = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
         int rowNum = 1;
         for (Venta v : ventas) {
             Row row = sheet.createRow(rowNum++);
             row.createCell(0).setCellValue(v.getId());
-            row.createCell(1).setCellValue(
-                    v.getCliente() != null ? v.getCliente() : "-");
+            row.createCell(1).setCellValue(v.getCliente() != null ? v.getCliente() : "-");
             row.createCell(2).setCellValue(v.getFecha().format(fmtFecha));
             row.createCell(3).setCellValue(v.getTotal());
         }
 
-        // Fila de total
         Row totalRow = sheet.createRow(rowNum + 1);
         CellStyle boldStyle = wb.createCellStyle();
         Font boldFont = wb.createFont();
@@ -178,7 +173,6 @@ public class ReporteController {
         totalCell.setCellValue(total);
         totalCell.setCellStyle(boldStyle);
 
-        // Autoajustar columnas
         sheet.setColumnWidth(0, 3000);
         sheet.setColumnWidth(1, 8000);
         sheet.setColumnWidth(2, 7000);
@@ -189,8 +183,7 @@ public class ReporteController {
         wb.close();
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=reporte_ventas.xlsx")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=reporte_ventas.xlsx")
                 .contentType(MediaType.parseMediaType(
                         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                 .body(out.toByteArray());
