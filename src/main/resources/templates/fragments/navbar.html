@@ -53,7 +53,6 @@
             </ul>
 
             <div class="d-flex align-items-center gap-2 mt-2 mt-lg-0">
-                <!-- Toggle modo oscuro -->
                 <button type="button" id="btn-modo-oscuro"
                         class="btn btn-outline-light btn-sm"
                         title="Cambiar tema" onclick="toggleModoOscuro()">
@@ -70,45 +69,44 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggler = document.querySelector('.navbar-toggler');
+            const navbarNav = document.getElementById('navbarNav');
+
+            if (toggler && navbarNav) {
+                toggler.addEventListener('click', function() {
+                    if (navbarNav.classList.contains('show')) {
+                        navbarNav.classList.remove('show');
+                    } else {
+                        navbarNav.classList.add('show');
+                    }
+                });
+            }
+
+            const temaGuardado = localStorage.getItem('tema') || 'claro';
+            if (temaGuardado === 'oscuro') {
+                document.body.classList.add('modo-oscuro');
+                document.getElementById('icono-modo').textContent = '☀️';
+            }
+        });
+
+        function toggleModoOscuro() {
+            const body = document.body;
+            const icono = document.getElementById('icono-modo');
+
+            body.classList.toggle('modo-oscuro');
+
+            if (body.classList.contains('modo-oscuro')) {
+                localStorage.setItem('tema', 'oscuro');
+                icono.textContent = '☀️';
+            } else {
+                localStorage.setItem('tema', 'claro');
+                icono.textContent = '🌙';
+            }
+        }
+    </script>
 </nav>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const toggler = document.querySelector('.navbar-toggler');
-        const navbarNav = document.getElementById('navbarNav');
-
-        if (toggler && navbarNav) {
-            toggler.addEventListener('click', function() {
-                if (navbarNav.classList.contains('show')) {
-                    navbarNav.classList.remove('show');
-                } else {
-                    navbarNav.classList.add('show');
-                }
-            });
-        }
-
-        // Aplicar tema guardado al cargar la página
-        const temaGuardado = localStorage.getItem('tema') || 'claro';
-        if (temaGuardado === 'oscuro') {
-            document.body.classList.add('modo-oscuro');
-            document.getElementById('icono-modo').textContent = '☀️';
-        }
-    });
-
-    function toggleModoOscuro() {
-        const body = document.body;
-        const icono = document.getElementById('icono-modo');
-
-        body.classList.toggle('modo-oscuro');
-
-        if (body.classList.contains('modo-oscuro')) {
-            localStorage.setItem('tema', 'oscuro');
-            icono.textContent = '☀️';
-        } else {
-            localStorage.setItem('tema', 'claro');
-            icono.textContent = '🌙';
-        }
-    }
-</script>
 </body>
 </html>
