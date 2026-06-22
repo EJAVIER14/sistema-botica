@@ -25,7 +25,14 @@
                     <a class="nav-link" href="/productos">📦 Productos</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/alertas">🔔 Alertas</a>
+                    <a class="nav-link position-relative" href="/alertas">
+                        🔔 Alertas
+                        <span th:if="${totalAlertasNavbar != null and totalAlertasNavbar > 0}"
+                              class="badge rounded-pill bg-danger ms-1"
+                              style="font-size:10px; vertical-align:top;"
+                              th:text="${totalAlertasNavbar}">
+                        </span>
+                    </a>
                 </li>
                 <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'CAJERO')">
                     <a class="nav-link" href="/ventas">🛒 Ventas</a>
@@ -55,7 +62,6 @@
 </nav>
 
 <script>
-    // Activar navbar manualmente sin depender de Bootstrap JS externo
     document.addEventListener('DOMContentLoaded', function() {
         const toggler = document.querySelector('.navbar-toggler');
         const navbarNav = document.getElementById('navbarNav');
