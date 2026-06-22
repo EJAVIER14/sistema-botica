@@ -52,11 +52,16 @@
 
             </ul>
 
-            <form th:action="@{/logout}" method="post" class="d-flex mt-2 mt-lg-0">
-                <button type="submit" class="btn btn-outline-light btn-sm w-100">
-                    🚪 Cerrar sesión
-                </button>
-            </form>
+            <div class="d-flex align-items-center gap-2 mt-2 mt-lg-0">
+                <a href="/perfil" class="btn btn-outline-light btn-sm">
+                    👤 Mi Perfil
+                </a>
+                <form th:action="@{/logout}" method="post" class="d-flex">
+                    <button type="submit" class="btn btn-outline-light btn-sm">
+                        🚪 Cerrar sesión
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 </nav>

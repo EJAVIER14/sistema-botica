@@ -15,8 +15,7 @@ public class UsuarioService {
     @Autowired
     private UsuarioRepository repo;
 
-    private BCryptPasswordEncoder encoder =
-            new BCryptPasswordEncoder();
+    private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     public List<Usuario> listarTodos() {
         return repo.findAll();
@@ -24,6 +23,11 @@ public class UsuarioService {
 
     public Usuario buscarPorId(Long id) {
         return repo.findById(id).orElse(null);
+    }
+
+    // Buscar usuario por su username (para el perfil)
+    public Usuario buscarPorUsername(String username) {
+        return repo.findByUsername(username).orElse(null);
     }
 
     public Usuario guardar(Usuario u) {
@@ -44,12 +48,10 @@ public class UsuarioService {
         return null;
     }
 
-    // Cambiar contraseña de un usuario existente
     public boolean cambiarPassword(Long id, String passwordActual, String passwordNueva) {
         Usuario usuario = repo.findById(id).orElse(null);
         if (usuario == null) return false;
 
-        // Verifica que la contraseña actual sea correcta
         if (!encoder.matches(passwordActual, usuario.getPassword())) {
             return false;
         }
