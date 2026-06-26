@@ -4,16 +4,15 @@ import com.botica.model.Producto;
 import com.botica.service.ProductoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/productos")
@@ -80,5 +79,47 @@ public class ProductoController {
         String usuario = authentication.getName();
         service.registrarEntrada(productoId, cantidad, usuario);
         return "redirect:/inventario";
+    }
+
+    // Descargar plantilla Excel
+    @GetMapping("/plantilla-excel")
+    public ResponseEntity<byte[]> descargarPlantilla() throws Exception {
+        byte[] excel = service.generarPlantillaExcel();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=plantilla_productos.xlsx")
+                .contentType(MediaType.parseMediaType(
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(excel);
+    }
+
+    // Importar productos desde Excel
+    @PostMapping("/importar-excel")
+    public String importarExcel(
+            @RequestParam("archivo") MultipartFile archivo,
+            RedirectAttributes redirectAttributes) {
+
+        if (archivo.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Debes seleccionar un archivo Excel");
+            return "redirect:/productos";
+        }
+
+        try {
+            ProductoService.ResultadoImportacion resultado = service.importarExcel(archivo);
+
+            if (resultado.exitosos > 0) {
+                String msg = resultado.exitosos + " productos importados correctamente";
+                if (!resultado.errores.isEmpty()) {
+                    msg += " (" + resultado.errores.size() + " filas con errores)";
+                }
+                redirectAttributes.addFlashAttribute("exito", msg);
+            } else {
+                redirectAttributes.addFlashAttribute("error", "No se importó ningún producto. Verifica el formato del archivo");
+            }
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error al leer el archivo: " + e.getMessage());
+        }
+
+        return "redirect:/productos";
     }
 }
