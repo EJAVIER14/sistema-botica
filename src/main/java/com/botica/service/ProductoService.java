@@ -3,7 +3,9 @@ package com.botica.service;
 import com.botica.dto.ProductoDTO;
 import com.botica.exception.PrecioInvalidoException;
 import com.botica.exception.ProductoDuplicadoException;
+import com.botica.exception.StockInsuficienteException;
 import com.botica.exception.StockInvalidoException;
+import com.botica.model.Presentacion;
 import com.botica.model.Producto;
 import com.botica.repository.ProductoRepository;
 import org.apache.poi.ss.usermodel.*;
@@ -104,6 +106,37 @@ public class ProductoService {
                 producto, "ENTRADA", cantidad, stockAnterior, stockNuevo,
                 "REABASTECIMIENTO", usuario
         );
+    }
+
+    // ═══════════ NUEVO: PRESENTACIONES DE VENTA (unidad / blister / caja) ═══════════
+
+    public int calcularUnidades(Producto producto, Presentacion presentacion, int cantidad) {
+        int factor = switch (presentacion) {
+            case UNIDAD -> 1;
+            case BLISTER -> producto.getUnidadesPorBlister() != null ? producto.getUnidadesPorBlister() : 1;
+            case CAJA -> producto.getUnidadesPorCaja() != null ? producto.getUnidadesPorCaja() : 1;
+        };
+        return cantidad * factor;
+    }
+
+    public double calcularPrecioTotal(Producto producto, Presentacion presentacion, int cantidad) {
+        int unidades = calcularUnidades(producto, presentacion, cantidad);
+        return unidades * producto.getPrecio();
+    }
+
+    public Producto venderPorPresentacion(Long productoId, Presentacion presentacion, int cantidad) {
+        Producto producto = repo.findById(productoId)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        int unidadesADescontar = calcularUnidades(producto, presentacion, cantidad);
+
+        if (producto.getStock() < unidadesADescontar) {
+            throw new StockInsuficienteException(
+                    producto.getNombre(), producto.getStock(), unidadesADescontar);
+        }
+
+        producto.setStock(producto.getStock() - unidadesADescontar);
+        return repo.save(producto);
     }
 
     // ═══ GENERAR PLANTILLA EXCEL ═══

@@ -1,5 +1,6 @@
 package com.botica.controller;
 
+import com.botica.model.Presentacion;
 import com.botica.model.Venta;
 import com.botica.service.ProductoService;
 import com.botica.service.VentaService;
@@ -10,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Controller
@@ -51,10 +53,18 @@ public class VentaController {
             @ModelAttribute Venta venta,
             @RequestParam List<Long> productoIds,
             @RequestParam List<Integer> cantidades,
+            @RequestParam(required = false) List<Presentacion> presentaciones,
             RedirectAttributes redirectAttributes) {
 
         venta.setDetalles(new ArrayList<>());
-        ventaService.registrarVenta(venta, productoIds, cantidades);
+
+        // Temporal: mientras el formulario no envíe la presentación,
+        // se asume UNIDAD para no romper el flujo actual de ventas.
+        if (presentaciones == null || presentaciones.isEmpty()) {
+            presentaciones = new ArrayList<>(Collections.nCopies(productoIds.size(), Presentacion.UNIDAD));
+        }
+
+        ventaService.registrarVenta(venta, productoIds, cantidades, presentaciones);
 
         List<String> stockBajo = ventaService.getStockBajoProductos();
         if (!stockBajo.isEmpty()) {

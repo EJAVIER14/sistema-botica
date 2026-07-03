@@ -20,4 +20,8 @@ public class Producto {
     private Integer stock;
     private LocalDate fechaVencimiento;
     private String categoria;
+
+    // ═══ NUEVO: presentaciones de venta ═══
+    private Integer unidadesPorBlister;
+    private Integer unidadesPorCaja;
 }

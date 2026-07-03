@@ -1,9 +1,9 @@
 package com.botica.service;
 
 import com.botica.model.DetalleVenta;
+import com.botica.model.Presentacion;
 import com.botica.model.Producto;
 import com.botica.model.Venta;
-import com.botica.repository.ProductoRepository;
 import com.botica.repository.VentaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,7 +23,7 @@ public class VentaService {
     private VentaRepository ventaRepository;
 
     @Autowired
-    private ProductoRepository productoRepository;
+    private ProductoService productoService;
 
     @Autowired
     private MovimientoInventarioService movimientoService;
@@ -38,10 +38,8 @@ public class VentaService {
         return ventaRepository.findAll();
     }
 
-    // Listar con paginación y búsqueda opcional por cliente
     public Page<Venta> listarPaginado(int page, int size, String buscar) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by("fecha").descending());
-
         if (buscar != null && !buscar.trim().isEmpty()) {
             return ventaRepository.findByClienteContainingIgnoreCase(buscar, pageRequest);
         }
@@ -52,10 +50,12 @@ public class VentaService {
         return ventaRepository.findById(id).orElse(null);
     }
 
+    // ═══ ACTUALIZADO: ahora recibe la presentación (UNIDAD / BLISTER / CAJA) por cada línea ═══
     public Venta registrarVenta(
             Venta venta,
             List<Long> productoIds,
-            List<Integer> cantidades) {
+            List<Integer> cantidades,
+            List<Presentacion> presentaciones) {
 
         venta.setFecha(LocalDateTime.now());
         venta.setDetalles(new ArrayList<>());
@@ -64,38 +64,45 @@ public class VentaService {
         double subtotal = 0.0;
 
         for (int i = 0; i < productoIds.size(); i++) {
-            Producto producto = productoRepository
-                    .findById(productoIds.get(i)).orElse(null);
-
-            if (producto == null) continue;
-
+            Long productoId = productoIds.get(i);
             int cantidad = cantidades.get(i);
-            int stockAnterior = producto.getStock();
-            int nuevoStock = stockAnterior - cantidad;
+            Presentacion presentacion = presentaciones.get(i);
 
-            producto.setStock(nuevoStock);
-            productoRepository.save(producto);
+            Producto productoAntes = productoService.buscarPorId(productoId);
+            if (productoAntes == null) continue;
+            int stockAnterior = productoAntes.getStock();
+
+            // Descuenta el stock en unidades reales, valida stock suficiente,
+            // y lanza StockInsuficienteException si no alcanza
+            Producto productoActualizado = productoService.venderPorPresentacion(
+                    productoId, presentacion, cantidad);
+
+            int unidadesDescontadas = stockAnterior - productoActualizado.getStock();
 
             movimientoService.registrarMovimiento(
-                    producto, "SALIDA", cantidad, stockAnterior, nuevoStock,
+                    productoActualizado, "SALIDA", unidadesDescontadas,
+                    stockAnterior, productoActualizado.getStock(),
                     "VENTA", venta.getCliente()
             );
 
-            if (nuevoStock <= 10) {
+            if (productoActualizado.getStock() <= 10) {
                 stockBajoProductos.add(
-                        producto.getNombre() + " (stock: " + nuevoStock + ")"
+                        productoActualizado.getNombre() + " (stock: " + productoActualizado.getStock() + ")"
                 );
             }
 
+            double precioLinea = productoService.calcularPrecioTotal(productoActualizado, presentacion, cantidad);
+
             DetalleVenta detalle = new DetalleVenta();
-            detalle.setProducto(producto);
+            detalle.setProducto(productoActualizado);
             detalle.setCantidad(cantidad);
-            detalle.setPrecioUnitario(producto.getPrecio());
-            detalle.setSubtotal(producto.getPrecio() * cantidad);
+            detalle.setPresentacion(presentacion);
+            detalle.setPrecioUnitario(precioLinea / cantidad);
+            detalle.setSubtotal(precioLinea);
             detalle.setVenta(venta);
 
             venta.getDetalles().add(detalle);
-            subtotal += detalle.getSubtotal();
+            subtotal += precioLinea;
         }
 
         double descuento = venta.getDescuento() != null ? venta.getDescuento() : 0.0;

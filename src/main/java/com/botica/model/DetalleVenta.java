@@ -18,6 +18,9 @@ public class DetalleVenta {
     private Double precioUnitario;
     private Double subtotal;
 
+    @Enumerated(EnumType.STRING)
+    private Presentacion presentacion;
+
     @ManyToOne
     @JoinColumn(name = "venta_id")
     private Venta venta;
