@@ -1,5 +1,6 @@
 package com.botica.controller;
 
+import com.botica.exception.PasswordInvalidaException;
 import com.botica.model.Usuario;
 import com.botica.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,10 +40,16 @@ public class UsuarioController {
             model.addAttribute("error", "El nombre de usuario ya existe");
             return "usuarios/formulario";
         }
-        if (usuario.getId() == null) {
-            service.guardar(usuario);
-        } else {
-            service.actualizar(usuario);
+        try {
+            if (usuario.getId() == null) {
+                service.guardar(usuario);
+            } else {
+                service.actualizar(usuario);
+            }
+        } catch (PasswordInvalidaException e) {
+            model.addAttribute("error", e.getMessage()
+                    + ". La contraseña debe tener al menos 8 caracteres, incluir letras y números.");
+            return "usuarios/formulario";
         }
         return "redirect:/usuarios";
     }
@@ -75,17 +82,17 @@ public class UsuarioController {
             return "redirect:/usuarios/cambiar-password/" + id;
         }
 
-        if (passwordNueva.length() < 6) {
-            redirectAttributes.addFlashAttribute("error",
-                    "La contraseña debe tener mínimo 6 caracteres");
-            return "redirect:/usuarios/cambiar-password/" + id;
-        }
+        try {
+            boolean ok = service.cambiarPassword(id, passwordActual, passwordNueva);
 
-        boolean ok = service.cambiarPassword(id, passwordActual, passwordNueva);
-
-        if (!ok) {
+            if (!ok) {
+                redirectAttributes.addFlashAttribute("error",
+                        "La contraseña actual es incorrecta");
+                return "redirect:/usuarios/cambiar-password/" + id;
+            }
+        } catch (PasswordInvalidaException e) {
             redirectAttributes.addFlashAttribute("error",
-                    "La contraseña actual es incorrecta");
+                    e.getMessage() + ". Debe tener al menos 8 caracteres, incluir letras y números.");
             return "redirect:/usuarios/cambiar-password/" + id;
         }
 

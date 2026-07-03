@@ -27,6 +27,7 @@
                 </div>
                 <div class="card-body p-4">
                     <form action="/productos/entrada/guardar" method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
                         <input type="hidden" name="productoId"
                                th:value="${producto.id}"/>

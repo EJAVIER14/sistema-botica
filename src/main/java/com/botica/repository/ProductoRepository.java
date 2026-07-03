@@ -21,6 +21,9 @@ public interface ProductoRepository
 
     List<Producto> findByStockLessThan(Integer stock);
 
+    // Nuevo: para validar duplicados antes de crear un producto
+    boolean existsByNombre(String nombre);
+
     @Query("SELECT p FROM Producto p WHERE " +
             "p.fechaVencimiento IS NOT NULL AND " +
             "p.fechaVencimiento <= :fecha")

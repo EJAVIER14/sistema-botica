@@ -26,10 +26,13 @@ public class CustomUserDetailsService
                         new UsernameNotFoundException(
                                 "Usuario no encontrado: " + username));
 
+        boolean estaActivo = Boolean.TRUE.equals(usuario.getActivo());
+
         return User.builder()
                 .username(usuario.getUsername())
                 .password(usuario.getPassword())
                 .roles(usuario.getRol())
+                .disabled(!estaActivo)
                 .build();
     }
 }

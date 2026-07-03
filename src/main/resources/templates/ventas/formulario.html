@@ -91,6 +91,7 @@
 
             <!-- Formulario oculto que se envía -->
             <form action="/ventas/guardar" method="post" id="formVenta">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                 <input type="hidden" name="cliente" id="h-cliente"/>
                 <input type="hidden" name="dni" id="h-dni"/>
                 <input type="hidden" name="ruc" id="h-ruc"/>

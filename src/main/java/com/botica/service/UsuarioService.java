@@ -1,5 +1,6 @@
 package com.botica.service;
 
+import com.botica.exception.PasswordInvalidaException;
 import com.botica.model.Usuario;
 import com.botica.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Service
 @Transactional
@@ -16,6 +18,9 @@ public class UsuarioService {
     private UsuarioRepository repo;
 
     private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+    private static final Pattern TIENE_LETRA = Pattern.compile(".*[A-Za-z].*");
+    private static final Pattern TIENE_NUMERO = Pattern.compile(".*\\d.*");
 
     public List<Usuario> listarTodos() {
         return repo.findAll();
@@ -31,6 +36,7 @@ public class UsuarioService {
     }
 
     public Usuario guardar(Usuario u) {
+        validarPassword(u.getPassword());
         u.setPassword(encoder.encode(u.getPassword()));
         u.setActivo(true);
         return repo.save(u);
@@ -52,6 +58,8 @@ public class UsuarioService {
         Usuario usuario = repo.findById(id).orElse(null);
         if (usuario == null) return false;
 
+        validarPassword(passwordNueva);
+
         if (!encoder.matches(passwordActual, usuario.getPassword())) {
             return false;
         }
@@ -67,5 +75,17 @@ public class UsuarioService {
 
     public boolean existeUsername(String username) {
         return repo.existsByUsername(username);
+    }
+
+    private void validarPassword(String password) {
+        if (password == null || password.length() < 8) {
+            throw new PasswordInvalidaException("debe tener al menos 8 caracteres");
+        }
+        if (!TIENE_LETRA.matcher(password).matches()) {
+            throw new PasswordInvalidaException("debe contener al menos una letra");
+        }
+        if (!TIENE_NUMERO.matcher(password).matches()) {
+            throw new PasswordInvalidaException("debe contener al menos un número");
+        }
     }
 }

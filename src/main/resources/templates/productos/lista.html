@@ -258,7 +258,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form action="/productos/importar-excel" method="post" enctype="multipart/form-data">
-                <div class="modal-body">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>                <div class="modal-body">
 
                     <div class="mb-3">
                         <a href="/productos/plantilla-excel" class="btn-excel w-100 justify-content-center">

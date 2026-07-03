@@ -1,5 +1,9 @@
 package com.botica.service;
 
+import com.botica.dto.ProductoDTO;
+import com.botica.exception.PrecioInvalidoException;
+import com.botica.exception.ProductoDuplicadoException;
+import com.botica.exception.StockInvalidoException;
 import com.botica.model.Producto;
 import com.botica.repository.ProductoRepository;
 import org.apache.poi.ss.usermodel.*;
@@ -17,6 +21,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
 
 @Service
 @Transactional
@@ -42,6 +47,31 @@ public class ProductoService {
 
     public Producto guardar(Producto p) {
         return repo.save(p);
+    }
+
+    // ═══ NUEVO: crear producto validando nombre duplicado, precio y stock ═══
+    public Producto crear(ProductoDTO dto) {
+        if (repo.existsByNombre(dto.nombre())) {
+            throw new ProductoDuplicadoException(dto.nombre());
+        }
+
+        if (dto.precio() == null || dto.precio() <= 0) {
+            throw new PrecioInvalidoException(dto.precio());
+        }
+
+        if (dto.stock() == null || dto.stock() < 0) {
+            throw new StockInvalidoException(dto.stock());
+        }
+
+        Producto producto = new Producto();
+        producto.setNombre(dto.nombre());
+        producto.setDescripcion(dto.descripcion());
+        producto.setPrecio(dto.precio());
+        producto.setStock(dto.stock());
+        producto.setFechaVencimiento(dto.fechaVencimiento());
+        producto.setCategoria(dto.categoria());
+
+        return repo.save(producto);
     }
 
     public Producto buscarPorId(Long id) {
