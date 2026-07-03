@@ -42,6 +42,24 @@
             font-size: 16px;
             line-height: 1;
         }
+        .presentacion-btns {
+            display: flex; gap: 4px; margin-top: 6px;
+        }
+        .btn-presentacion {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 6px;
+            border: 1px solid #c8e6c9;
+            background: white;
+            color: #2E7D32;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-presentacion.active {
+            background: #2E7D32;
+            color: white;
+            border-color: #2E7D32;
+        }
 
         /* ═══ MODO OSCURO ═══ */
         body.modo-oscuro { background: #121212; color: #e0e0e0; }
@@ -53,6 +71,8 @@
         body.modo-oscuro .bg-light { background-color: #2a2a2a !important; }
         body.modo-oscuro .text-muted { color: #9e9e9e !important; }
         body.modo-oscuro hr { border-color: #333 !important; }
+        body.modo-oscuro .btn-presentacion { background-color: #2a2a2a !important; color: #81C784 !important; border-color: #404040 !important; }
+        body.modo-oscuro .btn-presentacion.active { background-color: #2E7D32 !important; color: white !important; }
     </style>
 </head>
 <body class="bg-light">
@@ -201,7 +221,18 @@
 </div>
 
 <script>
-    let carrito = {}; // { id: { nombre, precio, stock, cantidad } }
+    let carrito = {}; // { id: { nombre, precio, stock, unidadesPorBlister, unidadesPorCaja, cantidad, presentacion } }
+
+    function factorPresentacion(item, presentacion) {
+        if (presentacion === 'BLISTER') return item.unidadesPorBlister || 1;
+        if (presentacion === 'CAJA') return item.unidadesPorCaja || 1;
+        return 1; // UNIDAD
+    }
+
+    function precioLinea(item) {
+        const factor = factorPresentacion(item, item.presentacion);
+        return item.precio * factor * item.cantidad;
+    }
 
     // Renderizar grid de productos
     function renderizarProductos(lista) {
@@ -212,10 +243,11 @@
         }
         grid.innerHTML = lista.map(p => `
             <div class="col-6 col-lg-4">
-                <div class="producto-card p-2 text-center" onclick="agregarAlCarrito(${p.id}, '${p.nombre}', ${p.precio}, ${p.stock})">
+                <div class="producto-card p-2 text-center"
+                     onclick="agregarAlCarrito(${p.id}, '${p.nombre}', ${p.precio}, ${p.stock}, ${p.unidadesPorBlister || 'null'}, ${p.unidadesPorCaja || 'null'})">
                     <div class="fs-3 mb-1">💊</div>
                     <div class="fw-bold small">${p.nombre}</div>
-                    <div class="text-success fw-bold">S/ ${p.precio.toFixed(2)}</div>
+                    <div class="text-success fw-bold">S/ ${p.precio.toFixed(2)} c/u</div>
                     <span class="badge ${p.stock < 10 ? 'bg-warning text-dark' : 'bg-success'} mt-1">
                         Stock: ${p.stock}
                     </span>
@@ -231,19 +263,27 @@
         renderizarProductos(filtrados);
     }
 
-    function agregarAlCarrito(id, nombre, precio, stock) {
+    function agregarAlCarrito(id, nombre, precio, stock, unidadesPorBlister, unidadesPorCaja) {
         if (stock <= 0) {
             alert('⚠️ ' + nombre + ' no tiene stock disponible');
             return;
         }
         if (carrito[id]) {
-            if (carrito[id].cantidad >= stock) {
-                alert('⚠️ Stock máximo alcanzado: ' + stock + ' unidades');
+            const item = carrito[id];
+            const factor = factorPresentacion(item, item.presentacion);
+            if ((item.cantidad + 1) * factor > item.stock) {
+                alert('⚠️ Stock máximo alcanzado para la presentación seleccionada');
                 return;
             }
-            carrito[id].cantidad++;
+            item.cantidad++;
         } else {
-            carrito[id] = { nombre, precio, stock, cantidad: 1 };
+            carrito[id] = {
+                nombre, precio, stock,
+                unidadesPorBlister: unidadesPorBlister || null,
+                unidadesPorCaja: unidadesPorCaja || null,
+                cantidad: 1,
+                presentacion: 'UNIDAD'
+            };
         }
         renderizarCarrito();
         calcularTotal();
@@ -251,11 +291,37 @@
 
     function cambiarCantidad(id, delta) {
         if (!carrito[id]) return;
-        carrito[id].cantidad += delta;
-        if (carrito[id].cantidad <= 0) {
+        const item = carrito[id];
+        const factor = factorPresentacion(item, item.presentacion);
+        const nuevaCantidad = item.cantidad + delta;
+
+        if (nuevaCantidad <= 0) {
             delete carrito[id];
-        } else if (carrito[id].cantidad > carrito[id].stock) {
-            carrito[id].cantidad = carrito[id].stock;
+        } else if (nuevaCantidad * factor > item.stock) {
+            alert('⚠️ Stock máximo alcanzado para la presentación seleccionada');
+            return;
+        } else {
+            item.cantidad = nuevaCantidad;
+        }
+        renderizarCarrito();
+        calcularTotal();
+    }
+
+    function cambiarPresentacion(id, presentacion) {
+        const item = carrito[id];
+        if (!item) return;
+
+        const factor = factorPresentacion(item, presentacion);
+        const maxCantidad = Math.floor(item.stock / factor);
+
+        if (maxCantidad < 1) {
+            alert('⚠️ No hay stock suficiente para vender por ' + presentacion.toLowerCase());
+            return;
+        }
+
+        item.presentacion = presentacion;
+        if (item.cantidad > maxCantidad) {
+            item.cantidad = maxCantidad;
         }
         renderizarCarrito();
         calcularTotal();
@@ -267,9 +333,14 @@
         calcularTotal();
     }
 
+    function etiquetaPresentacion(p) {
+        if (p === 'BLISTER') return 'Blíster(es)';
+        if (p === 'CAJA') return 'Caja(s)';
+        return 'Unidad(es)';
+    }
+
     function renderizarCarrito() {
         const container = document.getElementById('carrito-items');
-        const vacio = document.getElementById('carrito-vacio');
         const ids = Object.keys(carrito);
 
         if (ids.length === 0) {
@@ -281,6 +352,19 @@
         document.getElementById('total-items').textContent = ids.length + ' items';
         container.innerHTML = ids.map(id => {
             const item = carrito[id];
+            const total = precioLinea(item);
+
+            const botones = ['UNIDAD'];
+            if (item.unidadesPorBlister) botones.push('BLISTER');
+            if (item.unidadesPorCaja) botones.push('CAJA');
+
+            const botonesHtml = botones.map(p => `
+                <button type="button" class="btn-presentacion ${item.presentacion === p ? 'active' : ''}"
+                        onclick="cambiarPresentacion(${id}, '${p}')">
+                    ${p === 'UNIDAD' ? 'Unidad' : (p === 'BLISTER' ? 'Blíster' : 'Caja')}
+                </button>
+            `).join('');
+
             return `
                 <div class="carrito-item">
                     <div class="d-flex justify-content-between align-items-start">
@@ -288,20 +372,19 @@
                         <button type="button" class="btn btn-link btn-sm text-danger p-0"
                                 onclick="eliminarDelCarrito(${id})">✕</button>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center mt-1">
+                    <div class="presentacion-btns">${botonesHtml}</div>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
                         <div class="d-flex align-items-center gap-2">
                             <button type="button" class="btn btn-outline-secondary btn-cantidad"
                                     onclick="cambiarCantidad(${id}, -1)">−</button>
                             <span class="fw-bold">${item.cantidad}</span>
                             <button type="button" class="btn btn-outline-success btn-cantidad"
                                     onclick="cambiarCantidad(${id}, 1)">+</button>
+                            <span class="text-muted" style="font-size:11px">${etiquetaPresentacion(item.presentacion)}</span>
                         </div>
                         <div class="text-success fw-bold">
-                            S/ ${(item.precio * item.cantidad).toFixed(2)}
+                            S/ ${total.toFixed(2)}
                         </div>
-                    </div>
-                    <div class="text-muted" style="font-size:11px">
-                        S/ ${item.precio.toFixed(2)} x ${item.cantidad}
                     </div>
                 </div>
             `;
@@ -311,7 +394,7 @@
     function calcularTotal() {
         let subtotalBruto = 0;
         Object.values(carrito).forEach(item => {
-            subtotalBruto += item.precio * item.cantidad;
+            subtotalBruto += precioLinea(item);
         });
 
         const descuento = parseFloat(document.getElementById('descuento').value) || 0;
@@ -360,6 +443,7 @@
             hiddenContainer.innerHTML += `
                 <input type="hidden" name="productoIds" value="${id}"/>
                 <input type="hidden" name="cantidades" value="${item.cantidad}"/>
+                <input type="hidden" name="presentaciones" value="${item.presentacion}"/>
             `;
         });
 
