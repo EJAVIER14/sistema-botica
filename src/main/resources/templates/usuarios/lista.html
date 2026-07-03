@@ -109,6 +109,11 @@
                         <td>
                             <div class="d-flex gap-1">
                                 <a th:href="@{/usuarios/editar/{id}(id=${u.id})}" class="btn btn-accion btn-primary" title="Editar">✏️</a>
+                                <a th:href="@{/usuarios/toggle-activo/{id}(id=${u.id})}"
+                                   th:class="${u.activo} ? 'btn btn-accion btn-secondary' : 'btn btn-accion btn-success'"
+                                   th:title="${u.activo} ? 'Desactivar' : 'Activar'"
+                                   th:text="${u.activo} ? '🔒' : '🔓'"
+                                   onclick="return confirm('¿Cambiar el estado de este usuario?')"></a>
                                 <a th:href="@{/usuarios/cambiar-password/{id}(id=${u.id})}" class="btn btn-accion btn-warning" title="Cambiar contraseña">🔑</a>
                                 <a th:href="@{/usuarios/eliminar/{id}(id=${u.id})}" class="btn btn-accion btn-danger" title="Eliminar" onclick="return confirm('¿Seguro?')">🗑️</a>
                             </div>

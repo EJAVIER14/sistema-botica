@@ -77,6 +77,15 @@ public class UsuarioService {
         return repo.existsByUsername(username);
     }
 
+    // ═══ NUEVO: activar/desactivar usuario ═══
+    public void toggleActivo(Long id) {
+        Usuario usuario = repo.findById(id).orElse(null);
+        if (usuario != null) {
+            usuario.setActivo(!Boolean.TRUE.equals(usuario.getActivo()));
+            repo.save(usuario);
+        }
+    }
+
     private void validarPassword(String password) {
         if (password == null || password.length() < 8) {
             throw new PasswordInvalidaException("debe tener al menos 8 caracteres");

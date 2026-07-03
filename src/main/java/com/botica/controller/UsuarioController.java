@@ -60,6 +60,13 @@ public class UsuarioController {
         return "redirect:/usuarios";
     }
 
+    // ═══ NUEVO: activar/desactivar usuario ═══
+    @GetMapping("/toggle-activo/{id}")
+    public String toggleActivo(@PathVariable Long id) {
+        service.toggleActivo(id);
+        return "redirect:/usuarios";
+    }
+
     // Abrir formulario cambiar contraseña
     @GetMapping("/cambiar-password/{id}")
     public String formularioCambiarPassword(@PathVariable Long id, Model model) {
