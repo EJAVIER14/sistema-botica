@@ -1,6 +1,8 @@
 package com.botica.service;
 
 import com.botica.dto.ProductoDTO;
+import com.botica.exception.FechaVencimientoInvalidaException;
+import com.botica.exception.NombreInvalidoException;
 import com.botica.exception.PrecioInvalidoException;
 import com.botica.exception.ProductoDuplicadoException;
 import com.botica.exception.StockInsuficienteException;
@@ -51,8 +53,12 @@ public class ProductoService {
         return repo.save(p);
     }
 
-    // ═══ NUEVO: crear producto validando nombre duplicado, precio y stock ═══
+    // ═══ NUEVO: crear producto validando nombre, duplicado, precio, stock y fecha de vencimiento ═══
     public Producto crear(ProductoDTO dto) {
+        if (dto.nombre() == null || dto.nombre().isBlank()) {
+            throw new NombreInvalidoException();
+        }
+
         if (repo.existsByNombre(dto.nombre())) {
             throw new ProductoDuplicadoException(dto.nombre());
         }
@@ -63,6 +69,10 @@ public class ProductoService {
 
         if (dto.stock() == null || dto.stock() < 0) {
             throw new StockInvalidoException(dto.stock());
+        }
+
+        if (dto.fechaVencimiento() != null && dto.fechaVencimiento().isBefore(LocalDate.now())) {
+            throw new FechaVencimientoInvalidaException(dto.fechaVencimiento());
         }
 
         Producto producto = new Producto();

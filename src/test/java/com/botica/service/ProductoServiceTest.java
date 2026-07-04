@@ -1,6 +1,8 @@
 package com.botica.service;
 
 import com.botica.dto.ProductoDTO;
+import com.botica.exception.FechaVencimientoInvalidaException;
+import com.botica.exception.NombreInvalidoException;
 import com.botica.exception.PrecioInvalidoException;
 import com.botica.exception.ProductoDuplicadoException;
 import com.botica.exception.StockInsuficienteException;
@@ -120,6 +122,42 @@ class ProductoServiceTest {
         );
 
         assertThrows(StockInvalidoException.class, () -> productoService.crear(dto));
+
+        verify(repo, never()).save(any(Producto.class));
+    }
+
+    @Test
+    @DisplayName("Debe lanzar excepción al crear un producto con nombre vacío")
+    void deberiaLanzarExcepcionSiElNombreEstaVacio() {
+        ProductoDTO dto = new ProductoDTO(
+                "   ",
+                "Descripcion cualquiera",
+                5.0,
+                10,
+                LocalDate.now().plusMonths(6),
+                "Otro"
+        );
+
+        assertThrows(NombreInvalidoException.class, () -> productoService.crear(dto));
+
+        verify(repo, never()).save(any(Producto.class));
+    }
+
+    @Test
+    @DisplayName("Debe lanzar excepción al crear un producto con fecha de vencimiento ya pasada")
+    void deberiaLanzarExcepcionSiLaFechaDeVencimientoYaPaso() {
+        ProductoDTO dto = new ProductoDTO(
+                "Producto Vencido",
+                "Descripcion cualquiera",
+                5.0,
+                10,
+                LocalDate.now().minusDays(1),
+                "Otro"
+        );
+
+        when(repo.existsByNombre("Producto Vencido")).thenReturn(false);
+
+        assertThrows(FechaVencimientoInvalidaException.class, () -> productoService.crear(dto));
 
         verify(repo, never()).save(any(Producto.class));
     }
