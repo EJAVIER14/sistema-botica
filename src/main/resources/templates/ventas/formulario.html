@@ -223,6 +223,17 @@
 <script>
     let carrito = {}; // { id: { nombre, precio, stock, unidadesPorBlister, unidadesPorCaja, cantidad, presentacion } }
 
+    // ═══ Previene XSS: escapa caracteres HTML antes de insertarlos con innerHTML ═══
+    function escapeHtml(texto) {
+        if (texto == null) return '';
+        return String(texto)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
     function factorPresentacion(item, presentacion) {
         if (presentacion === 'BLISTER') return item.unidadesPorBlister || 1;
         if (presentacion === 'CAJA') return item.unidadesPorCaja || 1;
@@ -244,9 +255,9 @@
         grid.innerHTML = lista.map(p => `
             <div class="col-6 col-lg-4">
                 <div class="producto-card p-2 text-center"
-                     onclick="agregarAlCarrito(${p.id}, '${p.nombre}', ${p.precio}, ${p.stock}, ${p.unidadesPorBlister || 'null'}, ${p.unidadesPorCaja || 'null'})">
+                     onclick="agregarAlCarrito(${p.id}, '${escapeHtml(p.nombre)}', ${p.precio}, ${p.stock}, ${p.unidadesPorBlister || 'null'}, ${p.unidadesPorCaja || 'null'})">
                     <div class="fs-3 mb-1">💊</div>
-                    <div class="fw-bold small">${p.nombre}</div>
+                    <div class="fw-bold small">${escapeHtml(p.nombre)}</div>
                     <div class="text-success fw-bold">S/ ${p.precio.toFixed(2)} c/u</div>
                     <span class="badge ${p.stock < 10 ? 'bg-warning text-dark' : 'bg-success'} mt-1">
                         Stock: ${p.stock}
@@ -368,7 +379,7 @@
             return `
                 <div class="carrito-item">
                     <div class="d-flex justify-content-between align-items-start">
-                        <div class="small fw-bold">${item.nombre}</div>
+                        <div class="small fw-bold">${escapeHtml(item.nombre)}</div>
                         <button type="button" class="btn btn-link btn-sm text-danger p-0"
                                 onclick="eliminarDelCarrito(${id})">✕</button>
                     </div>
