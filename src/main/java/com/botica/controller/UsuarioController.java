@@ -9,12 +9,17 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.regex.Pattern;
+
 @Controller
 @RequestMapping("/usuarios")
 public class UsuarioController {
 
     @Autowired
     private UsuarioService service;
+
+    private static final Pattern EMAIL_VALIDO =
+            Pattern.compile("^[\\w.+-]+@[\\w-]+\\.[a-zA-Z]{2,}$");
 
     @GetMapping
     public String listar(Model model) {
@@ -36,12 +41,30 @@ public class UsuarioController {
 
     @PostMapping("/guardar")
     public String guardar(@ModelAttribute Usuario usuario, Model model) {
-        if (service.existeUsername(usuario.getUsername()) && usuario.getId() == null) {
+
+        if (usuario.getEmail() == null || !EMAIL_VALIDO.matcher(usuario.getEmail()).matches()) {
+            model.addAttribute("error", "Ingresa un correo electrónico válido");
+            return "usuarios/formulario";
+        }
+
+        boolean esNuevo = usuario.getId() == null;
+
+        if (esNuevo && service.existeUsername(usuario.getUsername())) {
             model.addAttribute("error", "El nombre de usuario ya existe");
             return "usuarios/formulario";
         }
+
+        boolean emailDuplicado = esNuevo
+                ? service.existeEmail(usuario.getEmail())
+                : service.existeEmailParaOtroUsuario(usuario.getEmail(), usuario.getId());
+
+        if (emailDuplicado) {
+            model.addAttribute("error", "Ese correo ya está registrado por otro usuario");
+            return "usuarios/formulario";
+        }
+
         try {
-            if (usuario.getId() == null) {
+            if (esNuevo) {
                 service.guardar(usuario);
             } else {
                 service.actualizar(usuario);

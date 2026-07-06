@@ -113,6 +113,14 @@
                             <div class="field-hint">🔑 Con este nombre ingresará al sistema</div>
                         </div>
 
+                        <!-- Email -->
+                        <div class="mb-4">
+                            <label class="field-label">Correo electrónico <span>*</span></label>
+                            <input type="email" class="form-input" th:field="*{email}"
+                                   placeholder="Ej: mlopez@boticadelpueblo.com" required/>
+                            <div class="field-hint">📧 Se usará para notificaciones y para recuperar la contraseña</div>
+                        </div>
+
                         <!-- Password solo en nuevo -->
                         <div class="mb-4" th:if="${usuario.id == null}">
                             <label class="field-label">Contraseña <span>*</span></label>

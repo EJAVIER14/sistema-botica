@@ -47,6 +47,7 @@ public class UsuarioService {
         if (existente != null) {
             existente.setNombre(u.getNombre());
             existente.setUsername(u.getUsername());
+            existente.setEmail(u.getEmail());
             existente.setRol(u.getRol());
             existente.setActivo(u.getActivo());
             return repo.save(existente);
@@ -75,6 +76,17 @@ public class UsuarioService {
 
     public boolean existeUsername(String username) {
         return repo.existsByUsername(username);
+    }
+
+    // ═══ NUEVO: validación de correo duplicado ═══
+    public boolean existeEmail(String email) {
+        return repo.findByEmail(email).isPresent();
+    }
+
+    public boolean existeEmailParaOtroUsuario(String email, Long id) {
+        return repo.findByEmail(email)
+                .map(u -> !u.getId().equals(id))
+                .orElse(false);
     }
 
     // ═══ NUEVO: activar/desactivar usuario ═══
