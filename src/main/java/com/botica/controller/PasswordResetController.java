@@ -26,7 +26,7 @@ public class PasswordResetController {
             model.addAttribute("mensaje",
                     "Si el correo está registrado, te enviamos un enlace de recuperación.");
         } catch (Exception e) {
-            // Mensaje genérico a propósito: no revelamos si el email existe o no (seguridad)
+            e.printStackTrace(); // TEMPORAL: para ver el error real en consola
             model.addAttribute("mensaje",
                     "Si el correo está registrado, te enviamos un enlace de recuperación.");
         }
