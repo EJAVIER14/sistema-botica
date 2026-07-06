@@ -30,7 +30,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
 
                         // Públicas
-                        .requestMatchers("/login", "/css/**", "/setup").permitAll()
+                        .requestMatchers("/login", "/css/**", "/setup", "/olvide-password", "/restablecer-password").permitAll()
 
                         // Solo ADMIN
                         .requestMatchers("/usuarios/**").hasRole("ADMIN")
