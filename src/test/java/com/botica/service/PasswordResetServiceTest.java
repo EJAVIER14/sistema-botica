@@ -14,13 +14,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,7 +34,7 @@ class PasswordResetServiceTest {
     private PasswordResetTokenRepository tokenRepo;
 
     @Mock
-    private JavaMailSender mailSender;
+    private RestTemplate restTemplate;
 
     @InjectMocks
     private PasswordResetService passwordResetService;
@@ -46,7 +47,7 @@ class PasswordResetServiceTest {
         assertThrows(EmailNoEncontradoException.class,
                 () -> passwordResetService.solicitarReset("noexiste@correo.com"));
 
-        verify(mailSender, never()).send(any(org.springframework.mail.SimpleMailMessage.class));
+        verify(restTemplate, never()).postForEntity(anyString(), any(), eq(String.class));
     }
 
     @Test
@@ -59,11 +60,13 @@ class PasswordResetServiceTest {
         when(usuarioRepo.findByEmail("jperez@correo.com")).thenReturn(Optional.of(usuario));
         when(tokenRepo.save(any(PasswordResetToken.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
+        when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
+                .thenReturn(ResponseEntity.ok("ok"));
 
         passwordResetService.solicitarReset("jperez@correo.com");
 
         verify(tokenRepo, times(1)).save(any(PasswordResetToken.class));
-        verify(mailSender, times(1)).send(any(org.springframework.mail.SimpleMailMessage.class));
+        verify(restTemplate, times(1)).postForEntity(anyString(), any(), eq(String.class));
     }
 
     @Test

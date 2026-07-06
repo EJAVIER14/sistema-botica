@@ -10,13 +10,19 @@ import com.botica.repository.PasswordResetTokenRepository;
 import com.botica.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -31,10 +37,16 @@ public class PasswordResetService {
     private PasswordResetTokenRepository tokenRepo;
 
     @Autowired
-    private JavaMailSender mailSender;
+    private RestTemplate restTemplate;
+
+    @Value("${resend.api-key}")
+    private String resendApiKey;
 
     @Value("${app.base-url:http://localhost:8080}")
     private String baseUrl;
+
+    private static final String RESEND_URL = "https://api.resend.com/emails";
+    private static final String REMITENTE = "onboarding@resend.dev";
 
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
@@ -81,14 +93,26 @@ public class PasswordResetService {
     private void enviarCorreo(String email, String token) {
         String enlace = baseUrl + "/restablecer-password?token=" + token;
 
-        SimpleMailMessage mensaje = new SimpleMailMessage();
-        mensaje.setTo(email);
-        mensaje.setSubject("Sistema Botica - Recuperación de contraseña");
-        mensaje.setText("Hola,\n\nRecibimos una solicitud para restablecer tu contraseña.\n" +
+        Map<String, Object> body = new HashMap<>();
+        body.put("from", REMITENTE);
+        body.put("to", List.of(email));
+        body.put("subject", "Sistema Botica - Recuperación de contraseña");
+        body.put("text", "Hola,\n\nRecibimos una solicitud para restablecer tu contraseña.\n" +
                 "Haz clic en el siguiente enlace (válido por " + HORAS_VALIDEZ_TOKEN + " hora):\n\n" +
                 enlace + "\n\n" +
                 "Si no solicitaste esto, ignora este correo.\n\nSistema Botica");
-        mailSender.send(mensaje);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(resendApiKey);
+
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
+
+        try {
+            restTemplate.postForEntity(RESEND_URL, request, String.class);
+        } catch (RestClientException e) {
+            throw new RuntimeException("Error al enviar el correo de recuperación", e);
+        }
     }
 
     private void validarPassword(String password) {
