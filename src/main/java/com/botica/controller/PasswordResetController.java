@@ -22,33 +22,26 @@ public class PasswordResetController {
     @PostMapping("/olvide-password")
     public String procesarSolicitud(@RequestParam String email, Model model) {
         try {
-            passwordResetService.solicitarReset(email);
-            model.addAttribute("mensaje",
-                    "Si el correo está registrado, te enviamos un enlace de recuperación.");
+            passwordResetService.solicitarCodigo(email);
         } catch (Exception e) {
-            e.printStackTrace(); // TEMPORAL: para ver el error real en consola
-            model.addAttribute("mensaje",
-                    "Si el correo está registrado, te enviamos un enlace de recuperación.");
+            // Mensaje genérico a propósito: no revelamos si el email existe o no (seguridad)
         }
-        return "olvide-password";
-    }
-
-    @GetMapping("/restablecer-password")
-    public String mostrarFormularioReset(@RequestParam String token, Model model) {
-        model.addAttribute("token", token);
+        model.addAttribute("email", email);
+        model.addAttribute("mensaje", "Si el correo está registrado, te enviamos un código de 6 dígitos.");
         return "restablecer-password";
     }
 
     @PostMapping("/restablecer-password")
-    public String procesarReset(@RequestParam String token,
+    public String procesarReset(@RequestParam String email,
+                                @RequestParam String codigo,
                                 @RequestParam String nuevaPassword,
                                 Model model) {
         try {
-            passwordResetService.restablecerPassword(token, nuevaPassword);
+            passwordResetService.restablecerConCodigo(email, codigo, nuevaPassword);
             model.addAttribute("exito", true);
             model.addAttribute("mensaje", "Tu contraseña fue actualizada. Ya puedes iniciar sesión.");
         } catch (Exception e) {
-            model.addAttribute("token", token);
+            model.addAttribute("email", email);
             model.addAttribute("error", e.getMessage());
         }
         return "restablecer-password";

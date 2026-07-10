@@ -19,11 +19,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.regex.Pattern;
 
 @Service
@@ -42,46 +42,47 @@ public class PasswordResetService {
     @Value("${resend.api-key}")
     private String resendApiKey;
 
-    @Value("${app.base-url:http://localhost:8080}")
-    private String baseUrl;
-
     private static final String RESEND_URL = "https://api.resend.com/emails";
     private static final String REMITENTE = "onboarding@resend.dev";
 
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+    private final SecureRandom random = new SecureRandom();
 
     private static final Pattern TIENE_LETRA = Pattern.compile(".*[A-Za-z].*");
     private static final Pattern TIENE_NUMERO = Pattern.compile(".*\\d.*");
-    private static final int HORAS_VALIDEZ_TOKEN = 1;
+    private static final int MINUTOS_VALIDEZ_CODIGO = 10;
 
-    public void solicitarReset(String email) {
+    public void solicitarCodigo(String email) {
         Usuario usuario = usuarioRepo.findByEmail(email)
                 .orElseThrow(() -> new EmailNoEncontradoException(
                         "No existe una cuenta asociada a ese correo"));
 
-        String token = UUID.randomUUID().toString();
+        String codigo = generarCodigo();
         PasswordResetToken resetToken = new PasswordResetToken(
-                token, usuario.getId(), LocalDateTime.now().plusHours(HORAS_VALIDEZ_TOKEN));
+                codigo, usuario.getId(), LocalDateTime.now().plusMinutes(MINUTOS_VALIDEZ_CODIGO));
         tokenRepo.save(resetToken);
 
-        enviarCorreo(email, token);
+        enviarCorreo(email, codigo);
     }
 
-    public void restablecerPassword(String token, String nuevaPassword) {
-        PasswordResetToken resetToken = tokenRepo.findByToken(token)
-                .orElseThrow(() -> new TokenInvalidoException("El enlace de recuperación no es válido"));
+    public void restablecerConCodigo(String email, String codigo, String nuevaPassword) {
+        Usuario usuario = usuarioRepo.findByEmail(email)
+                .orElseThrow(() -> new TokenInvalidoException("Correo o código inválido"));
 
+        PasswordResetToken resetToken = tokenRepo.findByToken(codigo)
+                .orElseThrow(() -> new TokenInvalidoException("El código ingresado no es válido"));
+
+        if (!resetToken.getUsuarioId().equals(usuario.getId())) {
+            throw new TokenInvalidoException("El código no corresponde a este correo");
+        }
         if (resetToken.isUsado()) {
-            throw new TokenInvalidoException("Este enlace ya fue utilizado");
+            throw new TokenInvalidoException("Este código ya fue utilizado");
         }
         if (resetToken.estaExpirado()) {
-            throw new TokenExpiradoException("El enlace de recuperación ha expirado");
+            throw new TokenExpiradoException("El código ha expirado, solicita uno nuevo");
         }
 
         validarPassword(nuevaPassword);
-
-        Usuario usuario = usuarioRepo.findById(resetToken.getUsuarioId())
-                .orElseThrow(() -> new TokenInvalidoException("Usuario no encontrado"));
 
         usuario.setPassword(encoder.encode(nuevaPassword));
         usuarioRepo.save(usuario);
@@ -90,16 +91,19 @@ public class PasswordResetService {
         tokenRepo.save(resetToken);
     }
 
-    private void enviarCorreo(String email, String token) {
-        String enlace = baseUrl + "/restablecer-password?token=" + token;
+    private String generarCodigo() {
+        int numero = 100000 + random.nextInt(900000); // 6 digitos, 100000-999999
+        return String.valueOf(numero);
+    }
 
+    private void enviarCorreo(String email, String codigo) {
         Map<String, Object> body = new HashMap<>();
         body.put("from", REMITENTE);
         body.put("to", List.of(email));
-        body.put("subject", "Sistema Botica - Recuperación de contraseña");
-        body.put("text", "Hola,\n\nRecibimos una solicitud para restablecer tu contraseña.\n" +
-                "Haz clic en el siguiente enlace (válido por " + HORAS_VALIDEZ_TOKEN + " hora):\n\n" +
-                enlace + "\n\n" +
+        body.put("subject", "Sistema Botica - Código de recuperación");
+        body.put("text", "Hola,\n\nTu código para restablecer la contraseña es:\n\n" +
+                codigo + "\n\n" +
+                "Este código es válido por " + MINUTOS_VALIDEZ_CODIGO + " minutos.\n" +
                 "Si no solicitaste esto, ignora este correo.\n\nSistema Botica");
 
         HttpHeaders headers = new HttpHeaders();
@@ -111,7 +115,7 @@ public class PasswordResetService {
         try {
             restTemplate.postForEntity(RESEND_URL, request, String.class);
         } catch (RestClientException e) {
-            throw new RuntimeException("Error al enviar el correo de recuperación", e);
+            throw new RuntimeException("Error al enviar el código de recuperación", e);
         }
     }
 
