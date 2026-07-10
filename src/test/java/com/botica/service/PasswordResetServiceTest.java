@@ -40,19 +40,19 @@ class PasswordResetServiceTest {
     private PasswordResetService passwordResetService;
 
     @Test
-    @DisplayName("Debe lanzar excepción si el email no existe al solicitar recuperación")
+    @DisplayName("Debe lanzar excepción si el email no existe al solicitar código")
     void deberiaLanzarExcepcionSiElEmailNoExiste() {
         when(usuarioRepo.findByEmail("noexiste@correo.com")).thenReturn(Optional.empty());
 
         assertThrows(EmailNoEncontradoException.class,
-                () -> passwordResetService.solicitarReset("noexiste@correo.com"));
+                () -> passwordResetService.solicitarCodigo("noexiste@correo.com"));
 
         verify(restTemplate, never()).postForEntity(anyString(), any(), eq(String.class));
     }
 
     @Test
-    @DisplayName("Debe generar y guardar un token válido si el email existe")
-    void deberiaGenerarTokenSiElEmailExiste() {
+    @DisplayName("Debe generar y guardar un código válido si el email existe")
+    void deberiaGenerarCodigoSiElEmailExiste() {
         Usuario usuario = new Usuario();
         usuario.setId(1L);
         usuario.setEmail("jperez@correo.com");
@@ -63,74 +63,104 @@ class PasswordResetServiceTest {
         when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
                 .thenReturn(ResponseEntity.ok("ok"));
 
-        passwordResetService.solicitarReset("jperez@correo.com");
+        passwordResetService.solicitarCodigo("jperez@correo.com");
 
         verify(tokenRepo, times(1)).save(any(PasswordResetToken.class));
         verify(restTemplate, times(1)).postForEntity(anyString(), any(), eq(String.class));
     }
 
     @Test
-    @DisplayName("Debe lanzar excepción si el token no existe")
-    void deberiaLanzarExcepcionSiElTokenNoExiste() {
-        when(tokenRepo.findByToken("token-invalido")).thenReturn(Optional.empty());
+    @DisplayName("Debe lanzar excepción si el correo no existe al restablecer")
+    void deberiaLanzarExcepcionSiElCorreoNoExisteAlRestablecer() {
+        when(usuarioRepo.findByEmail("noexiste@correo.com")).thenReturn(Optional.empty());
 
         assertThrows(TokenInvalidoException.class,
-                () -> passwordResetService.restablecerPassword("token-invalido", "Nueva123"));
+                () -> passwordResetService.restablecerConCodigo("noexiste@correo.com", "123456", "Nueva123"));
     }
 
     @Test
-    @DisplayName("Debe lanzar excepción si el token ya expiró")
-    void deberiaLanzarExcepcionSiElTokenExpiro() {
-        PasswordResetToken token = new PasswordResetToken(
-                "token-expirado", 1L, LocalDateTime.now().minusHours(1));
+    @DisplayName("Debe lanzar excepción si el código no existe")
+    void deberiaLanzarExcepcionSiElCodigoNoExiste() {
+        Usuario usuario = new Usuario();
+        usuario.setId(1L);
+        usuario.setEmail("jperez@correo.com");
 
-        when(tokenRepo.findByToken("token-expirado")).thenReturn(Optional.of(token));
+        when(usuarioRepo.findByEmail("jperez@correo.com")).thenReturn(Optional.of(usuario));
+        when(tokenRepo.findByToken("000000")).thenReturn(Optional.empty());
+
+        assertThrows(TokenInvalidoException.class,
+                () -> passwordResetService.restablecerConCodigo("jperez@correo.com", "000000", "Nueva123"));
+    }
+
+    @Test
+    @DisplayName("Debe lanzar excepción si el código ya expiró")
+    void deberiaLanzarExcepcionSiElCodigoExpiro() {
+        Usuario usuario = new Usuario();
+        usuario.setId(1L);
+        usuario.setEmail("jperez@correo.com");
+
+        PasswordResetToken token = new PasswordResetToken(
+                "123456", 1L, LocalDateTime.now().minusMinutes(1));
+
+        when(usuarioRepo.findByEmail("jperez@correo.com")).thenReturn(Optional.of(usuario));
+        when(tokenRepo.findByToken("123456")).thenReturn(Optional.of(token));
 
         assertThrows(TokenExpiradoException.class,
-                () -> passwordResetService.restablecerPassword("token-expirado", "Nueva123"));
+                () -> passwordResetService.restablecerConCodigo("jperez@correo.com", "123456", "Nueva123"));
     }
 
     @Test
-    @DisplayName("Debe lanzar excepción si el token ya fue usado")
-    void deberiaLanzarExcepcionSiElTokenYaFueUsado() {
+    @DisplayName("Debe lanzar excepción si el código ya fue usado")
+    void deberiaLanzarExcepcionSiElCodigoYaFueUsado() {
+        Usuario usuario = new Usuario();
+        usuario.setId(1L);
+        usuario.setEmail("jperez@correo.com");
+
         PasswordResetToken token = new PasswordResetToken(
-                "token-usado", 1L, LocalDateTime.now().plusHours(1));
+                "123456", 1L, LocalDateTime.now().plusMinutes(5));
         token.setUsado(true);
 
-        when(tokenRepo.findByToken("token-usado")).thenReturn(Optional.of(token));
+        when(usuarioRepo.findByEmail("jperez@correo.com")).thenReturn(Optional.of(usuario));
+        when(tokenRepo.findByToken("123456")).thenReturn(Optional.of(token));
 
         assertThrows(TokenInvalidoException.class,
-                () -> passwordResetService.restablecerPassword("token-usado", "Nueva123"));
+                () -> passwordResetService.restablecerConCodigo("jperez@correo.com", "123456", "Nueva123"));
     }
 
     @Test
     @DisplayName("Debe lanzar excepción si la nueva contraseña no cumple la política")
     void deberiaLanzarExcepcionSiLaPasswordEsDebil() {
-        PasswordResetToken token = new PasswordResetToken(
-                "token-valido", 1L, LocalDateTime.now().plusHours(1));
+        Usuario usuario = new Usuario();
+        usuario.setId(1L);
+        usuario.setEmail("jperez@correo.com");
 
-        when(tokenRepo.findByToken("token-valido")).thenReturn(Optional.of(token));
+        PasswordResetToken token = new PasswordResetToken(
+                "123456", 1L, LocalDateTime.now().plusMinutes(5));
+
+        when(usuarioRepo.findByEmail("jperez@correo.com")).thenReturn(Optional.of(usuario));
+        when(tokenRepo.findByToken("123456")).thenReturn(Optional.of(token));
 
         assertThrows(PasswordInvalidaException.class,
-                () -> passwordResetService.restablecerPassword("token-valido", "123"));
+                () -> passwordResetService.restablecerConCodigo("jperez@correo.com", "123456", "123"));
 
         verify(usuarioRepo, never()).save(any(Usuario.class));
     }
 
     @Test
-    @DisplayName("Debe restablecer la contraseña y marcar el token como usado si todo es válido")
-    void deberiaRestablecerPasswordSiElTokenEsValido() {
+    @DisplayName("Debe restablecer la contraseña y marcar el código como usado si todo es válido")
+    void deberiaRestablecerPasswordSiElCodigoEsValido() {
         Usuario usuario = new Usuario();
         usuario.setId(1L);
+        usuario.setEmail("jperez@correo.com");
         usuario.setPassword("$2a$10$viejaHash");
 
         PasswordResetToken token = new PasswordResetToken(
-                "token-valido", 1L, LocalDateTime.now().plusHours(1));
+                "123456", 1L, LocalDateTime.now().plusMinutes(5));
 
-        when(tokenRepo.findByToken("token-valido")).thenReturn(Optional.of(token));
-        when(usuarioRepo.findById(1L)).thenReturn(Optional.of(usuario));
+        when(usuarioRepo.findByEmail("jperez@correo.com")).thenReturn(Optional.of(usuario));
+        when(tokenRepo.findByToken("123456")).thenReturn(Optional.of(token));
 
-        passwordResetService.restablecerPassword("token-valido", "NuevaSegura123");
+        passwordResetService.restablecerConCodigo("jperez@correo.com", "123456", "NuevaSegura123");
 
         assertTrue(token.isUsado());
         verify(usuarioRepo, times(1)).save(any(Usuario.class));
