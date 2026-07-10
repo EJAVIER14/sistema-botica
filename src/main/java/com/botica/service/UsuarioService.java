@@ -3,6 +3,8 @@ package com.botica.service;
 import com.botica.exception.PasswordInvalidaException;
 import com.botica.model.Usuario;
 import com.botica.repository.UsuarioRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,8 @@ import java.util.regex.Pattern;
 @Service
 @Transactional
 public class UsuarioService {
+
+    private static final Logger logger = LoggerFactory.getLogger(UsuarioService.class);
 
     @Autowired
     private UsuarioRepository repo;
@@ -30,7 +34,6 @@ public class UsuarioService {
         return repo.findById(id).orElse(null);
     }
 
-    // Buscar usuario por su username (para el perfil)
     public Usuario buscarPorUsername(String username) {
         return repo.findByUsername(username).orElse(null);
     }
@@ -39,7 +42,9 @@ public class UsuarioService {
         validarPassword(u.getPassword());
         u.setPassword(encoder.encode(u.getPassword()));
         u.setActivo(true);
-        return repo.save(u);
+        Usuario creado = repo.save(u);
+        logger.info("Usuario creado correctamente: username={}, rol={}", creado.getUsername(), creado.getRol());
+        return creado;
     }
 
     public Usuario actualizar(Usuario u) {
@@ -50,27 +55,36 @@ public class UsuarioService {
             existente.setEmail(u.getEmail());
             existente.setRol(u.getRol());
             existente.setActivo(u.getActivo());
-            return repo.save(existente);
+            Usuario actualizado = repo.save(existente);
+            logger.info("Usuario actualizado: id={}, username={}", actualizado.getId(), actualizado.getUsername());
+            return actualizado;
         }
+        logger.warn("Intento de actualizar un usuario inexistente: id={}", u.getId());
         return null;
     }
 
     public boolean cambiarPassword(Long id, String passwordActual, String passwordNueva) {
         Usuario usuario = repo.findById(id).orElse(null);
-        if (usuario == null) return false;
+        if (usuario == null) {
+            logger.warn("Intento de cambio de contraseña para usuario inexistente: id={}", id);
+            return false;
+        }
 
         validarPassword(passwordNueva);
 
         if (!encoder.matches(passwordActual, usuario.getPassword())) {
+            logger.warn("Contraseña actual incorrecta al intentar cambiarla: username={}", usuario.getUsername());
             return false;
         }
 
         usuario.setPassword(encoder.encode(passwordNueva));
         repo.save(usuario);
+        logger.info("Contraseña actualizada correctamente para username={}", usuario.getUsername());
         return true;
     }
 
     public void eliminar(Long id) {
+        logger.warn("Eliminando usuario: id={}", id);
         repo.deleteById(id);
     }
 
@@ -78,7 +92,6 @@ public class UsuarioService {
         return repo.existsByUsername(username);
     }
 
-    // ═══ NUEVO: validación de correo duplicado ═══
     public boolean existeEmail(String email) {
         return repo.findByEmail(email).isPresent();
     }
@@ -89,16 +102,20 @@ public class UsuarioService {
                 .orElse(false);
     }
 
-    // ═══ NUEVO: activar/desactivar usuario ═══
     public void toggleActivo(Long id) {
         Usuario usuario = repo.findById(id).orElse(null);
         if (usuario != null) {
-            usuario.setActivo(!Boolean.TRUE.equals(usuario.getActivo()));
+            boolean nuevoEstado = !Boolean.TRUE.equals(usuario.getActivo());
+            usuario.setActivo(nuevoEstado);
             repo.save(usuario);
+            logger.info("Estado de usuario cambiado: username={}, activo={}", usuario.getUsername(), nuevoEstado);
+        } else {
+            logger.warn("Intento de activar/desactivar un usuario inexistente: id={}", id);
         }
     }
 
     private void validarPassword(String password) {
+        logger.debug("Validando politica de contraseña (longitud={})", password == null ? 0 : password.length());
         if (password == null || password.length() < 8) {
             throw new PasswordInvalidaException("debe tener al menos 8 caracteres");
         }
