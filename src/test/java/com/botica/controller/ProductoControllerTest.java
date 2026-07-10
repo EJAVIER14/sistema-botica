@@ -1,5 +1,6 @@
 package com.botica.controller;
 
+import com.botica.dto.ProductoDTO;
 import com.botica.model.Producto;
 import com.botica.service.AlertaService;
 import com.botica.service.ProductoService;
@@ -65,6 +66,13 @@ class ProductoControllerTest {
     @WithMockUser(roles = {"ADMIN"})
     @DisplayName("POST /productos/guardar debe guardar el producto y redirigir a la lista")
     void guardarDebeRedirigirAListaDeProductos() throws Exception {
+        Producto productoCreado = new Producto();
+        productoCreado.setId(10L);
+        productoCreado.setNombre("Ibuprofeno 400mg");
+
+        // El controller llama primero a crear(dto) para las validaciones de negocio
+        when(productoService.crear(any(ProductoDTO.class))).thenReturn(productoCreado);
+
         mockMvc.perform(post("/productos/guardar")
                         .with(csrf())
                         .param("nombre", "Ibuprofeno 400mg")
@@ -75,6 +83,7 @@ class ProductoControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/productos"));
 
+        verify(productoService, times(1)).crear(any(ProductoDTO.class));
         verify(productoService, times(1)).guardar(any(Producto.class));
     }
 
