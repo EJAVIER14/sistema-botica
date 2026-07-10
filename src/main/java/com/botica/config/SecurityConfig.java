@@ -31,6 +31,7 @@ public class SecurityConfig {
 
                         // Públicas
                         .requestMatchers("/login", "/css/**", "/setup", "/olvide-password", "/restablecer-password").permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
 
                         // Solo ADMIN
                         .requestMatchers("/usuarios/**").hasRole("ADMIN")
