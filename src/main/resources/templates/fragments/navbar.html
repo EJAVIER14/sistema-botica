@@ -9,13 +9,18 @@
             💊 Sistema Botica
         </a>
 
-        <button class="navbar-toggler" type="button"
+        <!-- Botón hamburguesa personalizado -->
+        <button class="navbar-toggler botica-toggler" type="button"
                 data-bs-toggle="collapse"
                 data-bs-target="#navbarNav"
                 aria-controls="navbarNav"
                 aria-expanded="false"
                 aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
+            <span class="botica-toggler-icon">
+                <span></span>
+                <span></span>
+                <span></span>
+            </span>
         </button>
 
         <div class="collapse navbar-collapse" id="navbarNav">
@@ -73,7 +78,71 @@
     </div>
 
     <style>
-        /* ===== Mejora visual del menú en móvil ===== */
+        /* ═══ Botón hamburguesa personalizado ═══ */
+        .botica-toggler {
+            border: none !important;
+            box-shadow: none !important;
+            padding: 8px !important;
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.12) !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s ease;
+        }
+        .botica-toggler:hover {
+            background: rgba(255, 255, 255, 0.2) !important;
+        }
+        .botica-toggler:active {
+            transform: scale(0.94);
+        }
+        .botica-toggler:focus {
+            box-shadow: none !important;
+        }
+
+        /* Anulamos el ícono default de Bootstrap */
+        .botica-toggler .navbar-toggler-icon,
+        .botica-toggler-icon {
+            background-image: none !important;
+        }
+
+        .botica-toggler-icon {
+            position: relative;
+            width: 20px;
+            height: 16px;
+            display: inline-block;
+        }
+        .botica-toggler-icon span {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            border-radius: 2px;
+            background: #ffffff;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+            opacity 0.2s ease,
+            top 0.3s ease;
+        }
+        .botica-toggler-icon span:nth-child(1) { top: 0; }
+        .botica-toggler-icon span:nth-child(2) { top: 7px; }
+        .botica-toggler-icon span:nth-child(3) { top: 14px; }
+
+        /* Estado abierto: se transforma en una X */
+        .botica-toggler[aria-expanded="true"] .botica-toggler-icon span:nth-child(1) {
+            top: 7px;
+            transform: rotate(45deg);
+        }
+        .botica-toggler[aria-expanded="true"] .botica-toggler-icon span:nth-child(2) {
+            opacity: 0;
+        }
+        .botica-toggler[aria-expanded="true"] .botica-toggler-icon span:nth-child(3) {
+            top: 7px;
+            transform: rotate(-45deg);
+        }
+
+        /* ═══ Mejora visual del menú en móvil ═══ */
         @media (max-width: 991.98px) {
             .botica-navbar .navbar-collapse {
                 padding-top: 8px;
@@ -121,13 +190,19 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const navbarNav = document.getElementById('navbarNav');
+            const toggler = document.querySelector('.botica-toggler');
 
-            // Bootstrap ya maneja la apertura/cierre del botón hamburguesa
-            // via data-bs-toggle="collapse". NO agregamos otro listener aquí,
-            // eso era lo que causaba que el menú se quedara "trabado".
+            // Sincroniza el ícono (líneas → X) cuando Bootstrap abre/cierra el collapse
+            if (navbarNav && toggler) {
+                navbarNav.addEventListener('shown.bs.collapse', function() {
+                    toggler.setAttribute('aria-expanded', 'true');
+                });
+                navbarNav.addEventListener('hidden.bs.collapse', function() {
+                    toggler.setAttribute('aria-expanded', 'false');
+                });
+            }
 
-            // Cerrar el menú automáticamente al tocar un link (comportamiento
-            // esperado en móvil, para no tener que volver a tocar el ☰).
+            // Cerrar el menú automáticamente al tocar un link
             if (navbarNav) {
                 const links = navbarNav.querySelectorAll('.nav-link, .btn, form button[type="submit"]');
                 links.forEach(function(link) {
