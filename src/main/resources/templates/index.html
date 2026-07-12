@@ -5,55 +5,106 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Sistema Botica</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { background: #f0f2f5; transition: background 0.3s, color 0.3s; }
+        :root {
+            --botica-green: #2E7D32;
+            --botica-green-dark: #1B5E20;
+        }
+
+        body {
+            background: #f0f2f5;
+            transition: background 0.3s, color 0.3s;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        h4, h5, .fw-bold { font-family: 'Inter', sans-serif; }
+
         .navbar-custom { background: linear-gradient(135deg, #1B5E20, #2E7D32); }
+
+        /* ═══ Encabezado ═══ */
+        .header-banner {
+            background: linear-gradient(135deg, #1B5E20, #2E7D32);
+            border-radius: 18px;
+            padding: 20px 24px;
+            color: #fff;
+            margin-bottom: 20px;
+            box-shadow: 0 6px 20px rgba(27,94,32,0.25);
+        }
+        .header-banner h4 { color: #fff !important; font-weight: 800; letter-spacing: -0.3px; }
+        .header-banner p { color: rgba(255,255,255,0.85) !important; }
+        .header-banner .btn-nueva-venta {
+            background: #fff;
+            color: var(--botica-green-dark);
+            font-weight: 700;
+            border: none;
+        }
+        .header-banner .btn-nueva-venta:hover { background: #f1f8f2; color: var(--botica-green-dark); }
+
+        /* ═══ Tarjetas de estadísticas ═══ */
         .card-stat {
             border-radius: 16px;
             border: none;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
             transition: transform 0.2s, background 0.3s, color 0.3s;
         }
         .card-stat:hover { transform: translateY(-4px); }
         .card-stat .icono {
-            width: 56px; height: 56px;
+            width: 52px; height: 52px;
             border-radius: 14px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 24px;
+            font-size: 22px;
+            flex-shrink: 0;
         }
-        .icono-green { background: #e8f5e9; }
-        .icono-blue { background: #e3f2fd; }
-        .icono-red { background: #fce4ec; }
-        .icono-yellow { background: #fff8e1; }
-        .card-alerta { border-radius: 14px; border: none; box-shadow: 0 2px 12px rgba(0,0,0,0.07); transition: background 0.3s, color 0.3s; }
-        .badge-vencido { background: #e53935; font-size: 11px; }
-        .badge-stock { background: #f57c00; font-size: 11px; }
-        .badge-dias { background: #f9a825; color:#333; font-size: 11px; }
-        .venta-row { border-left: 3px solid #2E7D32; padding-left: 10px; margin-bottom: 10px; }
+        .icono-green { background: #e8f5e9; color: #2E7D32; }
+        .icono-blue { background: #e3f2fd; color: #1565C0; }
+        .icono-red { background: #fce4ec; color: #C62828; }
+        .icono-yellow { background: #fff8e1; color: #F9A825; }
+
+        .card-stat .stat-label {
+            font-size: 12.5px;
+            font-weight: 500;
+            letter-spacing: 0.2px;
+        }
+        .card-stat h4 { font-weight: 800; letter-spacing: -0.5px; }
+
+        .card-alerta {
+            border-radius: 16px; border: none;
+            box-shadow: 0 2px 14px rgba(0,0,0,0.06);
+            transition: background 0.3s, color 0.3s;
+        }
+        .badge-vencido { background: #e53935; font-size: 10.5px; font-weight: 600; padding: 5px 8px; }
+        .badge-stock { background: #f57c00; font-size: 10.5px; font-weight: 600; padding: 5px 8px; }
+        .badge-dias { background: #f9a825; color:#333; font-size: 10.5px; font-weight: 600; padding: 5px 8px; }
+        .venta-row { border-left: 3px solid #2E7D32; padding-left: 12px; margin-bottom: 10px; }
+
         .acceso-card {
-            border-radius: 14px; border: none;
+            border-radius: 16px; border: none;
             box-shadow: 0 2px 10px rgba(0,0,0,0.06);
             transition: all 0.2s, background 0.3s, color 0.3s;
             cursor: pointer;
         }
-        .acceso-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        .acceso-card:hover, .acceso-card:active {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 22px rgba(0,0,0,0.12);
         }
         .acceso-icono {
-            width: 52px; height: 52px;
+            width: 48px; height: 48px;
             border-radius: 12px;
             display: flex; align-items: center;
             justify-content: center;
-            font-size: 22px;
+            font-size: 20px;
             margin: 0 auto 8px;
         }
+        .acceso-card small { font-size: 13px; font-weight: 600; }
+
         .section-title {
-            font-size: 13px;
+            font-size: 12.5px;
             text-transform: uppercase;
             letter-spacing: 1px;
             color: #9e9e9e;
-            font-weight: 600;
+            font-weight: 700;
         }
 
         /* ═══ MODO OSCURO ═══ */
@@ -66,7 +117,30 @@
         body.modo-oscuro .text-muted { color: #9e9e9e !important; }
         body.modo-oscuro .border-bottom { border-color: #333 !important; }
         body.modo-oscuro .card-header.bg-white { background: #1e1e1e !important; border-bottom: 1px solid #333 !important; }
-        body.modo-oscuro h4[style*="color:#1B5E20"] { color: #66BB6A !important; }
+
+        /* ═══════════════════ MÓVIL ═══════════════════ */
+        @media (max-width: 767.98px) {
+            .container-fluid { padding-left: 14px !important; padding-right: 14px !important; }
+
+            .header-banner {
+                padding: 18px;
+                border-radius: 16px;
+            }
+            .header-banner .d-flex { flex-direction: column; align-items: stretch !important; gap: 12px; }
+            .header-banner h4 { font-size: 19px; }
+            .header-banner .btn-nueva-venta { width: 100%; padding: 10px; }
+
+            .card-stat { border-radius: 14px; }
+            .card-stat .card-body, .card-stat.p-3 { padding: 12px !important; }
+            .card-stat .icono { width: 42px; height: 42px; font-size: 18px; border-radius: 12px; }
+            .card-stat .stat-label { font-size: 11px; margin-bottom: 2px !important; }
+            .card-stat h4 { font-size: 17px; }
+
+            .section-title { font-size: 11.5px; }
+
+            .acceso-icono { width: 44px; height: 44px; font-size: 18px; }
+            .acceso-card small { font-size: 12px; }
+        }
     </style>
 </head>
 <body>
@@ -76,14 +150,16 @@
 <div class="container-fluid py-4 px-4">
 
     <!-- Encabezado -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4 class="fw-bold mb-0" style="color:#1B5E20">📊 Resumen del Día</h4>
-            <p class="text-muted small mb-0" id="fecha-hoy"></p>
+    <div class="header-banner">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="fw-bold mb-0"><i class="bi bi-bar-chart-fill me-1"></i> Resumen del Día</h4>
+                <p class="small mb-0" id="fecha-hoy"></p>
+            </div>
+            <a href="/ventas/nueva" class="btn btn-nueva-venta px-4 rounded-pill shadow-sm">
+                <i class="bi bi-plus-lg me-1"></i>Nueva Venta
+            </a>
         </div>
-        <a href="/ventas/nueva" class="btn btn-success px-4 rounded-pill shadow-sm">
-            + Nueva Venta
-        </a>
     </div>
 
     <!-- Tarjetas resumen -->
@@ -91,9 +167,9 @@
         <div class="col-6 col-md-3">
             <div class="card card-stat p-3">
                 <div class="d-flex align-items-center gap-3">
-                    <div class="icono icono-green">💰</div>
+                    <div class="icono icono-green"><i class="bi bi-cash-coin"></i></div>
                     <div>
-                        <p class="text-muted small mb-1">Ingresos hoy</p>
+                        <p class="text-muted stat-label mb-1">Ingresos hoy</p>
                         <h4 class="fw-bold text-success mb-0" th:text="'S/ ' + ${totalHoy}"></h4>
                     </div>
                 </div>
@@ -102,9 +178,9 @@
         <div class="col-6 col-md-3">
             <div class="card card-stat p-3">
                 <div class="d-flex align-items-center gap-3">
-                    <div class="icono icono-blue">🛒</div>
+                    <div class="icono icono-blue"><i class="bi bi-cart-check-fill"></i></div>
                     <div>
-                        <p class="text-muted small mb-1">Ventas hoy</p>
+                        <p class="text-muted stat-label mb-1">Ventas hoy</p>
                         <h4 class="fw-bold text-primary mb-0" th:text="${ventasHoy}"></h4>
                     </div>
                 </div>
@@ -113,9 +189,9 @@
         <div class="col-6 col-md-3">
             <div class="card card-stat p-3">
                 <div class="d-flex align-items-center gap-3">
-                    <div class="icono icono-red">⚠️</div>
+                    <div class="icono icono-red"><i class="bi bi-exclamation-triangle-fill"></i></div>
                     <div>
-                        <p class="text-muted small mb-1">Stock crítico</p>
+                        <p class="text-muted stat-label mb-1">Stock crítico</p>
                         <h4 class="fw-bold text-danger mb-0" th:text="${stockCritico}"></h4>
                     </div>
                 </div>
@@ -124,9 +200,9 @@
         <div class="col-6 col-md-3">
             <div class="card card-stat p-3">
                 <div class="d-flex align-items-center gap-3">
-                    <div class="icono icono-yellow">📅</div>
+                    <div class="icono icono-yellow"><i class="bi bi-calendar-event-fill"></i></div>
                     <div>
-                        <p class="text-muted small mb-1">Por vencer (30d)</p>
+                        <p class="text-muted stat-label mb-1">Por vencer (30d)</p>
                         <h4 class="fw-bold text-warning mb-0" th:text="${porVencer}"></h4>
                     </div>
                 </div>
@@ -142,7 +218,7 @@
             <div class="card card-alerta h-100">
                 <div class="card-header bg-white border-0 pt-3 pb-0 px-4">
                     <div class="d-flex justify-content-between align-items-center">
-                        <span class="section-title">🔔 Alertas Activas</span>
+                        <span class="section-title"><i class="bi bi-bell-fill me-1"></i>Alertas Activas</span>
                         <a href="/alertas" class="text-success text-decoration-none small fw-bold">Ver todas →</a>
                     </div>
                 </div>
@@ -164,7 +240,7 @@
                     </div>
                     <div class="py-3 text-center text-success small"
                          th:if="${#lists.isEmpty(alertasVencidos)} and ${#lists.isEmpty(alertasStock)} and ${#lists.isEmpty(alertasVencimiento)}">
-                        ✅ No hay alertas activas
+                        <i class="bi bi-check-circle-fill me-1"></i>No hay alertas activas
                     </div>
                 </div>
             </div>
@@ -175,7 +251,7 @@
             <div class="card card-alerta h-100">
                 <div class="card-header bg-white border-0 pt-3 pb-0 px-4">
                     <div class="d-flex justify-content-between align-items-center">
-                        <span class="section-title">🛒 Últimas Ventas</span>
+                        <span class="section-title"><i class="bi bi-cart-fill me-1"></i>Últimas Ventas</span>
                         <a href="/ventas" class="text-success text-decoration-none small fw-bold">Ver todas →</a>
                     </div>
                 </div>
@@ -203,12 +279,12 @@
     </div>
 
     <!-- Accesos Rápidos -->
-    <p class="section-title mb-3">⚡ Accesos Rápidos</p>
+    <p class="section-title mb-3"><i class="bi bi-lightning-charge-fill me-1"></i>Accesos Rápidos</p>
     <div class="row g-3">
         <div class="col-4 col-md-2">
             <a href="/productos" class="text-decoration-none">
                 <div class="card acceso-card p-3 text-center">
-                    <div class="acceso-icono bg-success bg-opacity-10">📦</div>
+                    <div class="acceso-icono bg-success bg-opacity-10 text-success"><i class="bi bi-box-seam-fill"></i></div>
                     <small class="fw-bold text-dark">Productos</small>
                 </div>
             </a>
@@ -216,7 +292,7 @@
         <div class="col-4 col-md-2">
             <a href="/ventas/nueva" class="text-decoration-none">
                 <div class="card acceso-card p-3 text-center">
-                    <div class="acceso-icono bg-primary bg-opacity-10">🛒</div>
+                    <div class="acceso-icono bg-primary bg-opacity-10 text-primary"><i class="bi bi-cart-plus-fill"></i></div>
                     <small class="fw-bold text-dark">Nueva Venta</small>
                 </div>
             </a>
@@ -224,7 +300,7 @@
         <div class="col-4 col-md-2">
             <a href="/proveedores" class="text-decoration-none">
                 <div class="card acceso-card p-3 text-center">
-                    <div class="acceso-icono bg-warning bg-opacity-10">🚚</div>
+                    <div class="acceso-icono bg-warning bg-opacity-10 text-warning"><i class="bi bi-truck"></i></div>
                     <small class="fw-bold text-dark">Proveedores</small>
                 </div>
             </a>
@@ -232,7 +308,7 @@
         <div class="col-4 col-md-2">
             <a href="/usuarios" class="text-decoration-none">
                 <div class="card acceso-card p-3 text-center">
-                    <div class="acceso-icono bg-info bg-opacity-10">👥</div>
+                    <div class="acceso-icono bg-info bg-opacity-10 text-info"><i class="bi bi-people-fill"></i></div>
                     <small class="fw-bold text-dark">Usuarios</small>
                 </div>
             </a>
@@ -240,7 +316,7 @@
         <div class="col-4 col-md-2">
             <a href="/alertas" class="text-decoration-none">
                 <div class="card acceso-card p-3 text-center">
-                    <div class="acceso-icono bg-danger bg-opacity-10">🔔</div>
+                    <div class="acceso-icono bg-danger bg-opacity-10 text-danger"><i class="bi bi-bell-fill"></i></div>
                     <small class="fw-bold text-dark">Alertas</small>
                 </div>
             </a>
@@ -248,7 +324,7 @@
         <div class="col-4 col-md-2">
             <a href="/reportes" class="text-decoration-none">
                 <div class="card acceso-card p-3 text-center">
-                    <div class="acceso-icono bg-success bg-opacity-10">📊</div>
+                    <div class="acceso-icono bg-success bg-opacity-10 text-success"><i class="bi bi-graph-up-arrow"></i></div>
                     <small class="fw-bold text-dark">Reportes</small>
                 </div>
             </a>
