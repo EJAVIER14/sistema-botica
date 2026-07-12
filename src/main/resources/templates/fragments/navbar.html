@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
-<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark" style="background-color: #2E7D32;">
+<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark botica-navbar" style="background-color: #2E7D32;">
     <div class="container-fluid px-4">
 
         <a class="navbar-brand fw-bold" href="/">
@@ -52,7 +52,9 @@
 
             </ul>
 
-            <div class="d-flex align-items-center gap-2 mt-2 mt-lg-0">
+            <hr class="d-lg-none navbar-divider">
+
+            <div class="d-flex align-items-center gap-2 mt-2 mt-lg-0 botica-navbar-actions">
                 <button type="button" id="btn-modo-oscuro"
                         class="btn btn-outline-light btn-sm"
                         title="Cambiar tema" onclick="toggleModoOscuro()">
@@ -70,18 +72,71 @@
         </div>
     </div>
 
+    <style>
+        /* ===== Mejora visual del menú en móvil ===== */
+        @media (max-width: 991.98px) {
+            .botica-navbar .navbar-collapse {
+                padding-top: 8px;
+                padding-bottom: 12px;
+            }
+
+            .botica-navbar .navbar-nav .nav-item {
+                border-radius: 8px;
+                margin-bottom: 4px;
+                transition: background-color 0.15s ease;
+            }
+
+            .botica-navbar .navbar-nav .nav-link {
+                padding: 10px 14px;
+                border-radius: 8px;
+                font-weight: 500;
+            }
+
+            .botica-navbar .navbar-nav .nav-item:active,
+            .botica-navbar .navbar-nav .nav-link:active {
+                background-color: rgba(255, 255, 255, 0.15);
+            }
+
+            .botica-navbar .navbar-divider {
+                border-color: rgba(255, 255, 255, 0.25);
+                margin: 8px 0 12px 0;
+            }
+
+            .botica-navbar-actions {
+                flex-wrap: wrap;
+                gap: 8px !important;
+            }
+
+            .botica-navbar-actions .btn,
+            .botica-navbar-actions form {
+                flex: 1 1 auto;
+            }
+
+            .botica-navbar-actions .btn {
+                width: 100%;
+            }
+        }
+    </style>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const toggler = document.querySelector('.navbar-toggler');
             const navbarNav = document.getElementById('navbarNav');
 
-            if (toggler && navbarNav) {
-                toggler.addEventListener('click', function() {
-                    if (navbarNav.classList.contains('show')) {
-                        navbarNav.classList.remove('show');
-                    } else {
-                        navbarNav.classList.add('show');
-                    }
+            // Bootstrap ya maneja la apertura/cierre del botón hamburguesa
+            // via data-bs-toggle="collapse". NO agregamos otro listener aquí,
+            // eso era lo que causaba que el menú se quedara "trabado".
+
+            // Cerrar el menú automáticamente al tocar un link (comportamiento
+            // esperado en móvil, para no tener que volver a tocar el ☰).
+            if (navbarNav) {
+                const links = navbarNav.querySelectorAll('.nav-link, .btn, form button[type="submit"]');
+                links.forEach(function(link) {
+                    link.addEventListener('click', function() {
+                        if (navbarNav.classList.contains('show') && window.innerWidth < 992) {
+                            const bsCollapse = bootstrap.Collapse.getOrCreateInstance(navbarNav);
+                            bsCollapse.hide();
+                        }
+                    });
                 });
             }
 
