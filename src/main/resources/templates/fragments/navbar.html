@@ -10,21 +10,21 @@
         </a>
 
         <!-- Botón hamburguesa -->
-        <button class="navbar-toggler botica-toggler" type="button"
-                data-bs-toggle="offcanvas"
-                data-bs-target="#navbarOffcanvas"
-                aria-controls="navbarOffcanvas"
-                aria-label="Toggle navigation">
+        <button class="navbar-toggler botica-toggler" type="button" id="botica-toggler-btn"
+                aria-controls="boticaDrawer" aria-expanded="false" aria-label="Toggle navigation">
             <span class="botica-toggler-icon">
                 <span></span><span></span><span></span>
             </span>
         </button>
 
-        <!-- Panel responsive: offcanvas en móvil, barra normal en desktop (lg+) -->
-        <div class="offcanvas-lg offcanvas-end botica-offcanvas" tabindex="-1" id="navbarOffcanvas">
+        <!-- Fondo oscuro (solo visible cuando el panel está abierto en móvil) -->
+        <div class="botica-backdrop" id="boticaBackdrop"></div>
+
+        <!-- Panel: drawer en móvil, barra normal en desktop -->
+        <div class="botica-drawer" id="boticaDrawer">
 
             <!-- Header del panel (solo visible en móvil) -->
-            <div class="offcanvas-header botica-offcanvas-header d-lg-none">
+            <div class="botica-drawer-header d-lg-none">
                 <div class="d-flex align-items-center gap-2">
                     <div class="botica-avatar"
                          th:text="${#authentication != null and #authentication.name != null and #authentication.name.length() > 0 ? #authentication.name.substring(0,1).toUpperCase() : '?'}">
@@ -34,13 +34,14 @@
                         <div class="botica-user-role">Mi cuenta</div>
                     </div>
                 </div>
-                <button type="button" class="btn-close botica-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                <button type="button" class="botica-close" id="boticaCloseBtn" aria-label="Cerrar">
+                    <i class="bi bi-x-lg"></i>
+                </button>
             </div>
 
-            <div class="offcanvas-body botica-offcanvas-body">
+            <div class="botica-drawer-body">
 
                 <ul class="navbar-nav botica-menu-list me-auto">
-
                     <li class="nav-item">
                         <a class="nav-link botica-menu-item" href="/productos">
                             <span class="bmi-icon">📦</span>
@@ -94,10 +95,9 @@
                             <i class="bmi-chevron bi bi-chevron-right"></i>
                         </a>
                     </li>
-
                 </ul>
 
-                <!-- Acciones (Tema / Perfil / Cerrar sesión) -->
+                <!-- Acciones -->
                 <div class="d-flex align-items-center gap-2 mt-2 mt-lg-0 botica-navbar-actions">
                     <button type="button" id="btn-modo-oscuro"
                             class="btn btn-outline-light btn-sm botica-menu-item botica-action-item"
@@ -127,20 +127,14 @@
     <style>
         /* ═══ Botón hamburguesa ═══ */
         .botica-toggler {
-            border: none !important;
-            box-shadow: none !important;
-            padding: 8px !important;
-            width: 42px; height: 42px;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.12) !important;
+            border: none !important; box-shadow: none !important; padding: 8px !important;
+            width: 42px; height: 42px; border-radius: 10px;
+            background: rgba(255,255,255,0.12) !important;
             display: flex; align-items: center; justify-content: center;
             transition: background-color 0.2s ease;
         }
-        .botica-toggler:hover { background: rgba(255, 255, 255, 0.2) !important; }
+        .botica-toggler:hover { background: rgba(255,255,255,0.2) !important; }
         .botica-toggler:active { transform: scale(0.94); }
-        .botica-toggler:focus { box-shadow: none !important; }
-        .botica-toggler .navbar-toggler-icon { background-image: none !important; }
-
         .botica-toggler-icon { position: relative; width: 20px; height: 16px; display: inline-block; }
         .botica-toggler-icon span {
             position: absolute; left: 0; width: 100%; height: 2px;
@@ -154,19 +148,35 @@
         .botica-toggler[aria-expanded="true"] .botica-toggler-icon span:nth-child(2) { opacity: 0; }
         .botica-toggler[aria-expanded="true"] .botica-toggler-icon span:nth-child(3) { top: 7px; transform: rotate(-45deg); }
 
-        /* ═══════════════════ MÓVIL: panel tipo drawer ═══════════════════ */
+        /* ═══════════════════ MÓVIL: panel tipo drawer (hecho a mano) ═══════════════════ */
         @media (max-width: 991.98px) {
-            .botica-offcanvas {
-                width: 85%;
-                max-width: 340px;
-                background: #ffffff;
-                color: #212121;
+            .botica-backdrop {
+                position: fixed; inset: 0;
+                background: rgba(0,0,0,0.5);
+                opacity: 0; visibility: hidden;
+                transition: opacity 0.3s ease;
+                z-index: 1040;
             }
+            .botica-backdrop.show { opacity: 1; visibility: visible; }
 
-            .botica-offcanvas-header {
+            .botica-drawer {
+                position: fixed; top: 0; right: 0;
+                width: 85%; max-width: 340px; height: 100vh;
+                background: #ffffff; color: #212121;
+                transform: translateX(100%);
+                transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+                z-index: 1045;
+                display: flex; flex-direction: column;
+                overflow-y: auto;
+                box-shadow: -8px 0 30px rgba(0,0,0,0.2);
+            }
+            .botica-drawer.show { transform: translateX(0); }
+
+            .botica-drawer-header {
                 background: linear-gradient(135deg, #1B5E20, #2E7D32);
                 padding: 20px;
-                align-items: center;
+                display: flex; align-items: center; justify-content: space-between;
+                flex-shrink: 0;
             }
             .botica-avatar {
                 width: 42px; height: 42px; border-radius: 50%;
@@ -178,32 +188,24 @@
             .botica-user-name { color: white; font-weight: 700; font-size: 14px; text-transform: capitalize; }
             .botica-user-role { color: rgba(255,255,255,0.75); font-size: 11px; }
             .botica-close {
-                filter: invert(1) grayscale(100%) brightness(200%);
-                opacity: 0.9;
+                width: 36px; height: 36px; border-radius: 50%;
+                background: rgba(255,255,255,0.15); border: none; color: white;
+                display: flex; align-items: center; justify-content: center;
+                font-size: 16px; flex-shrink: 0;
             }
+            .botica-close:active { background: rgba(255,255,255,0.3); }
 
-            .botica-offcanvas-body {
-                padding: 8px 0 0;
-                display: flex;
-                flex-direction: column;
-            }
-
+            .botica-drawer-body { padding: 8px 0 24px; display: flex; flex-direction: column; }
             .botica-menu-list { display: flex; flex-direction: column; }
 
             .botica-menu-item {
-                display: flex !important;
-                align-items: center;
-                gap: 14px;
-                padding: 14px 20px !important;
-                color: #333 !important;
-                font-weight: 600;
-                font-size: 14.5px;
+                display: flex !important; align-items: center; gap: 14px;
+                padding: 14px 20px !important; color: #333 !important;
+                font-weight: 600; font-size: 14.5px;
                 border-bottom: 1px solid #f0f0f0;
-                border-radius: 0 !important;
-                background: transparent !important;
+                border-radius: 0 !important; background: transparent !important;
                 border-left: none; border-right: none; border-top: none;
-                width: 100%;
-                text-align: left;
+                width: 100%; text-align: left;
             }
             .botica-menu-item:active { background: #f5f5f5 !important; }
 
@@ -213,24 +215,28 @@
             .bmi-badge { position: static; margin-left: -6px; }
 
             .botica-navbar-actions {
-                flex-direction: column;
-                align-items: stretch !important;
-                gap: 0 !important;
-                margin-top: 8px;
-                border-top: 6px solid #f5f5f5;
+                flex-direction: column; align-items: stretch !important; gap: 0 !important;
+                margin-top: 8px; border-top: 6px solid #f5f5f5;
             }
-            .botica-action-item {
-                border: none !important;
-                justify-content: flex-start;
-            }
+            .botica-action-item { border: none !important; justify-content: flex-start; }
             .botica-logout-form { width: 100%; }
             .botica-logout { color: #c62828 !important; }
-            .botica-logout .bmi-icon { filter: none; }
         }
 
         /* ═══════════════════ DESKTOP: navbar horizontal normal ═══════════════════ */
         @media (min-width: 992px) {
-            .botica-menu-item { display: flex !important; align-items: center; gap: 6px; }
+            .botica-backdrop { display: none; }
+            .botica-drawer {
+                position: static; transform: none; width: auto; height: auto;
+                background: transparent; box-shadow: none; overflow: visible;
+                display: flex; flex-grow: 1; flex-basis: auto;
+            }
+            .botica-drawer-body {
+                display: flex; flex-grow: 1; align-items: center;
+                padding: 0; width: 100%;
+            }
+            .botica-menu-list { flex-direction: row; flex-grow: 1; }
+            .botica-menu-item { display: flex !important; align-items: center; gap: 6px; padding: 8px 12px !important; }
             .bmi-chevron { display: none; }
             .bmi-badge { margin-left: 4px; }
             .botica-action-item .bmi-label { display: none; }
@@ -239,28 +245,42 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const offcanvasEl = document.getElementById('navbarOffcanvas');
-            const toggler = document.querySelector('.botica-toggler');
+            const drawer = document.getElementById('boticaDrawer');
+            const backdrop = document.getElementById('boticaBackdrop');
+            const toggler = document.getElementById('botica-toggler-btn');
+            const closeBtn = document.getElementById('boticaCloseBtn');
 
-            if (offcanvasEl && toggler) {
-                offcanvasEl.addEventListener('shown.bs.offcanvas', function() {
-                    toggler.setAttribute('aria-expanded', 'true');
-                });
-                offcanvasEl.addEventListener('hidden.bs.offcanvas', function() {
-                    toggler.setAttribute('aria-expanded', 'false');
-                });
-
-                // Cerrar el panel automáticamente al tocar un link u opción
-                const links = offcanvasEl.querySelectorAll('.nav-link, .btn, form button[type="submit"]');
-                links.forEach(function(link) {
-                    link.addEventListener('click', function() {
-                        if (window.innerWidth < 992) {
-                            const instance = bootstrap.Offcanvas.getOrCreateInstance(offcanvasEl);
-                            instance.hide();
-                        }
-                    });
-                });
+            function abrirMenu() {
+                drawer.classList.add('show');
+                backdrop.classList.add('show');
+                toggler.setAttribute('aria-expanded', 'true');
+                document.body.style.overflow = 'hidden';
             }
+            function cerrarMenu() {
+                drawer.classList.remove('show');
+                backdrop.classList.remove('show');
+                toggler.setAttribute('aria-expanded', 'false');
+                document.body.style.overflow = '';
+            }
+
+            toggler.addEventListener('click', function() {
+                drawer.classList.contains('show') ? cerrarMenu() : abrirMenu();
+            });
+            closeBtn.addEventListener('click', cerrarMenu);
+            backdrop.addEventListener('click', cerrarMenu);
+
+            // Cerrar el panel al tocar cualquier link u opción (solo móvil)
+            const links = drawer.querySelectorAll('.nav-link, .btn, form button[type="submit"]');
+            links.forEach(function(link) {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth < 992) cerrarMenu();
+                });
+            });
+
+            // Si el usuario agranda la ventana a desktop con el menú abierto, lo reseteamos
+            window.addEventListener('resize', function() {
+                if (window.innerWidth >= 992) cerrarMenu();
+            });
 
             const temaGuardado = localStorage.getItem('tema') || 'claro';
             if (temaGuardado === 'oscuro') {
@@ -272,9 +292,7 @@
         function toggleModoOscuro() {
             const body = document.body;
             const icono = document.getElementById('icono-modo');
-
             body.classList.toggle('modo-oscuro');
-
             if (body.classList.contains('modo-oscuro')) {
                 localStorage.setItem('tema', 'oscuro');
                 icono.textContent = '☀️';
