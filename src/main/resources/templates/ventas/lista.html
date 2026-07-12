@@ -5,22 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Ventas</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         body { background: #f0f2f5; transition: background 0.3s, color 0.3s; }
         .card-main { border-radius: 16px; border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        .header-banner {
+            background: linear-gradient(135deg, #1B5E20, #2E7D32);
+            border-radius: 18px; padding: 20px 24px; color: #fff;
+            margin-bottom: 20px; box-shadow: 0 6px 20px rgba(27,94,32,0.25);
+        }
+        .header-banner h4 { color: #fff !important; font-weight: 800; }
+        .header-banner p { color: rgba(255,255,255,0.85) !important; }
+        .header-banner .btn-light-action { background: #fff; color: #1B5E20; font-weight: 700; border: none; }
+        .header-banner .btn-light-action:hover { background: #f1f8f2; color: #1B5E20; }
+
         .tabla-header { background: linear-gradient(135deg, #1B5E20, #2E7D32); color: white; }
         .tabla-header th { font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 16px; border: none; color: white; }
         .tabla-row td { padding: 12px 16px; vertical-align: middle; border-bottom: 1px solid #f0f0f0; }
         .tabla-row:hover { background: #f8fff8; }
         .btn-accion { width: 32px; height: 32px; padding: 0; border-radius: 8px; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; }
-        .search-box { border-radius: 12px; border: 2px solid #e0e0e0; padding: 10px 16px; }
+        .search-box { border-radius: 12px; border: 2px solid #e0e0e0; padding: 10px 16px 10px 40px; }
         .search-box:focus { border-color: #2E7D32; box-shadow: 0 0 0 3px rgba(46,125,50,0.1); outline: none; }
+        .search-wrap { position: relative; max-width: 400px; }
+        .search-wrap i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #9e9e9e; }
         .total-text { color: #2E7D32; font-weight: 700; }
         .forma-badge { font-size: 11px; padding: 4px 10px; border-radius: 20px; }
 
         .pagination-wrapper {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 16px 20px; border-top: 1px solid #f0f0f0;
+            padding: 16px 20px; border-top: 1px solid #f0f0f0; flex-wrap: wrap; gap: 10px;
         }
         .pagination-info { font-size: 13px; color: #9e9e9e; }
         .pagination-btns { display: flex; gap: 6px; }
@@ -35,26 +48,51 @@
         .page-btn.active { background: #2E7D32; border-color: #2E7D32; color: white; }
         .page-btn.disabled { opacity: 0.4; pointer-events: none; }
 
+        /* ═══ Tarjetas de venta para MÓVIL ═══ */
+        .venta-card-mobile {
+            background: white; border-radius: 14px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            padding: 14px; margin-bottom: 10px;
+        }
+        .vc-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .vc-avatar {
+            width: 38px; height: 38px; background: #e8f5e9; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; color: #2E7D32; font-size: 15px; flex-shrink: 0;
+        }
+        .vc-cliente { font-weight: 700; font-size: 14.5px; color: #212121; }
+        .vc-fecha { font-size: 11.5px; color: #9e9e9e; }
+        .vc-info { display: flex; justify-content: space-between; align-items: center; }
+        .vc-doc { font-size: 12px; color: #616161; }
+
         /* ═══ MODO OSCURO ═══ */
         body.modo-oscuro { background: #121212; color: #e0e0e0; }
         body.modo-oscuro .card,
         body.modo-oscuro .card-main,
-        body.modo-oscuro .page-btn { background-color: #1e1e1e !important; color: #e0e0e0 !important; border-color: #333 !important; }
+        body.modo-oscuro .page-btn,
+        body.modo-oscuro .venta-card-mobile { background-color: #1e1e1e !important; color: #e0e0e0 !important; border-color: #333 !important; }
         body.modo-oscuro table { background-color: #1e1e1e !important; color: #e0e0e0 !important; }
         body.modo-oscuro .table > :not(caption) > * > * { background-color: #1e1e1e !important; color: #e0e0e0 !important; box-shadow: none; }
         body.modo-oscuro .tabla-row td { border-color: #2a2a2a !important; color: #d0d0d0 !important; }
         body.modo-oscuro .tabla-row:hover { background-color: #252525 !important; }
-        body.modo-oscuro .text-muted { color: #9e9e9e !important; }
-        body.modo-oscuro span[style*="color:#9e9e9e"],
-        body.modo-oscuro td[style*="color:#616161"] { color: #999999 !important; }
-        body.modo-oscuro span[style*="font-weight:600;font-size:14px"] { color: #f0f0f0 !important; }
+        body.modo-oscuro .text-muted, body.modo-oscuro .vc-fecha, body.modo-oscuro .vc-doc { color: #9e9e9e !important; }
+        body.modo-oscuro .vc-cliente { color: #f0f0f0 !important; }
         body.modo-oscuro .search-box { background-color: #1e1e1e !important; color: #e0e0e0 !important; border-color: #333 !important; }
         body.modo-oscuro .search-box::placeholder { color: #777 !important; }
         body.modo-oscuro .pagination-wrapper { border-color: #333 !important; }
-        body.modo-oscuro h4[style*="color:#1B5E20"] { color: #66BB6A !important; }
         body.modo-oscuro .page-btn.active { background-color: #2E7D32 !important; color: white !important; }
-        body.modo-oscuro [style*="background:#e8f5e9"] { background: #1b3320 !important; }
         body.modo-oscuro .alert-warning { background-color: #4a3a10 !important; color: #ffd54f !important; border-color: #6b5817 !important; }
+
+        /* Toggle tabla / tarjetas */
+        .vista-tabla { display: block; }
+        .vista-mobile { display: none; }
+        @media (max-width: 767.98px) {
+            .vista-tabla { display: none; }
+            .vista-mobile { display: block; }
+            .header-banner { padding: 18px; border-radius: 16px; }
+            .header-banner .d-flex.justify-content-between { flex-direction: column; align-items: stretch !important; gap: 12px; }
+            .header-banner .btn-light-action { width: 100%; }
+            .search-wrap { max-width: 100%; }
+        }
     </style>
 </head>
 <body>
@@ -64,7 +102,7 @@
     <!-- Alerta stock bajo -->
     <div th:if="${alertaStock}"
          class="alert alert-warning alert-dismissible fade show d-flex align-items-center gap-2 rounded-3 mb-4" role="alert">
-        <span style="font-size:1.4rem">⚠️</span>
+        <i class="bi bi-exclamation-triangle-fill" style="font-size:1.3rem"></i>
         <div>
             <strong>Stock Bajo:</strong>
             <span th:text="${alertaStock}"></span>
@@ -74,25 +112,30 @@
     </div>
 
     <!-- Encabezado -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4 class="fw-bold mb-0" style="color:#1B5E20">🛒 Historial de Ventas</h4>
-            <p class="text-muted small mb-0">Registro de todas las transacciones</p>
+    <div class="header-banner">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="fw-bold mb-0"><i class="bi bi-cart-fill me-1"></i>Historial de Ventas</h4>
+                <p class="small mb-0">Registro de todas las transacciones</p>
+            </div>
+            <a href="/ventas/nueva" class="btn btn-light-action px-4 rounded-pill shadow-sm">
+                <i class="bi bi-plus-lg me-1"></i>Nueva Venta
+            </a>
         </div>
-        <a href="/ventas/nueva" class="btn btn-success px-4 rounded-pill shadow-sm">+ Nueva Venta</a>
     </div>
 
     <!-- Buscador -->
     <div class="mb-4">
-        <form action="/ventas" method="get">
-            <input type="text" name="buscar" class="form-control search-box" style="max-width:400px"
-                   placeholder="🔍 Buscar por cliente..."
+        <form action="/ventas" method="get" class="search-wrap">
+            <i class="bi bi-search"></i>
+            <input type="text" name="buscar" class="form-control search-box"
+                   placeholder="Buscar por cliente..."
                    th:value="${buscar}"/>
         </form>
     </div>
 
-    <!-- Tabla -->
-    <div class="card card-main">
+    <!-- ═══ VISTA TABLA (tablet / desktop) ═══ -->
+    <div class="card card-main vista-tabla">
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table mb-0">
@@ -112,7 +155,7 @@
                         <td><span style="color:#9e9e9e;font-size:12px;font-weight:600" th:text="'#' + ${venta.id}"></span></td>
                         <td>
                             <div class="d-flex align-items-center gap-2">
-                                <div style="width:34px;height:34px;background:#e8f5e9;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;">👤</div>
+                                <div style="width:34px;height:34px;background:#e8f5e9;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#2E7D32;font-size:14px;"><i class="bi bi-person-fill"></i></div>
                                 <span style="font-weight:600;font-size:14px" th:text="${venta.cliente}"></span>
                             </div>
                         </td>
@@ -139,7 +182,7 @@
                         <td><span class="total-text" th:text="'S/ ' + ${venta.total}"></span></td>
                         <td>
                             <a th:href="@{/ventas/detalle/{id}(id=${venta.id})}"
-                               class="btn btn-accion btn-primary" title="Ver detalle">👁️</a>
+                               class="btn btn-accion btn-primary" title="Ver detalle"><i class="bi bi-eye-fill"></i></a>
                         </td>
                     </tr>
                     </tbody>
@@ -148,7 +191,7 @@
 
             <!-- Estado vacío -->
             <div class="text-center py-5" th:if="${#lists.isEmpty(ventas)}">
-                <div style="font-size:48px;">🛒</div>
+                <div style="font-size:44px;color:#c0c0c0;"><i class="bi bi-cart-x"></i></div>
                 <h5 class="text-muted mt-2">No se encontraron ventas</h5>
             </div>
 
@@ -161,8 +204,8 @@
                 <div class="pagination-btns">
                     <a th:if="${paginaActual > 0}"
                        th:href="@{/ventas(page=${paginaActual - 1}, buscar=${buscar})}"
-                       class="page-btn">←</a>
-                    <span th:if="${paginaActual == 0}" class="page-btn disabled">←</span>
+                       class="page-btn"><i class="bi bi-chevron-left"></i></a>
+                    <span th:if="${paginaActual == 0}" class="page-btn disabled"><i class="bi bi-chevron-left"></i></span>
 
                     <a th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}"
                        th:if="${i >= paginaActual - 2 and i <= paginaActual + 2}"
@@ -173,9 +216,60 @@
 
                     <a th:if="${paginaActual < totalPaginas - 1}"
                        th:href="@{/ventas(page=${paginaActual + 1}, buscar=${buscar})}"
-                       class="page-btn">→</a>
-                    <span th:if="${paginaActual == totalPaginas - 1}" class="page-btn disabled">→</span>
+                       class="page-btn"><i class="bi bi-chevron-right"></i></a>
+                    <span th:if="${paginaActual == totalPaginas - 1}" class="page-btn disabled"><i class="bi bi-chevron-right"></i></span>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ VISTA TARJETAS (móvil) ═══ -->
+    <div class="vista-mobile">
+        <a th:each="venta : ${ventas}" th:href="@{/ventas/detalle/{id}(id=${venta.id})}"
+           class="text-decoration-none">
+            <div class="venta-card-mobile">
+                <div class="vc-top">
+                    <div class="vc-avatar"><i class="bi bi-person-fill"></i></div>
+                    <div class="flex-fill">
+                        <div class="vc-cliente" th:text="${venta.cliente}"></div>
+                        <div class="vc-fecha" th:text="${#temporals.format(venta.fecha,'dd/MM/yyyy HH:mm')}"></div>
+                    </div>
+                    <span class="forma-badge"
+                          th:text="${venta.formaPago}"
+                          th:class="${venta.formaPago == 'Efectivo'} ? 'forma-badge bg-success bg-opacity-10 text-success' :
+                                    (${venta.formaPago == 'Tarjeta'} ? 'forma-badge bg-primary bg-opacity-10 text-primary' :
+                                    'forma-badge bg-info bg-opacity-10 text-info')">
+                    </span>
+                </div>
+                <div class="vc-info">
+                    <span class="vc-doc">
+                        <span th:if="${venta.dni != null and venta.dni != ''}" th:text="'DNI: ' + ${venta.dni}"></span>
+                        <span th:if="${venta.ruc != null and venta.ruc != ''}" th:text="'RUC: ' + ${venta.ruc}"></span>
+                        <span th:if="${(venta.dni == null or venta.dni == '') and (venta.ruc == null or venta.ruc == '')}">#<span th:text="${venta.id}"></span></span>
+                    </span>
+                    <span class="total-text" th:text="'S/ ' + ${venta.total}"></span>
+                </div>
+            </div>
+        </a>
+
+        <!-- Estado vacío móvil -->
+        <div class="text-center py-5" th:if="${#lists.isEmpty(ventas)}">
+            <div style="font-size:40px;color:#c0c0c0;"><i class="bi bi-cart-x"></i></div>
+            <h6 class="text-muted mt-2">No se encontraron ventas</h6>
+        </div>
+
+        <!-- Paginación móvil -->
+        <div class="pagination-wrapper card-main" th:if="${totalPaginas > 1}" style="border-radius:14px;">
+            <span class="pagination-info" th:text="${paginaActual + 1} + ' / ' + ${totalPaginas}"></span>
+            <div class="pagination-btns">
+                <a th:if="${paginaActual > 0}"
+                   th:href="@{/ventas(page=${paginaActual - 1}, buscar=${buscar})}"
+                   class="page-btn"><i class="bi bi-chevron-left"></i></a>
+                <span th:if="${paginaActual == 0}" class="page-btn disabled"><i class="bi bi-chevron-left"></i></span>
+                <a th:if="${paginaActual < totalPaginas - 1}"
+                   th:href="@{/ventas(page=${paginaActual + 1}, buscar=${buscar})}"
+                   class="page-btn"><i class="bi bi-chevron-right"></i></a>
+                <span th:if="${paginaActual == totalPaginas - 1}" class="page-btn disabled"><i class="bi bi-chevron-right"></i></span>
             </div>
         </div>
     </div>

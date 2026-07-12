@@ -5,8 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Nueva Orden de Entrada</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         body { background: #f0f2f5; transition: background 0.3s, color 0.3s; }
+        .orden-header { background: linear-gradient(135deg, #1B5E20, #2E7D32); border-radius: 16px 16px 0 0; }
+        .card { border-radius: 16px; overflow: hidden; }
+        .producto-fila { align-items: center; }
+
         body.modo-oscuro { background: #121212; color: #e0e0e0; }
         body.modo-oscuro .card { background-color: #1e1e1e !important; color: #e0e0e0 !important; }
         body.modo-oscuro .form-control,
@@ -14,6 +19,12 @@
         body.modo-oscuro .form-label { color: #c0c0c0 !important; }
         body.modo-oscuro .form-text { color: #888 !important; }
         body.modo-oscuro hr { border-color: #2a2a2a !important; }
+
+        @media (max-width: 767.98px) {
+            .card-body { padding: 18px !important; }
+            .producto-fila .col-8, .producto-fila .col-4 { width: 100%; max-width: 100%; flex: 0 0 100%; margin-bottom: 6px; }
+            .d-flex.gap-2 { flex-direction: column; }
+        }
     </style>
 </head>
 <body>
@@ -22,12 +33,11 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card shadow-sm border-0">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">📦 Nueva Orden de Entrada</h5>
+                <div class="card-header orden-header text-white">
+                    <h5 class="mb-0"><i class="bi bi-box-seam-fill me-1"></i>Nueva Orden de Entrada</h5>
                 </div>
                 <div class="card-body p-4">
 
-                    <!-- enctype multipart para subir archivos -->
                     <form action="/inventario/orden/guardar"
                           method="post"
                           enctype="multipart/form-data">
@@ -76,7 +86,7 @@
 
                         <button type="button" class="btn btn-warning btn-sm mb-3"
                                 onclick="agregarProducto()">
-                            + Agregar otro producto
+                            <i class="bi bi-plus-lg"></i> Agregar otro producto
                         </button>
 
                         <hr/>
@@ -84,7 +94,7 @@
                         <!-- Foto de mercadería -->
                         <div class="mb-3">
                             <label class="form-label fw-bold">
-                                📷 Foto de la mercadería
+                                <i class="bi bi-camera-fill me-1"></i>Foto de la mercadería
                             </label>
                             <input type="file" name="foto"
                                    class="form-control"
@@ -97,7 +107,7 @@
                         <!-- Documento / Factura -->
                         <div class="mb-3">
                             <label class="form-label fw-bold">
-                                📄 Documento / Factura del proveedor
+                                <i class="bi bi-file-earmark-pdf-fill me-1"></i>Documento / Factura del proveedor
                             </label>
                             <input type="file" name="documento"
                                    class="form-control"
@@ -110,10 +120,10 @@
                         <hr/>
 
                         <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-success">
-                                ✅ Crear Orden
+                            <button type="submit" class="btn btn-success flex-fill">
+                                <i class="bi bi-check-lg me-1"></i>Crear Orden
                             </button>
-                            <a href="/inventario" class="btn btn-secondary">
+                            <a href="/inventario" class="btn btn-secondary flex-fill">
                                 Cancelar
                             </a>
                         </div>

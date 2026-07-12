@@ -5,13 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Reportes</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
         body { background: #f0f2f5; transition: background 0.3s, color 0.3s; }
         .card-main { border-radius: 16px; border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        .header-banner {
+            background: linear-gradient(135deg, #1B5E20, #2E7D32);
+            border-radius: 18px; padding: 20px 24px; color: #fff;
+            margin-bottom: 20px; box-shadow: 0 6px 20px rgba(27,94,32,0.25);
+        }
+        .header-banner h4 { color: #fff !important; font-weight: 800; }
+        .header-banner p { color: rgba(255,255,255,0.85) !important; }
+
         .stat-card { border-radius: 16px; border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.08); transition: transform 0.2s; }
         .stat-card:hover { transform: translateY(-3px); }
-        .stat-icono { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+        .stat-icono { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
         .tabla-header { background: linear-gradient(135deg, #1B5E20, #2E7D32); }
         .tabla-header th { font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 16px; border: none; color: white; }
         .tabla-row td { padding: 12px 16px; vertical-align: middle; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
@@ -39,7 +48,6 @@
         body.modo-oscuro td.fw-bold { color: #f0f0f0 !important; }
         body.modo-oscuro td[style*="color:#616161"] { color: #b0b0b0 !important; }
         body.modo-oscuro td[style*="color:#9e9e9e"] { color: #999999 !important; }
-        body.modo-oscuro h4[style*="color:#1B5E20"] { color: #66BB6A !important; }
         body.modo-oscuro .form-control { background-color: #2a2a2a !important; color: #e0e0e0 !important; border-color: #404040 !important; }
         body.modo-oscuro .form-label { color: #c0c0c0 !important; }
         body.modo-oscuro .card.border-0[style*="background:#fff8e1"] { background-color: #4a3a10 !important; }
@@ -48,6 +56,12 @@
         body.modo-oscuro .card.border-0[style*="background:#f3e5f5"] h4 { color: #ce93d8 !important; }
         body.modo-oscuro [style*="background:#e8f5e9"] { background: #1b3320 !important; }
         body.modo-oscuro .rank-badge[style*="background:#f0f0f0"] { background: #2a2a2a !important; color: #b0b0b0 !important; }
+
+        @media (max-width: 767.98px) {
+            .header-banner { padding: 18px; border-radius: 16px; }
+            .chart-card { padding: 14px; }
+            .filtro-card .card-body { padding: 18px !important; }
+        }
     </style>
 </head>
 <body>
@@ -61,18 +75,18 @@
     </script>
 
     <!-- Encabezado -->
-    <div class="mb-4">
-        <h4 class="fw-bold mb-0" style="color:#1B5E20">📊 Reportes y Estadísticas</h4>
-        <p class="text-muted small mb-0">Análisis de ventas e ingresos</p>
+    <div class="header-banner">
+        <h4 class="fw-bold mb-0"><i class="bi bi-bar-chart-fill me-1"></i>Reportes y Estadísticas</h4>
+        <p class="small mb-0">Análisis de ventas e ingresos</p>
     </div>
 
     <!-- Estadísticas del día -->
-    <p class="section-label mb-3">📅 Resumen de Hoy</p>
+    <p class="section-label mb-3"><i class="bi bi-calendar-check me-1"></i>Resumen de Hoy</p>
     <div class="row g-3 mb-4">
         <div class="col-6">
             <div class="card stat-card p-3">
                 <div class="d-flex align-items-center gap-3">
-                    <div class="stat-icono" style="background:#e8f5e9">💰</div>
+                    <div class="stat-icono" style="background:#e8f5e9;color:#2E7D32"><i class="bi bi-cash-coin"></i></div>
                     <div>
                         <p class="text-muted small mb-1">Ingresos hoy</p>
                         <h4 class="fw-bold text-success mb-0" th:text="'S/ ' + ${totalHoy}"></h4>
@@ -83,7 +97,7 @@
         <div class="col-6">
             <div class="card stat-card p-3">
                 <div class="d-flex align-items-center gap-3">
-                    <div class="stat-icono" style="background:#e3f2fd">🛒</div>
+                    <div class="stat-icono" style="background:#e3f2fd;color:#1565C0"><i class="bi bi-cart-check-fill"></i></div>
                     <div>
                         <p class="text-muted small mb-1">Ventas hoy</p>
                         <h4 class="fw-bold text-primary mb-0" th:text="${ventasHoy}"></h4>
@@ -94,7 +108,7 @@
     </div>
 
     <!-- GRÁFICO DE VENTAS -->
-    <p class="section-label mb-3">📈 Ventas por Día (período seleccionado)</p>
+    <p class="section-label mb-3"><i class="bi bi-graph-up-arrow me-1"></i>Ventas por Día (período seleccionado)</p>
     <div class="chart-card mb-4">
         <canvas id="graficoVentas" height="80"></canvas>
     </div>
@@ -102,7 +116,7 @@
     <!-- Filtro fechas -->
     <div class="card filtro-card mb-4">
         <div class="card-body p-4">
-            <p class="section-label mb-3">🔍 Filtrar por Período</p>
+            <p class="section-label mb-3"><i class="bi bi-funnel-fill me-1"></i>Filtrar por Período</p>
             <form action="/reportes" method="get">
                 <div class="row g-3 align-items-end">
                     <div class="col-12 col-md-4">
@@ -114,7 +128,7 @@
                         <input type="date" name="fin" class="form-control" th:value="${fin}"/>
                     </div>
                     <div class="col-12 col-md-4">
-                        <button type="submit" class="btn btn-success w-100 rounded-pill">🔍 Buscar</button>
+                        <button type="submit" class="btn btn-success w-100 rounded-pill"><i class="bi bi-search me-1"></i>Buscar</button>
                     </div>
                 </div>
             </form>
@@ -122,9 +136,9 @@
             <!-- Descargas -->
             <div class="d-flex flex-wrap gap-2 mt-4">
                 <a th:href="@{/reportes/pdf(inicio=${inicio},fin=${fin})}"
-                   class="btn btn-danger rounded-pill px-4">📄 Descargar PDF</a>
+                   class="btn btn-danger rounded-pill px-4"><i class="bi bi-file-earmark-pdf-fill me-1"></i>Descargar PDF</a>
                 <a th:href="@{/reportes/excel(inicio=${inicio},fin=${fin})}"
-                   class="btn btn-success rounded-pill px-4">📊 Descargar Excel</a>
+                   class="btn btn-success rounded-pill px-4"><i class="bi bi-file-earmark-spreadsheet-fill me-1"></i>Descargar Excel</a>
             </div>
 
             <!-- Resumen período -->
@@ -149,19 +163,16 @@
 
             <!-- Lista ventas -->
             <div class="mt-4">
-                <p class="section-label mb-3">📋 Ventas del Período</p>
+                <p class="section-label mb-3"><i class="bi bi-list-ul me-1"></i>Ventas del Período</p>
                 <div th:if="${#lists.isEmpty(ventas)}" class="text-center text-muted py-3">
-                    <div style="font-size:32px">📭</div>
+                    <div style="font-size:32px;color:#c0c0c0;"><i class="bi bi-inbox"></i></div>
                     <div class="small mt-1">No hay ventas en el período seleccionado</div>
                 </div>
                 <div class="table-responsive">
                     <table th:unless="${#lists.isEmpty(ventas)}" class="table mb-0">
                         <thead class="tabla-header">
                         <tr>
-                            <th>#</th>
-                            <th>Cliente</th>
-                            <th>Fecha</th>
-                            <th>Total</th>
+                            <th>#</th><th>Cliente</th><th>Fecha</th><th>Total</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -179,20 +190,18 @@
     </div>
 
     <!-- Productos más vendidos -->
-    <p class="section-label mb-3">🏆 Productos Más Vendidos</p>
+    <p class="section-label mb-3"><i class="bi bi-trophy-fill me-1"></i>Productos Más Vendidos</p>
     <div class="card card-main">
         <div class="card-body p-0">
             <div th:if="${#lists.isEmpty(productosMasVendidos)}" class="p-4 text-center text-muted">
-                <div style="font-size:32px">📊</div>
+                <div style="font-size:32px;color:#c0c0c0;"><i class="bi bi-bar-chart"></i></div>
                 <div class="small mt-1">Aún no hay ventas registradas</div>
             </div>
             <div class="table-responsive">
                 <table th:unless="${#lists.isEmpty(productosMasVendidos)}" class="table mb-0">
                     <thead class="tabla-header">
                     <tr>
-                        <th>Pos.</th>
-                        <th>Producto</th>
-                        <th>Unidades vendidas</th>
+                        <th>Pos.</th><th>Producto</th><th>Unidades vendidas</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -207,7 +216,7 @@
                         </td>
                         <td>
                             <div class="d-flex align-items-center gap-2">
-                                <div style="width:32px;height:32px;background:#e8f5e9;border-radius:8px;display:flex;align-items:center;justify-content:center">💊</div>
+                                <div style="width:32px;height:32px;background:#e8f5e9;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#2E7D32"><i class="bi bi-capsule"></i></div>
                                 <span class="fw-bold" th:text="${p[0]}"></span>
                             </div>
                         </td>
@@ -233,7 +242,6 @@
         document.body.classList.add('modo-oscuro');
     }
 
-    // Colores del gráfico según el tema
     const colorTexto = esOscuro ? '#e0e0e0' : '#616161';
     const colorGrid = esOscuro ? '#333333' : '#e0e0e0';
 

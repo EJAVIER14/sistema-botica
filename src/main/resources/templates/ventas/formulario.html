@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Nueva Venta</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         body { transition: background 0.3s, color 0.3s; }
         .producto-card {
@@ -18,6 +19,7 @@
             background: #e8f5e9;
             transform: translateY(-2px);
         }
+        .producto-icono { font-size: 26px; color: #2E7D32; }
         .carrito-item {
             background: #f8f9fa;
             border-radius: 8px;
@@ -61,6 +63,29 @@
             border-color: #2E7D32;
         }
 
+        /* ═══ Barra flotante de carrito (solo móvil) ═══ */
+        .cart-float-bar {
+            display: none;
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: linear-gradient(135deg, #1B5E20, #2E7D32);
+            color: white;
+            padding: 12px 16px;
+            box-shadow: 0 -4px 16px rgba(0,0,0,0.15);
+            z-index: 1030;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+        .cart-float-bar .cfb-info { display: flex; flex-direction: column; }
+        .cart-float-bar .cfb-count { font-size: 11px; opacity: 0.85; }
+        .cart-float-bar .cfb-total { font-size: 17px; font-weight: 800; }
+        .cart-float-bar .cfb-btn {
+            background: white; color: #1B5E20; border: none;
+            border-radius: 10px; padding: 8px 18px; font-weight: 700; font-size: 13px;
+            display: flex; align-items: center; gap: 6px;
+        }
+
         /* ═══ MODO OSCURO ═══ */
         body.modo-oscuro { background: #121212; color: #e0e0e0; }
         body.modo-oscuro .panel-derecho { background-color: #1e1e1e !important; border-left-color: #333 !important; }
@@ -73,6 +98,20 @@
         body.modo-oscuro hr { border-color: #333 !important; }
         body.modo-oscuro .btn-presentacion { background-color: #2a2a2a !important; color: #81C784 !important; border-color: #404040 !important; }
         body.modo-oscuro .btn-presentacion.active { background-color: #2E7D32 !important; color: white !important; }
+
+        /* ═══ RESPONSIVE MÓVIL ═══ */
+        @media (max-width: 767.98px) {
+            .panel-izquierdo, .panel-derecho {
+                height: auto;
+                overflow-y: visible;
+            }
+            .panel-derecho {
+                border-left: none;
+                border-top: 2px solid #e0e0e0;
+                padding-bottom: 90px; /* espacio para la barra flotante */
+            }
+            .cart-float-bar { display: flex; }
+        }
     </style>
 </head>
 <body class="bg-light">
@@ -89,11 +128,11 @@
 
         <!-- ═══ PANEL IZQUIERDO — Buscador y productos ═══ -->
         <div class="col-md-7 panel-izquierdo p-3">
-            <h5 class="fw-bold text-success mb-3">🛒 Nueva Venta</h5>
+            <h5 class="fw-bold text-success mb-3"><i class="bi bi-cart-fill me-1"></i>Nueva Venta</h5>
 
             <!-- Buscador -->
             <div class="input-group mb-3">
-                <span class="input-group-text bg-success text-white">🔍</span>
+                <span class="input-group-text bg-success text-white"><i class="bi bi-search"></i></span>
                 <input type="text" id="buscador" class="form-control form-control-lg"
                        placeholder="Buscar producto por nombre..."
                        oninput="filtrarProductos(this.value)"
@@ -107,7 +146,7 @@
         </div>
 
         <!-- ═══ PANEL DERECHO — Carrito y cobro ═══ -->
-        <div class="col-md-5 panel-derecho">
+        <div class="col-md-5 panel-derecho" id="panel-carrito">
 
             <!-- Formulario oculto que se envía -->
             <form action="/ventas/guardar" method="post" id="formVenta">
@@ -122,7 +161,7 @@
             </form>
 
             <!-- Cliente -->
-            <h6 class="fw-bold text-muted mb-2">👤 Datos del cliente</h6>
+            <h6 class="fw-bold text-muted mb-2"><i class="bi bi-person-fill me-1"></i>Datos del cliente</h6>
             <input type="text" id="cliente" class="form-control form-control-sm mb-2"
                    placeholder="Nombre del cliente" oninput="document.getElementById('h-cliente').value=this.value"/>
             <div class="row g-2 mb-3">
@@ -142,7 +181,7 @@
 
             <!-- Carrito -->
             <div class="d-flex justify-content-between align-items-center mb-2">
-                <h6 class="fw-bold mb-0">🧺 Carrito</h6>
+                <h6 class="fw-bold mb-0"><i class="bi bi-basket-fill me-1"></i>Carrito</h6>
                 <span class="badge bg-success" id="total-items">0 items</span>
             </div>
 
@@ -166,11 +205,11 @@
                     <label class="form-label small fw-bold">Forma de pago</label>
                     <div class="d-flex gap-1">
                         <button type="button" class="btn btn-success btn-sm flex-fill pago-btn active"
-                                onclick="setPago('Efectivo', this)">💵</button>
+                                onclick="setPago('Efectivo', this)"><i class="bi bi-cash"></i></button>
                         <button type="button" class="btn btn-outline-secondary btn-sm flex-fill pago-btn"
-                                onclick="setPago('Tarjeta', this)">💳</button>
+                                onclick="setPago('Tarjeta', this)"><i class="bi bi-credit-card-fill"></i></button>
                         <button type="button" class="btn btn-outline-secondary btn-sm flex-fill pago-btn"
-                                onclick="setPago('Yape/Plin', this)">📱</button>
+                                onclick="setPago('Yape/Plin', this)"><i class="bi bi-phone-fill"></i></button>
                     </div>
                 </div>
             </div>
@@ -212,12 +251,21 @@
             <div class="d-grid gap-2">
                 <button type="button" class="btn btn-success btn-lg"
                         onclick="registrarVenta()">
-                    ✅ Cobrar y registrar venta
+                    <i class="bi bi-check-lg me-1"></i>Cobrar y registrar venta
                 </button>
                 <a href="/ventas" class="btn btn-outline-secondary">Cancelar</a>
             </div>
         </div>
     </div>
+</div>
+
+<!-- ═══ Barra flotante (solo visible en móvil) ═══ -->
+<div class="cart-float-bar" id="cart-float-bar" onclick="irAlCarrito()">
+    <div class="cfb-info">
+        <span class="cfb-count" id="cfb-count">0 productos</span>
+        <span class="cfb-total" id="cfb-total">S/ 0.00</span>
+    </div>
+    <button type="button" class="cfb-btn"><i class="bi bi-basket-fill"></i>Ver carrito</button>
 </div>
 
 <script>
@@ -256,7 +304,7 @@
             <div class="col-6 col-lg-4">
                 <div class="producto-card p-2 text-center"
                      onclick="agregarAlCarrito(${p.id}, '${escapeHtml(p.nombre)}', ${p.precio}, ${p.stock}, ${p.unidadesPorBlister || 'null'}, ${p.unidadesPorCaja || 'null'})">
-                    <div class="fs-3 mb-1">💊</div>
+                    <div class="producto-icono mb-1"><i class="bi bi-capsule"></i></div>
                     <div class="fw-bold small">${escapeHtml(p.nombre)}</div>
                     <div class="text-success fw-bold">S/ ${p.precio.toFixed(2)} c/u</div>
                     <span class="badge ${p.stock < 10 ? 'bg-warning text-dark' : 'bg-success'} mt-1">
@@ -357,10 +405,13 @@
         if (ids.length === 0) {
             container.innerHTML = '<div class="text-muted text-center py-3 small">Selecciona productos del panel izquierdo</div>';
             document.getElementById('total-items').textContent = '0 items';
+            document.getElementById('cfb-count').textContent = '0 productos';
             return;
         }
 
         document.getElementById('total-items').textContent = ids.length + ' items';
+        document.getElementById('cfb-count').textContent = ids.length + ' producto' + (ids.length > 1 ? 's' : '');
+
         container.innerHTML = ids.map(id => {
             const item = carrito[id];
             const total = precioLinea(item);
@@ -381,7 +432,7 @@
                     <div class="d-flex justify-content-between align-items-start">
                         <div class="small fw-bold">${escapeHtml(item.nombre)}</div>
                         <button type="button" class="btn btn-link btn-sm text-danger p-0"
-                                onclick="eliminarDelCarrito(${id})">✕</button>
+                                onclick="eliminarDelCarrito(${id})"><i class="bi bi-x-lg"></i></button>
                     </div>
                     <div class="presentacion-btns">${botonesHtml}</div>
                     <div class="d-flex justify-content-between align-items-center mt-2">
@@ -418,6 +469,7 @@
         document.getElementById('txt-igv').textContent = 'S/ ' + igv.toFixed(2);
         document.getElementById('txt-descuento').textContent = '- S/ ' + descuento.toFixed(2);
         document.getElementById('txt-total').textContent = 'S/ ' + total.toFixed(2);
+        document.getElementById('cfb-total').textContent = 'S/ ' + total.toFixed(2);
 
         document.getElementById('h-montoRecibido').value = total.toFixed(2);
         document.getElementById('montoRecibido').value = total.toFixed(2);
@@ -439,6 +491,10 @@
         btn.classList.remove('btn-outline-secondary');
         btn.classList.add('btn-success');
         document.getElementById('h-formaPago').value = tipo;
+    }
+
+    function irAlCarrito() {
+        document.getElementById('panel-carrito').scrollIntoView({ behavior: 'smooth' });
     }
 
     function registrarVenta() {

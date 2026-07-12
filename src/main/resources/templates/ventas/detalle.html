@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Boleta de Venta</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         body { background: #f0f2f5; transition: background 0.3s; }
         body.modo-oscuro { background: #121212; }
@@ -19,7 +20,6 @@
             position: relative;
         }
 
-        /* Borde dentado superior tipo ticket */
         .boleta::before {
             content: '';
             position: absolute;
@@ -35,13 +35,15 @@
             color: white;
         }
 
-        .boleta-header .logo { font-size: 36px; margin-bottom: 6px; }
+        .boleta-header .logo { font-size: 34px; margin-bottom: 6px; }
         .boleta-header h4 { font-weight: 800; margin: 0; font-size: 20px; }
         .boleta-header p { opacity: 0.8; margin: 2px 0 0; font-size: 12px; }
 
         .boleta-numero {
             background: rgba(255,255,255,0.15);
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
             padding: 6px 16px;
             border-radius: 20px;
             margin-top: 12px;
@@ -54,10 +56,12 @@
         .info-row {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             font-size: 13px;
             margin-bottom: 8px;
             color: #424242;
         }
+        .info-row span:first-child { display: flex; align-items: center; gap: 6px; }
         .info-row strong { color: #212121; }
 
         .dashed-line {
@@ -104,7 +108,7 @@
         }
 
         .pago-info {
-            display: flex; justify-content: space-between;
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;
             background: #e8f5e9; border-radius: 10px;
             padding: 10px 14px; margin-top: 12px; font-size: 13px;
         }
@@ -130,6 +134,12 @@
             font-weight: 600;
         }
 
+        @media (max-width: 420px) {
+            .boleta-header { padding: 22px 18px 20px; }
+            .boleta-body { padding: 18px; }
+            .productos-table { font-size: 12px; }
+        }
+
         @media print {
             body { background: white; }
             .no-print { display: none !important; }
@@ -153,7 +163,7 @@
                 <h4>Sistema Botica</h4>
                 <p>Botica del Pueblo</p>
                 <div class="boleta-numero">
-                    🧾 BOLETA N° <span th:text="${#numbers.formatInteger(venta.id, 6)}">000001</span>
+                    <i class="bi bi-receipt"></i>BOLETA N° <span th:text="${#numbers.formatInteger(venta.id, 6)}">000001</span>
                 </div>
             </div>
 
@@ -161,21 +171,21 @@
 
                 <!-- Fecha -->
                 <div class="info-row">
-                    <span>📅 Fecha y hora</span>
+                    <span><i class="bi bi-calendar-event"></i>Fecha y hora</span>
                     <strong th:text="${#temporals.format(venta.fecha,'dd/MM/yyyy HH:mm')}"></strong>
                 </div>
 
                 <!-- Cliente -->
                 <div class="info-row">
-                    <span>👤 Cliente</span>
+                    <span><i class="bi bi-person-fill"></i>Cliente</span>
                     <strong th:text="${venta.cliente}"></strong>
                 </div>
                 <div class="info-row" th:if="${venta.dni != null and venta.dni != ''}">
-                    <span>🆔 DNI</span>
+                    <span><i class="bi bi-person-vcard"></i>DNI</span>
                     <strong th:text="${venta.dni}"></strong>
                 </div>
                 <div class="info-row" th:if="${venta.ruc != null and venta.ruc != ''}">
-                    <span>🏢 RUC</span>
+                    <span><i class="bi bi-building"></i>RUC</span>
                     <strong th:text="${venta.ruc}"></strong>
                 </div>
 
@@ -256,10 +266,10 @@
         <!-- Botones -->
         <div class="d-flex gap-2 mt-3 no-print">
             <button onclick="window.print()" class="btn btn-success rounded-pill flex-fill">
-                🖨️ Imprimir Boleta
+                <i class="bi bi-printer-fill me-1"></i>Imprimir Boleta
             </button>
             <a href="/ventas" class="btn btn-outline-secondary rounded-pill flex-fill">
-                ← Volver a Ventas
+                <i class="bi bi-arrow-left me-1"></i>Volver a Ventas
             </a>
         </div>
 

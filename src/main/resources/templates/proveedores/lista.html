@@ -5,34 +5,64 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Proveedores</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         body { background: #f0f2f5; transition: background 0.3s, color 0.3s; }
         .card-main { border-radius: 16px; border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        .header-banner {
+            background: linear-gradient(135deg, #1B5E20, #2E7D32);
+            border-radius: 18px; padding: 20px 24px; color: #fff;
+            margin-bottom: 20px; box-shadow: 0 6px 20px rgba(27,94,32,0.25);
+        }
+        .header-banner h4 { color: #fff !important; font-weight: 800; }
+        .header-banner p { color: rgba(255,255,255,0.85) !important; }
+        .header-banner .btn-light-action { background: #fff; color: #1B5E20; font-weight: 700; border: none; }
+
         .tabla-header { background: linear-gradient(135deg, #1B5E20, #2E7D32); }
         .tabla-header th { font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 16px; border: none; color: white; }
         .tabla-row td { padding: 12px 16px; vertical-align: middle; border-bottom: 1px solid #f0f0f0; }
         .tabla-row:hover { background: #f8fff8; }
         .btn-accion { width: 32px; height: 32px; padding: 0; border-radius: 8px; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; }
-        .search-box { border-radius: 12px; border: 2px solid #e0e0e0; padding: 10px 16px; }
+        .search-box { border-radius: 12px; border: 2px solid #e0e0e0; padding: 10px 16px 10px 40px; }
         .search-box:focus { border-color: #2E7D32; box-shadow: 0 0 0 3px rgba(46,125,50,0.1); outline: none; }
-        .prov-avatar { width: 38px; height: 38px; border-radius: 10px; background: #e8f5e9; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .search-wrap { position: relative; max-width: 400px; }
+        .search-wrap i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #9e9e9e; }
+        .prov-avatar { width: 38px; height: 38px; border-radius: 10px; background: #e8f5e9; display: flex; align-items: center; justify-content: center; color: #2E7D32; font-size: 16px; }
+
+        /* ═══ Tarjetas móvil ═══ */
+        .prov-card-mobile { background: white; border-radius: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); padding: 14px; margin-bottom: 10px; }
+        .pv-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .pv-nombre { font-weight: 700; font-size: 14.5px; color: #212121; }
+        .pv-ruc { font-size: 11.5px; color: #9e9e9e; font-family: monospace; }
+        .pv-info { font-size: 12.5px; color: #616161; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+        .pv-acciones { display: flex; gap: 6px; margin-top: 10px; }
+        .pv-acciones .btn-accion { flex: 1; height: 36px; border-radius: 10px; }
 
         /* ═══ MODO OSCURO ═══ */
         body.modo-oscuro { background: #121212; color: #e0e0e0; }
         body.modo-oscuro .card,
-        body.modo-oscuro .card-main { background-color: #1e1e1e !important; color: #e0e0e0 !important; }
+        body.modo-oscuro .card-main,
+        body.modo-oscuro .prov-card-mobile { background-color: #1e1e1e !important; color: #e0e0e0 !important; }
         body.modo-oscuro table { background-color: #1e1e1e !important; color: #e0e0e0 !important; }
         body.modo-oscuro .table > :not(caption) > * > * { background-color: #1e1e1e !important; color: #e0e0e0 !important; box-shadow: none; }
         body.modo-oscuro .tabla-row td { border-color: #2a2a2a !important; color: #d0d0d0 !important; }
         body.modo-oscuro .tabla-row:hover { background-color: #252525 !important; }
-        body.modo-oscuro .text-muted { color: #9e9e9e !important; }
-        body.modo-oscuro span[style*="color:#9e9e9e"] { color: #999999 !important; }
-        body.modo-oscuro span[style*="font-weight:600;font-size:14px"] { color: #f0f0f0 !important; }
-        body.modo-oscuro span[style*="color:#616161"] { color: #b0b0b0 !important; }
+        body.modo-oscuro .text-muted, body.modo-oscuro .pv-ruc { color: #9e9e9e !important; }
+        body.modo-oscuro .pv-nombre { color: #f0f0f0 !important; }
         body.modo-oscuro .search-box { background-color: #1e1e1e !important; color: #e0e0e0 !important; border-color: #333 !important; }
         body.modo-oscuro .search-box::placeholder { color: #777 !important; }
-        body.modo-oscuro h4[style*="color:#1B5E20"] { color: #66BB6A !important; }
         body.modo-oscuro .prov-avatar { background: #1b3320 !important; }
+
+        .vista-tabla { display: block; }
+        .vista-mobile { display: none; }
+        @media (max-width: 767.98px) {
+            .vista-tabla { display: none; }
+            .vista-mobile { display: block; }
+            .header-banner { padding: 18px; border-radius: 16px; }
+            .header-banner .d-flex.justify-content-between { flex-direction: column; align-items: stretch !important; gap: 12px; }
+            .header-banner .btn-light-action { width: 100%; }
+            .search-wrap { max-width: 100%; }
+        }
     </style>
 </head>
 <body>
@@ -40,35 +70,36 @@
 <div class="container-fluid py-4 px-4">
 
     <!-- Encabezado -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4 class="fw-bold mb-0" style="color:#1B5E20">🚚 Gestión de Proveedores</h4>
-            <p class="text-muted small mb-0">Administra los proveedores de medicamentos</p>
+    <div class="header-banner">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="fw-bold mb-0"><i class="bi bi-truck me-1"></i>Gestión de Proveedores</h4>
+                <p class="small mb-0">Administra los proveedores de medicamentos</p>
+            </div>
+            <a href="/proveedores/nuevo" class="btn btn-light-action px-4 rounded-pill shadow-sm">
+                <i class="bi bi-plus-lg me-1"></i>Nuevo Proveedor
+            </a>
         </div>
-        <a href="/proveedores/nuevo" class="btn btn-success px-4 rounded-pill shadow-sm">+ Nuevo Proveedor</a>
     </div>
 
     <!-- Buscador -->
     <div class="mb-4">
-        <input type="text" class="form-control search-box" style="max-width:400px"
-               placeholder="🔍 Buscar por nombre o RUC..."
-               oninput="filtrar(this.value)"/>
+        <div class="search-wrap">
+            <i class="bi bi-search"></i>
+            <input type="text" class="form-control search-box"
+                   placeholder="Buscar por nombre o RUC..."
+                   oninput="filtrar(this.value)"/>
+        </div>
     </div>
 
-    <!-- Tabla -->
-    <div class="card card-main">
+    <!-- Tabla (desktop) -->
+    <div class="card card-main vista-tabla">
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table mb-0" id="tabla-proveedores">
                     <thead class="tabla-header">
                     <tr>
-                        <th>#</th>
-                        <th>Proveedor</th>
-                        <th>RUC</th>
-                        <th>Contacto</th>
-                        <th>Teléfono</th>
-                        <th>Correo</th>
-                        <th>Acciones</th>
+                        <th>#</th><th>Proveedor</th><th>RUC</th><th>Contacto</th><th>Teléfono</th><th>Correo</th><th>Acciones</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -76,7 +107,7 @@
                         <td><span style="color:#9e9e9e;font-size:12px;font-weight:600" th:text="${p.id}"></span></td>
                         <td>
                             <div class="d-flex align-items-center gap-2">
-                                <div class="prov-avatar">🏭</div>
+                                <div class="prov-avatar"><i class="bi bi-building"></i></div>
                                 <div>
                                     <div style="font-weight:600;font-size:14px" th:text="${p.nombre}"></div>
                                 </div>
@@ -88,13 +119,33 @@
                         <td style="font-size:13px;color:#616161" th:text="${p.correo}"></td>
                         <td>
                             <div class="d-flex gap-1">
-                                <a th:href="@{/proveedores/editar/{id}(id=${p.id})}" class="btn btn-accion btn-primary" title="Editar">✏️</a>
-                                <a th:href="@{/proveedores/eliminar/{id}(id=${p.id})}" class="btn btn-accion btn-danger" title="Eliminar" onclick="return confirm('¿Seguro?')">🗑️</a>
+                                <a th:href="@{/proveedores/editar/{id}(id=${p.id})}" class="btn btn-accion btn-primary" title="Editar"><i class="bi bi-pencil-fill"></i></a>
+                                <a th:href="@{/proveedores/eliminar/{id}(id=${p.id})}" class="btn btn-accion btn-danger" title="Eliminar" onclick="return confirm('¿Seguro?')"><i class="bi bi-trash-fill"></i></a>
                             </div>
                         </td>
                     </tr>
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tarjetas (móvil) -->
+    <div class="vista-mobile" id="lista-proveedores-mobile">
+        <div class="prov-card-mobile tabla-row" th:each="p : ${proveedores}">
+            <div class="pv-top">
+                <div class="prov-avatar"><i class="bi bi-building"></i></div>
+                <div class="flex-fill">
+                    <div class="pv-nombre" th:text="${p.nombre}"></div>
+                    <div class="pv-ruc" th:text="${p.ruc}"></div>
+                </div>
+            </div>
+            <div class="pv-info"><i class="bi bi-person"></i><span th:text="${p.contacto}"></span></div>
+            <div class="pv-info"><i class="bi bi-telephone"></i><span th:text="${p.telefono}"></span></div>
+            <div class="pv-info"><i class="bi bi-envelope"></i><span th:text="${p.correo}"></span></div>
+            <div class="pv-acciones">
+                <a th:href="@{/proveedores/editar/{id}(id=${p.id})}" class="btn btn-accion btn-primary"><i class="bi bi-pencil-fill"></i></a>
+                <a th:href="@{/proveedores/eliminar/{id}(id=${p.id})}" class="btn btn-accion btn-danger" onclick="return confirm('¿Seguro?')"><i class="bi bi-trash-fill"></i></a>
             </div>
         </div>
     </div>
