@@ -100,22 +100,31 @@
                 <!-- Acciones -->
                 <div class="d-flex align-items-center gap-2 mt-2 mt-lg-0 botica-navbar-actions">
                     <button type="button" id="btn-modo-oscuro"
-                            class="btn btn-outline-light btn-sm botica-menu-item botica-action-item"
+                            class="botica-menu-item botica-action-item botica-theme-btn"
                             title="Cambiar tema" onclick="toggleModoOscuro()">
                         <span class="bmi-icon" id="icono-modo">🌙</span>
                         <span class="bmi-label d-lg-none">Modo oscuro</span>
                     </button>
-                    <a href="/perfil" class="btn btn-outline-light btn-sm botica-menu-item botica-action-item">
-                        <span class="bmi-icon">👤</span>
+
+                    <span class="botica-action-divider d-none d-lg-block"></span>
+
+                    <a href="/perfil" class="botica-menu-item botica-action-item botica-profile-btn">
+                        <span class="botica-profile-avatar d-none d-lg-flex"
+                              th:text="${#authentication != null and #authentication.name != null and #authentication.name.length() > 0 ? #authentication.name.substring(0,1).toUpperCase() : '?'}">
+                        </span>
+                        <span class="bmi-icon d-lg-none">👤</span>
                         <span class="bmi-label d-lg-none">Mi Perfil</span>
-                        <span class="d-none d-lg-inline">Mi Perfil</span>
+                        <span class="d-none d-lg-inline botica-profile-text" th:text="${#authentication != null ? #authentication.name : 'Mi Perfil'}">Mi Perfil</span>
                         <i class="bmi-chevron d-lg-none bi bi-chevron-right"></i>
                     </a>
+
+                    <span class="botica-action-divider d-none d-lg-block"></span>
+
                     <form th:action="@{/logout}" method="post" class="d-flex botica-logout-form">
-                        <button type="submit" class="btn btn-outline-light btn-sm botica-menu-item botica-action-item botica-logout">
+                        <button type="submit" class="botica-menu-item botica-action-item botica-logout">
                             <span class="bmi-icon">🚪</span>
                             <span class="bmi-label d-lg-none">Cerrar sesión</span>
-                            <span class="d-none d-lg-inline">Cerrar sesión</span>
+                            <span class="d-none d-lg-inline">Salir</span>
                         </button>
                     </form>
                 </div>
@@ -242,7 +251,82 @@
             .botica-menu-item { display: flex !important; align-items: center; gap: 6px; padding: 8px 12px !important; }
             .bmi-chevron { display: none; }
             .bmi-badge { margin-left: 4px; }
-            .botica-action-item .bmi-label { display: none; }
+
+            /* ═══ Botones de acción rediseñados (desktop) ═══ */
+            .botica-navbar-actions { gap: 4px !important; }
+
+            .botica-action-item {
+                border: none !important;
+                background: transparent !important;
+                color: rgba(255,255,255,0.9) !important;
+            }
+
+            /* Toggle de tema: ícono circular */
+            .botica-theme-btn {
+                width: 38px; height: 38px;
+                padding: 0 !important;
+                border-radius: 50% !important;
+                display: flex; align-items: center; justify-content: center;
+                background: rgba(255,255,255,0.1) !important;
+                transition: background-color 0.2s ease, transform 0.15s ease;
+            }
+            .botica-theme-btn:hover { background: rgba(255,255,255,0.2) !important; }
+            .botica-theme-btn:active { transform: scale(0.92); }
+            .botica-theme-btn .bmi-icon { width: auto; font-size: 15px; }
+
+            /* Divisor sutil entre grupos de botones */
+            .botica-action-divider {
+                width: 1px; height: 22px;
+                background: rgba(255,255,255,0.25);
+                margin: 0 4px;
+            }
+
+            /* Botón de perfil: avatar + nombre */
+            .botica-profile-btn {
+                display: flex !important;
+                align-items: center;
+                gap: 8px;
+                padding: 5px 14px 5px 6px !important;
+                border-radius: 20px !important;
+                background: rgba(255,255,255,0.1) !important;
+                transition: background-color 0.2s ease;
+                text-decoration: none;
+            }
+            .botica-profile-btn:hover { background: rgba(255,255,255,0.18) !important; }
+            .botica-profile-avatar {
+                width: 26px; height: 26px;
+                border-radius: 50%;
+                background: rgba(255,255,255,0.25);
+                align-items: center; justify-content: center;
+                font-size: 11px; font-weight: 800; color: white;
+                flex-shrink: 0;
+            }
+            .botica-profile-text {
+                font-size: 13px; font-weight: 600;
+                text-transform: capitalize;
+                max-width: 110px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            /* Botón de cerrar sesión: discreto, se resalta en rojo al pasar el mouse */
+            .botica-logout {
+                display: flex !important;
+                align-items: center;
+                gap: 6px;
+                padding: 7px 14px !important;
+                border-radius: 20px !important;
+                font-size: 13px;
+                font-weight: 600;
+                color: rgba(255,255,255,0.75) !important;
+                transition: all 0.2s ease;
+            }
+            .botica-logout:hover {
+                background: rgba(198,40,40,0.15) !important;
+                color: #ffcdd2 !important;
+            }
+            .botica-logout .bmi-icon { font-size: 14px; }
         }
 
         /* ═══ Sistema de Toasts ═══ */
@@ -353,7 +437,7 @@
             closeBtn.addEventListener('click', cerrarMenu);
             backdrop.addEventListener('click', cerrarMenu);
 
-            const links = drawer.querySelectorAll('.nav-link, .btn, form button[type="submit"]');
+            const links = drawer.querySelectorAll('.nav-link, .btn, form button[type="submit"], .botica-action-item');
             links.forEach(function(link) {
                 link.addEventListener('click', function() {
                     if (window.innerWidth < 992) cerrarMenu();
