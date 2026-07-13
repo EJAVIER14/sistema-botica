@@ -44,7 +44,8 @@ public class ProductoService {
     public Page<Producto> listarPaginado(int page, int size, String buscar) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by("id").descending());
         if (buscar != null && !buscar.trim().isEmpty()) {
-            return repo.findByNombreContainingIgnoreCase(buscar, pageRequest);
+            // ═══ ACTUALIZADO: ahora busca tanto por nombre como por código ═══
+            return repo.findByNombreContainingIgnoreCaseOrCodigoContainingIgnoreCase(buscar, buscar, pageRequest);
         }
         return repo.findAll(pageRequest);
     }
@@ -83,7 +84,17 @@ public class ProductoService {
         producto.setFechaVencimiento(dto.fechaVencimiento());
         producto.setCategoria(dto.categoria());
 
-        return repo.save(producto);
+        // Primer guardado: obtenemos el ID autogenerado
+        Producto guardado = repo.save(producto);
+
+        // ═══ NUEVO: generamos el código basado en el ID y guardamos de nuevo ═══
+        guardado.setCodigo(generarCodigo(guardado.getId()));
+        return repo.save(guardado);
+    }
+
+    // ═══ NUEVO: genera el código con formato BOT-0001 ═══
+    private String generarCodigo(Long id) {
+        return String.format("BOT-%04d", id);
     }
 
     public Producto buscarPorId(Long id) {
@@ -118,7 +129,7 @@ public class ProductoService {
         );
     }
 
-    // ═══════════ NUEVO: PRESENTACIONES DE VENTA (unidad / blister / caja) ═══════════
+    // ═══════════ PRESENTACIONES DE VENTA (unidad / blister / caja) ═══════════
 
     public int calcularUnidades(Producto producto, Presentacion presentacion, int cantidad) {
         int factor = switch (presentacion) {
@@ -212,7 +223,11 @@ public class ProductoService {
                     producto.setFechaVencimiento(LocalDate.parse(fechaTexto.trim()));
                 }
 
-                repo.save(producto);
+                // ═══ ACTUALIZADO: ahora también genera el código tras guardar ═══
+                Producto guardado = repo.save(producto);
+                guardado.setCodigo(generarCodigo(guardado.getId()));
+                repo.save(guardado);
+
                 resultado.exitosos++;
 
             } catch (Exception e) {
