@@ -116,7 +116,7 @@
             font-size: 11px; padding: 4px 12px; border-radius: 20px;
         }
 
-        /* ═══ Carrito: versión compacta con precio en fila separada ═══ */
+        /* ═══ Carrito: presentación siempre en su propia fila ═══ */
         .carrito-item {
             background: #fafafa;
             border-radius: 10px;
@@ -141,18 +141,19 @@
         }
         .carrito-item .btn-eliminar:hover { background: #fce4ec; color: #c62828; }
 
-        .ci-controles {
-            display: flex; align-items: center; justify-content: space-between;
-            gap: 8px;
+        .ci-controles-izq {
+            display: flex; align-items: center; gap: 6px;
         }
-        .ci-controles-izq { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 
-        .presentacion-btns { display: flex; gap: 4px; }
+        .presentacion-btns {
+            display: flex; gap: 4px; margin-top: 6px;
+        }
         .btn-presentacion {
-            font-size: 9.5px; padding: 2px 8px; border-radius: 6px;
+            font-size: 9px; padding: 2px 7px; border-radius: 6px;
             border: 1.5px solid #d5e8d5; background: white;
             color: #2E7D32; font-weight: 700; cursor: pointer;
-            transition: all 0.15s; line-height: 1.6;
+            transition: all 0.15s; line-height: 1.5; flex: 1;
+            text-align: center;
         }
         .btn-presentacion.active { background: #2E7D32; color: white; border-color: #2E7D32; }
 
@@ -170,7 +171,7 @@
 
         .ci-precio-row {
             text-align: right;
-            margin-top: 4px;
+            margin-top: 6px;
             padding-top: 4px;
             border-top: 1px dashed #e5e5e5;
         }
@@ -596,17 +597,15 @@
                         <button type="button" class="btn-eliminar"
                                 onclick="eliminarDelCarrito(${id})"><i class="bi bi-x-lg"></i></button>
                     </div>
-                    <div class="ci-controles">
-                        <div class="ci-controles-izq">
-                            <button type="button" class="btn-cantidad"
-                                    onclick="cambiarCantidad(${id}, -1)">−</button>
-                            <span class="ci-cantidad-num">${item.cantidad}</span>
-                            <button type="button" class="btn-cantidad"
-                                    onclick="cambiarCantidad(${id}, 1)">+</button>
-                            <span class="ci-unidad-label">${etiquetaPresentacion(item.presentacion)}</span>
-                        </div>
-                        <div class="presentacion-btns">${botonesHtml}</div>
+                    <div class="ci-controles-izq">
+                        <button type="button" class="btn-cantidad"
+                                onclick="cambiarCantidad(${id}, -1)">−</button>
+                        <span class="ci-cantidad-num">${item.cantidad}</span>
+                        <button type="button" class="btn-cantidad"
+                                onclick="cambiarCantidad(${id}, 1)">+</button>
+                        <span class="ci-unidad-label">${etiquetaPresentacion(item.presentacion)}</span>
                     </div>
+                    ${botones.length > 1 ? `<div class="presentacion-btns">${botonesHtml}</div>` : ''}
                     <div class="ci-precio-row">
                         <span class="ci-precio">S/ ${total.toFixed(2)}</span>
                     </div>
