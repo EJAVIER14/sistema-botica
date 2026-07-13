@@ -82,6 +82,7 @@
         }
         .productos-table td { padding: 8px 0; border-bottom: 1px solid #f5f5f5; vertical-align: top; }
         .producto-nombre { font-weight: 600; color: #212121; }
+        .producto-codigo { font-size: 9.5px; color: #2E7D32; font-weight: 700; font-family: monospace; }
         .presentacion-tag {
             display: inline-block;
             font-size: 10px;
@@ -205,6 +206,7 @@
                     <tr th:each="d : ${venta.detalles}">
                         <td>
                             <div class="producto-nombre" th:text="${d.producto.nombre}"></div>
+                            <div class="producto-codigo" th:if="${d.producto.codigo != null}" th:text="${d.producto.codigo}"></div>
                             <span class="presentacion-tag"
                                   th:if="${d.presentacion != null and d.presentacion.name() != 'UNIDAD'}"
                                   th:text="${d.presentacion.name() == 'BLISTER'} ? 'Por Blíster' : 'Por Caja'">

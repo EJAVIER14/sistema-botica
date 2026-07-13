@@ -14,6 +14,10 @@ public class Producto {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // ═══ NUEVO: código único de producto (ej: BOT-0001) ═══
+    @Column(unique = true, length = 20)
+    private String codigo;
+
     private String nombre;
     private String descripcion;
     private Double precio;
@@ -21,7 +25,7 @@ public class Producto {
     private LocalDate fechaVencimiento;
     private String categoria;
 
-    // ═══ NUEVO: presentaciones de venta ═══
+    // ═══ presentaciones de venta ═══
     private Integer unidadesPorBlister;
     private Integer unidadesPorCaja;
 }

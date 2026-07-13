@@ -19,6 +19,10 @@ public interface ProductoRepository
     // Búsqueda paginada por nombre (ignora mayúsculas/minúsculas)
     Page<Producto> findByNombreContainingIgnoreCase(String nombre, Pageable pageable);
 
+    // ═══ NUEVO: búsqueda paginada por nombre O código ═══
+    Page<Producto> findByNombreContainingIgnoreCaseOrCodigoContainingIgnoreCase(
+            String nombre, String codigo, Pageable pageable);
+
     List<Producto> findByStockLessThan(Integer stock);
 
     // Nuevo: para validar duplicados antes de crear un producto
@@ -33,4 +37,10 @@ public interface ProductoRepository
             "p.fechaVencimiento IS NOT NULL AND " +
             "p.fechaVencimiento < :hoy")
     List<Producto> findProductosVencidos(@Param("hoy") LocalDate hoy);
+
+    // ═══ NUEVO: para la migración de códigos de productos existentes ═══
+    List<Producto> findByCodigoIsNull();
+
+    // ═══ NUEVO: para buscar un producto directamente por su código (útil en el POS) ═══
+    Producto findByCodigo(String codigo);
 }

@@ -28,6 +28,7 @@
         .precio-text { color: #2E7D32; font-weight: 700; font-size: 14px; }
         .id-text { color: #9e9e9e; font-size: 12px; font-weight: 600; }
         .nombre-text { font-weight: 600; color: #212121; font-size: 14px; }
+        .codigo-text { font-size: 10.5px; color: #2E7D32; font-weight: 700; font-family: monospace; }
         .venc-text { font-size: 13px; color: #616161; }
         .search-box { border-radius: 12px; border: 2px solid #e0e0e0; padding: 10px 16px 10px 40px; }
         .search-box:focus { border-color: #2E7D32; box-shadow: 0 0 0 3px rgba(46,125,50,0.1); outline: none; }
@@ -82,6 +83,7 @@
             display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;
         }
         .producto-card-mobile .pc-nombre { font-weight: 700; font-size: 14.5px; color: #212121; }
+        .producto-card-mobile .pc-codigo { font-size: 10px; color: #2E7D32; font-weight: 700; font-family: monospace; }
         .producto-card-mobile .pc-desc { font-size: 11.5px; color: #9e9e9e; }
         .producto-card-mobile .pc-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .producto-card-mobile .pc-acciones { display: flex; gap: 6px; }
@@ -133,14 +135,16 @@
 <div class="container-fluid py-4 px-4">
 
     <!-- Alertas de importación -->
-    <div th:if="${exito}" class="alert alert-success alert-dismissible fade show rounded-3 mb-4" role="alert">
-        <i class="bi bi-check-circle-fill me-1"></i><span th:text="${exito}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show rounded-3 mb-4" role="alert">
-        <i class="bi bi-x-circle-fill me-1"></i><span th:text="${error}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
+    <script th:if="${exito}" th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            mostrarToast(/*[[${exito}]]*/ '', 'success', 'Operación exitosa');
+        });
+    </script>
+    <script th:if="${error}" th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            mostrarToast(/*[[${error}]]*/ '', 'error', 'Ocurrió un error');
+        });
+    </script>
 
     <!-- Encabezado -->
     <div class="header-banner">
@@ -166,7 +170,7 @@
             <form action="/productos" method="get" class="search-wrap">
                 <i class="bi bi-search"></i>
                 <input type="text" name="buscar" class="form-control search-box"
-                       placeholder="Buscar producto por nombre..."
+                       placeholder="Buscar por nombre o código..."
                        th:value="${buscar}"/>
             </form>
         </div>
@@ -211,6 +215,7 @@
                                 </div>
                                 <div>
                                     <div class="nombre-text" th:text="${producto.nombre}"></div>
+                                    <div class="codigo-text" th:text="${producto.codigo}"></div>
                                     <div style="font-size:11px;color:#9e9e9e" th:text="${producto.descripcion != null ? producto.descripcion : ''}"></div>
                                 </div>
                             </div>
@@ -296,6 +301,7 @@
                 <div class="pc-icono"><i class="bi bi-capsule"></i></div>
                 <div class="flex-fill">
                     <div class="pc-nombre" th:text="${producto.nombre}"></div>
+                    <div class="pc-codigo" th:text="${producto.codigo}"></div>
                     <div class="pc-desc" th:text="${producto.descripcion != null ? producto.descripcion : ''}"></div>
                 </div>
                 <span class="badge badge-cat"

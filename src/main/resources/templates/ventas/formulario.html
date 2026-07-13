@@ -20,6 +20,7 @@
             transform: translateY(-2px);
         }
         .producto-icono { font-size: 26px; color: #2E7D32; }
+        .producto-codigo { font-size: 9.5px; color: #2E7D32; font-weight: 700; font-family: monospace; }
         .carrito-item {
             background: #f8f9fa;
             border-radius: 8px;
@@ -108,7 +109,7 @@
             .panel-derecho {
                 border-left: none;
                 border-top: 2px solid #e0e0e0;
-                padding-bottom: 90px; /* espacio para la barra flotante */
+                padding-bottom: 90px;
             }
             .cart-float-bar { display: flex; }
         }
@@ -134,7 +135,7 @@
             <div class="input-group mb-3">
                 <span class="input-group-text bg-success text-white"><i class="bi bi-search"></i></span>
                 <input type="text" id="buscador" class="form-control form-control-lg"
-                       placeholder="Buscar producto por nombre..."
+                       placeholder="Buscar por nombre o código..."
                        oninput="filtrarProductos(this.value)"
                        autocomplete="off"/>
             </div>
@@ -305,6 +306,7 @@
                 <div class="producto-card p-2 text-center"
                      onclick="agregarAlCarrito(${p.id}, '${escapeHtml(p.nombre)}', ${p.precio}, ${p.stock}, ${p.unidadesPorBlister || 'null'}, ${p.unidadesPorCaja || 'null'})">
                     <div class="producto-icono mb-1"><i class="bi bi-capsule"></i></div>
+                    <div class="producto-codigo">${escapeHtml(p.codigo || '')}</div>
                     <div class="fw-bold small">${escapeHtml(p.nombre)}</div>
                     <div class="text-success fw-bold">S/ ${p.precio.toFixed(2)} c/u</div>
                     <span class="badge ${p.stock < 10 ? 'bg-warning text-dark' : 'bg-success'} mt-1">
@@ -316,8 +318,10 @@
     }
 
     function filtrarProductos(texto) {
+        const t = texto.toLowerCase();
         const filtrados = todosProductos.filter(p =>
-            p.nombre.toLowerCase().includes(texto.toLowerCase())
+            p.nombre.toLowerCase().includes(t) ||
+            (p.codigo && p.codigo.toLowerCase().includes(t))
         );
         renderizarProductos(filtrados);
     }
@@ -503,7 +507,6 @@
             return;
         }
 
-        // Llenar campos ocultos
         const hiddenContainer = document.getElementById('hidden-productos');
         hiddenContainer.innerHTML = '';
         Object.entries(carrito).forEach(([id, item]) => {
@@ -517,7 +520,6 @@
         document.getElementById('formVenta').submit();
     }
 
-    // Inicializar
     window.onload = function() {
         if (localStorage.getItem('tema') === 'oscuro') { document.body.classList.add('modo-oscuro'); }
         renderizarProductos(todosProductos);

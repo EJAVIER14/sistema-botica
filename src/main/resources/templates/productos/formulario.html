@@ -68,6 +68,12 @@
             margin-bottom: 20px; font-size: 13px;
             display: flex; align-items: center; gap: 8px;
         }
+        .codigo-pill {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: #e8f5e9; color: #1B5E20; font-weight: 700;
+            font-family: monospace; font-size: 13px;
+            padding: 8px 18px; border-radius: 20px;
+        }
 
         /* ═══ MODO OSCURO ═══ */
         body.modo-oscuro { background: #121212; color: #e0e0e0; }
@@ -81,6 +87,7 @@
         body.modo-oscuro .btn-cancelar { background-color: #2a2a2a !important; color: #b0b0b0 !important; }
         body.modo-oscuro .btn-cancelar:hover { background-color: #353535 !important; }
         body.modo-oscuro .presentacion-box { background-color: #1b3320 !important; border-color: #2E7D32 !important; }
+        body.modo-oscuro .codigo-pill { background-color: #1b3320 !important; color: #81C784 !important; }
 
         /* ═══ RESPONSIVE MÓVIL ═══ */
         @media (max-width: 767.98px) {
@@ -114,6 +121,14 @@
 
                     <div class="error-box" th:if="${error}">
                         <i class="bi bi-exclamation-circle-fill"></i><span th:text="${error}"></span>
+                    </div>
+
+                    <!-- ═══ NUEVO: código del producto (solo visible al editar) ═══ -->
+                    <div th:if="${producto.id != null}" class="mb-4 text-center">
+                        <span class="codigo-pill">
+                            <i class="bi bi-upc-scan"></i>
+                            <span th:text="${producto.codigo}"></span>
+                        </span>
                     </div>
 
                     <form th:action="@{/productos/guardar}" th:object="${producto}" method="post">
