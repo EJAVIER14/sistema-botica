@@ -43,7 +43,8 @@ class ProductoControllerTest {
         producto.setNombre("Paracetamol 500mg");
 
         Page<Producto> pagina = new PageImpl<>(List.of(producto));
-        when(productoService.listarPaginado(anyInt(), anyInt(), anyString())).thenReturn(pagina);
+        // ═══ ACTUALIZADO: listarPaginado ahora recibe 4 parámetros (se agregó categoria) ═══
+        when(productoService.listarPaginado(anyInt(), anyInt(), anyString(), anyString())).thenReturn(pagina);
 
         mockMvc.perform(get("/productos"))
                 .andExpect(status().isOk())
