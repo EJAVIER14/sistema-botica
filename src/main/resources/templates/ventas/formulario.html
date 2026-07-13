@@ -116,38 +116,67 @@
             font-size: 11px; padding: 4px 12px; border-radius: 20px;
         }
 
+        /* ═══ Carrito: versión compacta con precio en fila separada ═══ */
         .carrito-item {
             background: #fafafa;
-            border-radius: 12px;
-            padding: 12px 14px;
-            margin-bottom: 8px;
+            border-radius: 10px;
+            padding: 9px 12px;
+            margin-bottom: 6px;
             border: 1px solid #f0f0f0;
         }
-        .carrito-item .ci-nombre { font-weight: 700; font-size: 13.5px; color: #212121; }
+        .carrito-item .ci-top {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 4px;
+        }
+        .carrito-item .ci-nombre {
+            font-weight: 700; font-size: 12.5px; color: #212121;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+            max-width: 75%;
+        }
         .carrito-item .btn-eliminar {
             background: none; border: none; color: #e57373;
-            width: 24px; height: 24px; border-radius: 50%;
+            width: 20px; height: 20px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 12px; transition: background 0.15s;
+            font-size: 11px; transition: background 0.15s; flex-shrink: 0;
         }
         .carrito-item .btn-eliminar:hover { background: #fce4ec; color: #c62828; }
 
-        .presentacion-btns { display: flex; gap: 5px; margin: 8px 0; }
+        .ci-controles {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 8px;
+        }
+        .ci-controles-izq { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+        .presentacion-btns { display: flex; gap: 4px; }
         .btn-presentacion {
-            font-size: 10.5px; padding: 4px 10px; border-radius: 8px;
+            font-size: 9.5px; padding: 2px 8px; border-radius: 6px;
             border: 1.5px solid #d5e8d5; background: white;
             color: #2E7D32; font-weight: 700; cursor: pointer;
-            transition: all 0.15s;
+            transition: all 0.15s; line-height: 1.6;
         }
         .btn-presentacion.active { background: #2E7D32; color: white; border-color: #2E7D32; }
 
         .btn-cantidad {
-            width: 30px; height: 30px; padding: 0;
-            border-radius: 8px; font-size: 16px; font-weight: 700;
+            width: 24px; height: 24px; padding: 0;
+            border-radius: 6px; font-size: 14px; font-weight: 700;
             display: flex; align-items: center; justify-content: center;
             border: 1.5px solid #e0e0e0; background: white; color: #616161;
+            flex-shrink: 0;
         }
         .btn-cantidad:hover { background: #f5f5f5; }
+
+        .ci-cantidad-num { font-size: 12.5px; font-weight: 700; min-width: 14px; text-align: center; }
+        .ci-unidad-label { font-size: 10px; color: #9e9e9e; }
+
+        .ci-precio-row {
+            text-align: right;
+            margin-top: 4px;
+            padding-top: 4px;
+            border-top: 1px dashed #e5e5e5;
+        }
+        .ci-precio-row .ci-precio {
+            font-size: 13.5px; font-weight: 800; color: #2E7D32;
+        }
 
         .carrito-vacio-box {
             text-align: center; padding: 40px 20px; color: #bdbdbd;
@@ -224,6 +253,8 @@
         body.modo-oscuro .cliente-box .form-control { background-color: #2a2a2a !important; color: #e0e0e0 !important; border-color: #404040 !important; }
         body.modo-oscuro .carrito-item { background-color: #1e1e1e !important; border-color: #2a2a2a !important; }
         body.modo-oscuro .ci-nombre { color: #f0f0f0 !important; }
+        body.modo-oscuro .ci-precio-row { border-color: #333 !important; }
+        body.modo-oscuro .ci-unidad-label { color: #888 !important; }
         body.modo-oscuro .btn-cantidad { background-color: #2a2a2a !important; border-color: #404040 !important; color: #d0d0d0 !important; }
         body.modo-oscuro .btn-presentacion { background-color: #2a2a2a !important; border-color: #404040 !important; color: #81C784 !important; }
         body.modo-oscuro .btn-presentacion.active { background-color: #2E7D32 !important; color: white !important; }
@@ -554,30 +585,30 @@
             const botonesHtml = botones.map(p => `
                 <button type="button" class="btn-presentacion ${item.presentacion === p ? 'active' : ''}"
                         onclick="cambiarPresentacion(${id}, '${p}')">
-                    ${p === 'UNIDAD' ? 'Unidad' : (p === 'BLISTER' ? 'Blíster' : 'Caja')}
+                    ${p === 'UNIDAD' ? 'Unid' : (p === 'BLISTER' ? 'Blíst' : 'Caja')}
                 </button>
             `).join('');
 
             return `
                 <div class="carrito-item">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div class="ci-nombre">${escapeHtml(item.nombre)}</div>
+                    <div class="ci-top">
+                        <div class="ci-nombre" title="${escapeHtml(item.nombre)}">${escapeHtml(item.nombre)}</div>
                         <button type="button" class="btn-eliminar"
                                 onclick="eliminarDelCarrito(${id})"><i class="bi bi-x-lg"></i></button>
                     </div>
-                    <div class="presentacion-btns">${botonesHtml}</div>
-                    <div class="d-flex justify-content-between align-items-center mt-2">
-                        <div class="d-flex align-items-center gap-2">
+                    <div class="ci-controles">
+                        <div class="ci-controles-izq">
                             <button type="button" class="btn-cantidad"
                                     onclick="cambiarCantidad(${id}, -1)">−</button>
-                            <span class="fw-bold" style="min-width:16px;text-align:center">${item.cantidad}</span>
+                            <span class="ci-cantidad-num">${item.cantidad}</span>
                             <button type="button" class="btn-cantidad"
                                     onclick="cambiarCantidad(${id}, 1)">+</button>
-                            <span class="text-muted" style="font-size:11px">${etiquetaPresentacion(item.presentacion)}</span>
+                            <span class="ci-unidad-label">${etiquetaPresentacion(item.presentacion)}</span>
                         </div>
-                        <div class="text-success fw-bold">
-                            S/ ${total.toFixed(2)}
-                        </div>
+                        <div class="presentacion-btns">${botonesHtml}</div>
+                    </div>
+                    <div class="ci-precio-row">
+                        <span class="ci-precio">S/ ${total.toFixed(2)}</span>
                     </div>
                 </div>
             `;
