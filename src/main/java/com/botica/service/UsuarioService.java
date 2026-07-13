@@ -63,6 +63,7 @@ public class UsuarioService {
         return null;
     }
 
+    // ═══ Cambio de contraseña por el propio usuario (Mi Perfil) — sigue pidiendo la actual ═══
     public boolean cambiarPassword(Long id, String passwordActual, String passwordNueva) {
         Usuario usuario = repo.findById(id).orElse(null);
         if (usuario == null) {
@@ -80,6 +81,22 @@ public class UsuarioService {
         usuario.setPassword(encoder.encode(passwordNueva));
         repo.save(usuario);
         logger.info("Contraseña actualizada correctamente para username={}", usuario.getUsername());
+        return true;
+    }
+
+    // ═══ NUEVO: reseteo de contraseña por parte del Admin, sin pedir la actual ═══
+    public boolean resetearPassword(Long id, String passwordNueva) {
+        Usuario usuario = repo.findById(id).orElse(null);
+        if (usuario == null) {
+            logger.warn("Intento de resetear contraseña de un usuario inexistente: id={}", id);
+            return false;
+        }
+
+        validarPassword(passwordNueva);
+
+        usuario.setPassword(encoder.encode(passwordNueva));
+        repo.save(usuario);
+        logger.info("Contraseña reseteada por un administrador para username={}", usuario.getUsername());
         return true;
     }
 

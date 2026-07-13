@@ -83,7 +83,7 @@ public class UsuarioController {
         return "redirect:/usuarios";
     }
 
-    // ═══ NUEVO: activar/desactivar usuario ═══
+    // Activar/desactivar usuario
     @GetMapping("/toggle-activo/{id}")
     public String toggleActivo(@PathVariable Long id) {
         service.toggleActivo(id);
@@ -97,11 +97,10 @@ public class UsuarioController {
         return "usuarios/cambiar-password";
     }
 
-    // Guardar nueva contraseña
+    // ═══ ACTUALIZADO: reseteo de contraseña por Admin, ya no pide la contraseña actual ═══
     @PostMapping("/cambiar-password")
     public String cambiarPassword(
             @RequestParam Long id,
-            @RequestParam String passwordActual,
             @RequestParam String passwordNueva,
             @RequestParam String passwordConfirmar,
             RedirectAttributes redirectAttributes) {
@@ -113,11 +112,11 @@ public class UsuarioController {
         }
 
         try {
-            boolean ok = service.cambiarPassword(id, passwordActual, passwordNueva);
+            boolean ok = service.resetearPassword(id, passwordNueva);
 
             if (!ok) {
                 redirectAttributes.addFlashAttribute("error",
-                        "La contraseña actual es incorrecta");
+                        "No se encontró el usuario");
                 return "redirect:/usuarios/cambiar-password/" + id;
             }
         } catch (PasswordInvalidaException e) {
