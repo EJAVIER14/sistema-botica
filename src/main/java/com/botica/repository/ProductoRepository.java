@@ -19,7 +19,7 @@ public interface ProductoRepository
     // Búsqueda paginada por nombre (ignora mayúsculas/minúsculas)
     Page<Producto> findByNombreContainingIgnoreCase(String nombre, Pageable pageable);
 
-    // ═══ NUEVO: búsqueda paginada por nombre O código ═══
+    // Búsqueda paginada por nombre O código
     Page<Producto> findByNombreContainingIgnoreCaseOrCodigoContainingIgnoreCase(
             String nombre, String codigo, Pageable pageable);
 
@@ -38,9 +38,24 @@ public interface ProductoRepository
             "p.fechaVencimiento < :hoy")
     List<Producto> findProductosVencidos(@Param("hoy") LocalDate hoy);
 
-    // ═══ NUEVO: para la migración de códigos de productos existentes ═══
+    // Para la migración de códigos de productos existentes
     List<Producto> findByCodigoIsNull();
 
-    // ═══ NUEVO: para buscar un producto directamente por su código (útil en el POS) ═══
+    // Para buscar un producto directamente por su código (útil en el POS)
     Producto findByCodigo(String codigo);
+
+    // ═══ NUEVO: búsqueda combinada con filtro opcional de texto y categoría ═══
+    @Query("SELECT p FROM Producto p WHERE " +
+            "(:buscar IS NULL OR :buscar = '' OR " +
+            " LOWER(p.nombre) LIKE LOWER(CONCAT('%', :buscar, '%')) OR " +
+            " LOWER(p.codigo) LIKE LOWER(CONCAT('%', :buscar, '%'))) AND " +
+            "(:categoria IS NULL OR :categoria = '' OR p.categoria = :categoria)")
+    Page<Producto> buscarConFiltros(
+            @Param("buscar") String buscar,
+            @Param("categoria") String categoria,
+            Pageable pageable);
+
+    // ═══ NUEVO: lista de categorías distintas existentes, para el dropdown ═══
+    @Query("SELECT DISTINCT p.categoria FROM Producto p WHERE p.categoria IS NOT NULL ORDER BY p.categoria")
+    List<String> listarCategoriasDistintas();
 }

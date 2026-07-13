@@ -34,8 +34,19 @@
         .search-box:focus { border-color: #2E7D32; box-shadow: 0 0 0 3px rgba(46,125,50,0.1); outline: none; }
         .search-wrap { position: relative; }
         .search-wrap i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #9e9e9e; }
+        .categoria-select {
+            border-radius: 12px; border: 2px solid #e0e0e0;
+            padding: 10px 14px; font-size: 14px; background: white;
+        }
+        .categoria-select:focus { border-color: #2E7D32; box-shadow: 0 0 0 3px rgba(46,125,50,0.1); outline: none; }
         .stats-bar { background: white; border-radius: 12px; padding: 12px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: background 0.3s; }
         .empty-state { padding: 60px 20px; text-align: center; }
+        .filtro-activo-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: #e8f5e9; color: #1B5E20; font-size: 12px; font-weight: 700;
+            padding: 5px 12px; border-radius: 20px; margin-left: 8px;
+        }
+        .filtro-activo-badge a { color: #1B5E20; text-decoration: none; }
 
         .pagination-wrapper {
             display: flex; justify-content: space-between; align-items: center;
@@ -69,7 +80,7 @@
         }
         .upload-box:hover { border-color: #2E7D32; background: #f1f8e9; }
 
-        /* ═══ Tarjetas de producto para MÓVIL (reemplazan la tabla) ═══ */
+        /* ═══ Tarjetas de producto para MÓVIL ═══ */
         .producto-card-mobile {
             background: white;
             border-radius: 14px;
@@ -104,7 +115,8 @@
         body.modo-oscuro .venc-text { color: #b0b0b0 !important; }
         body.modo-oscuro .id-text { color: #888 !important; }
         body.modo-oscuro .text-muted { color: #9e9e9e !important; }
-        body.modo-oscuro .search-box { background-color: #1e1e1e !important; color: #e0e0e0 !important; border-color: #333 !important; }
+        body.modo-oscuro .search-box,
+        body.modo-oscuro .categoria-select { background-color: #1e1e1e !important; color: #e0e0e0 !important; border-color: #333 !important; }
         body.modo-oscuro .search-box::placeholder { color: #777 !important; }
         body.modo-oscuro .pagination-wrapper { border-color: #333 !important; }
         body.modo-oscuro .page-btn.active { background-color: #2E7D32 !important; color: white !important; }
@@ -116,6 +128,8 @@
         body.modo-oscuro .upload-box { background-color: #2a2a2a !important; border-color: #404040 !important; }
         body.modo-oscuro .upload-box:hover { background-color: #1b3320 !important; border-color: #2E7D32 !important; }
         body.modo-oscuro .modal-header, body.modo-oscuro .modal-footer { border-color: #333 !important; }
+        body.modo-oscuro .filtro-activo-badge { background-color: #1b3320 !important; color: #81C784 !important; }
+        body.modo-oscuro .filtro-activo-badge a { color: #81C784 !important; }
 
         /* Toggle tabla / tarjetas por tamaño de pantalla */
         .vista-tabla { display: block; }
@@ -164,29 +178,48 @@
         </div>
     </div>
 
-    <!-- Barra de búsqueda -->
-    <div class="row g-3 mb-4">
-        <div class="col-md-6">
-            <form action="/productos" method="get" class="search-wrap">
-                <i class="bi bi-search"></i>
-                <input type="text" name="buscar" class="form-control search-box"
-                       placeholder="Buscar por nombre o código..."
-                       th:value="${buscar}"/>
-            </form>
-        </div>
-        <div class="col-md-6">
-            <div class="stats-bar d-flex gap-4 align-items-center justify-content-center">
-                <div class="text-center">
-                    <div class="fw-bold text-success" th:text="${totalElementos}">0</div>
-                    <div style="font-size:11px; color:#9e9e9e">Total productos</div>
+    <!-- Barra de búsqueda + filtro de categoría -->
+    <form action="/productos" method="get">
+        <div class="row g-3 mb-3">
+            <div class="col-md-5">
+                <div class="search-wrap">
+                    <i class="bi bi-search"></i>
+                    <input type="text" name="buscar" class="form-control search-box"
+                           placeholder="Buscar por nombre o código..."
+                           th:value="${buscar}"/>
                 </div>
-                <div class="vr"></div>
-                <div class="text-center">
-                    <div class="fw-bold text-primary" th:text="${paginaActual + 1} + ' / ' + ${totalPaginas}">1/1</div>
-                    <div style="font-size:11px; color:#9e9e9e">Página</div>
+            </div>
+            <div class="col-md-3">
+                <select name="categoria" class="form-select categoria-select" onchange="this.form.submit()">
+                    <option value="" th:selected="${categoriaSeleccionada == ''}">Todas las categorías</option>
+                    <option th:each="cat : ${categorias}"
+                            th:value="${cat}"
+                            th:text="${cat}"
+                            th:selected="${cat == categoriaSeleccionada}">
+                    </option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-success w-100 rounded-3"><i class="bi bi-funnel-fill me-1"></i>Filtrar</button>
+            </div>
+            <div class="col-md-2">
+                <div class="stats-bar h-100 d-flex gap-3 align-items-center justify-content-center">
+                    <div class="text-center">
+                        <div class="fw-bold text-success" th:text="${totalElementos}">0</div>
+                        <div style="font-size:10px; color:#9e9e9e">Productos</div>
+                    </div>
                 </div>
             </div>
         </div>
+    </form>
+
+    <!-- Badge de filtro de categoría activo -->
+    <div th:if="${categoriaSeleccionada != null and categoriaSeleccionada != ''}" class="mb-3">
+        <span class="filtro-activo-badge">
+            <i class="bi bi-funnel-fill"></i>
+            Filtrando por: <strong th:text="${categoriaSeleccionada}"></strong>
+            <a th:href="@{/productos(buscar=${buscar})}"><i class="bi bi-x-circle-fill ms-1"></i></a>
+        </span>
     </div>
 
     <!-- ═══ VISTA TABLA (tablet / desktop) ═══ -->
@@ -263,7 +296,7 @@
             <div class="empty-state" th:if="${#lists.isEmpty(productos)}">
                 <div style="font-size:44px;color:#c0c0c0;"><i class="bi bi-search"></i></div>
                 <h5 class="text-muted mt-2">No se encontraron productos</h5>
-                <p class="text-muted small">Intenta con otro término de búsqueda</p>
+                <p class="text-muted small">Intenta con otro término de búsqueda o cambia el filtro de categoría</p>
             </div>
 
             <!-- Paginación -->
@@ -274,19 +307,19 @@
                 </span>
                 <div class="pagination-btns">
                     <a th:if="${paginaActual > 0}"
-                       th:href="@{/productos(page=${paginaActual - 1}, buscar=${buscar})}"
+                       th:href="@{/productos(page=${paginaActual - 1}, buscar=${buscar}, categoria=${categoriaSeleccionada})}"
                        class="page-btn"><i class="bi bi-chevron-left"></i></a>
                     <span th:if="${paginaActual == 0}" class="page-btn disabled"><i class="bi bi-chevron-left"></i></span>
 
                     <a th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}"
                        th:if="${i >= paginaActual - 2 and i <= paginaActual + 2}"
-                       th:href="@{/productos(page=${i}, buscar=${buscar})}"
+                       th:href="@{/productos(page=${i}, buscar=${buscar}, categoria=${categoriaSeleccionada})}"
                        th:class="${i == paginaActual} ? 'page-btn active' : 'page-btn'"
                        th:text="${i + 1}">
                     </a>
 
                     <a th:if="${paginaActual < totalPaginas - 1}"
-                       th:href="@{/productos(page=${paginaActual + 1}, buscar=${buscar})}"
+                       th:href="@{/productos(page=${paginaActual + 1}, buscar=${buscar}, categoria=${categoriaSeleccionada})}"
                        class="page-btn"><i class="bi bi-chevron-right"></i></a>
                     <span th:if="${paginaActual == totalPaginas - 1}" class="page-btn disabled"><i class="bi bi-chevron-right"></i></span>
                 </div>
@@ -343,11 +376,11 @@
             <span class="pagination-info" th:text="${paginaActual + 1} + ' / ' + ${totalPaginas}"></span>
             <div class="pagination-btns">
                 <a th:if="${paginaActual > 0}"
-                   th:href="@{/productos(page=${paginaActual - 1}, buscar=${buscar})}"
+                   th:href="@{/productos(page=${paginaActual - 1}, buscar=${buscar}, categoria=${categoriaSeleccionada})}"
                    class="page-btn"><i class="bi bi-chevron-left"></i></a>
                 <span th:if="${paginaActual == 0}" class="page-btn disabled"><i class="bi bi-chevron-left"></i></span>
                 <a th:if="${paginaActual < totalPaginas - 1}"
-                   th:href="@{/productos(page=${paginaActual + 1}, buscar=${buscar})}"
+                   th:href="@{/productos(page=${paginaActual + 1}, buscar=${buscar}, categoria=${categoriaSeleccionada})}"
                    class="page-btn"><i class="bi bi-chevron-right"></i></a>
                 <span th:if="${paginaActual == totalPaginas - 1}" class="page-btn disabled"><i class="bi bi-chevron-right"></i></span>
             </div>

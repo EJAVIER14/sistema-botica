@@ -41,20 +41,22 @@ public class ProductoService {
         return repo.findAll();
     }
 
-    public Page<Producto> listarPaginado(int page, int size, String buscar) {
+    // ═══ ACTUALIZADO: ahora recibe categoría y usa la búsqueda combinada ═══
+    public Page<Producto> listarPaginado(int page, int size, String buscar, String categoria) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by("id").descending());
-        if (buscar != null && !buscar.trim().isEmpty()) {
-            // ═══ ACTUALIZADO: ahora busca tanto por nombre como por código ═══
-            return repo.findByNombreContainingIgnoreCaseOrCodigoContainingIgnoreCase(buscar, buscar, pageRequest);
-        }
-        return repo.findAll(pageRequest);
+        return repo.buscarConFiltros(buscar, categoria, pageRequest);
+    }
+
+    // ═══ NUEVO: categorías existentes para poblar el dropdown de filtro ═══
+    public List<String> listarCategorias() {
+        return repo.listarCategoriasDistintas();
     }
 
     public Producto guardar(Producto p) {
         return repo.save(p);
     }
 
-    // ═══ NUEVO: crear producto validando nombre, duplicado, precio, stock y fecha de vencimiento ═══
+    // ═══ crear producto validando nombre, duplicado, precio, stock y fecha de vencimiento ═══
     public Producto crear(ProductoDTO dto) {
         if (dto.nombre() == null || dto.nombre().isBlank()) {
             throw new NombreInvalidoException();
@@ -87,12 +89,12 @@ public class ProductoService {
         // Primer guardado: obtenemos el ID autogenerado
         Producto guardado = repo.save(producto);
 
-        // ═══ NUEVO: generamos el código basado en el ID y guardamos de nuevo ═══
+        // Generamos el código basado en el ID y guardamos de nuevo
         guardado.setCodigo(generarCodigo(guardado.getId()));
         return repo.save(guardado);
     }
 
-    // ═══ NUEVO: genera el código con formato BOT-0001 ═══
+    // ═══ genera el código con formato BOT-0001 ═══
     private String generarCodigo(Long id) {
         return String.format("BOT-%04d", id);
     }
@@ -223,7 +225,7 @@ public class ProductoService {
                     producto.setFechaVencimiento(LocalDate.parse(fechaTexto.trim()));
                 }
 
-                // ═══ ACTUALIZADO: ahora también genera el código tras guardar ═══
+                // También genera el código tras guardar
                 Producto guardado = repo.save(producto);
                 guardado.setCodigo(generarCodigo(guardado.getId()));
                 repo.save(guardado);
