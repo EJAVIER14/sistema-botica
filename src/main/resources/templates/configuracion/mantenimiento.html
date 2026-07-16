@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Aviso de Mantenimiento</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background: #f0f2f5; transition: background 0.3s, color 0.3s; }
+        .form-card { border-radius: 20px; border: none; box-shadow: 0 8px 32px rgba(0,0,0,0.10); overflow: hidden; }
+        .form-header { background: linear-gradient(135deg, #e65100, #f57c00); padding: 28px 32px; }
+        .form-header h4 { color: white; font-weight: 800; margin: 0; font-size: 20px; }
+        .form-header p { color: rgba(255,255,255,0.85); margin: 4px 0 0; font-size: 13px; }
+        .form-body { padding: 32px; }
+        .field-label { font-size: 13px; font-weight: 700; color: #424242; margin-bottom: 8px; display: block; }
+        .form-input {
+            width: 100%; padding: 12px 16px;
+            border: 2px solid #e0e0e0; border-radius: 12px;
+            font-size: 14px; transition: all 0.2s;
+            background: #fafafa; color: #212121;
+        }
+        .form-input:focus {
+            outline: none; border-color: #f57c00;
+            background: white; box-shadow: 0 0 0 4px rgba(245,124,0,0.10);
+        }
+        .field-hint { font-size: 11px; color: #9e9e9e; margin-top: 5px; }
+        .btn-guardar {
+            padding: 13px 32px; border-radius: 12px;
+            background: linear-gradient(135deg, #e65100, #f57c00);
+            color: white; border: none; font-weight: 700; font-size: 14px;
+            display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+            box-shadow: 0 4px 12px rgba(245,124,0,0.3); transition: all 0.2s;
+        }
+        .btn-guardar:hover { transform: translateY(-2px); color: white; }
+        .btn-desactivar {
+            padding: 13px 24px; border-radius: 12px;
+            background: #f5f5f5; color: #616161; border: none; font-weight: 600; font-size: 14px;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+        }
+        .estado-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 20px;
+            margin-bottom: 20px;
+        }
+        .estado-activo { background: #fff3e0; color: #e65100; }
+        .estado-inactivo { background: #f0f0f0; color: #757575; }
+
+        body.modo-oscuro { background: #121212; color: #e0e0e0; }
+        body.modo-oscuro .form-card { background-color: #1e1e1e !important; }
+        body.modo-oscuro .field-label { color: #c0c0c0 !important; }
+        body.modo-oscuro .form-input { background-color: #2a2a2a !important; color: #e0e0e0 !important; border-color: #404040 !important; }
+        body.modo-oscuro .field-hint { color: #888 !important; }
+        body.modo-oscuro .btn-desactivar { background-color: #2a2a2a !important; color: #b0b0b0 !important; }
+
+        @media (max-width: 767.98px) {
+            .form-header { padding: 22px 20px; }
+            .form-body { padding: 20px; }
+            .d-flex.gap-3.mt-4 { flex-direction: column; }
+            .btn-guardar, .btn-desactivar { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <div class="form-card">
+                <div class="form-header">
+                    <h4><i class="bi bi-cone-striped me-1"></i>Aviso de Mantenimiento</h4>
+                    <p>Programa una ventana de mantenimiento visible para todos los usuarios</p>
+                </div>
+                <div class="form-body">
+
+                    <span th:if="${aviso.id != null and aviso.activo}" class="estado-badge estado-activo">
+                        <i class="bi bi-broadcast"></i>Aviso actualmente activo
+                    </span>
+                    <span th:if="${aviso.id == null or !aviso.activo}" class="estado-badge estado-inactivo">
+                        <i class="bi bi-circle"></i>No hay ningún aviso activo
+                    </span>
+
+                    <form th:action="@{/configuracion/mantenimiento/guardar}" th:object="${aviso}" method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <input type="hidden" th:field="*{id}"/>
+
+                        <div class="mb-4">
+                            <label class="field-label">Mensaje para los usuarios</label>
+                            <input type="text" class="form-input" th:field="*{mensaje}"
+                                   placeholder="Ej: El sistema estará en mantenimiento por actualizaciones programadas" required/>
+                            <div class="field-hint">Este mensaje se mostrará en un banner visible en todo el sistema</div>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="field-label">Fecha y hora de inicio</label>
+                                <input type="datetime-local" class="form-input" th:field="*{fechaInicio}" required/>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="field-label">Fecha y hora de fin</label>
+                                <input type="datetime-local" class="form-input" th:field="*{fechaFin}" required/>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-3 mt-4">
+                            <button type="submit" class="btn-guardar"><i class="bi bi-check-lg"></i>Programar Aviso</button>
+                            <a th:if="${aviso.id != null and aviso.activo}"
+                               th:href="@{/configuracion/mantenimiento/desactivar/{id}(id=${aviso.id})}"
+                               class="btn-desactivar"><i class="bi bi-x-circle"></i>Desactivar aviso actual</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:if="${exito}" th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        mostrarToast(/*[[${exito}]]*/ '', 'success', 'Listo');
+    });
+</script>
+<script>
+    if (localStorage.getItem('tema') === 'oscuro') { document.body.classList.add('modo-oscuro'); }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
