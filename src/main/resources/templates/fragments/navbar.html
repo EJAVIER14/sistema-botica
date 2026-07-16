@@ -95,6 +95,13 @@
                             <i class="bmi-chevron bi bi-chevron-right"></i>
                         </a>
                     </li>
+                    <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                        <a class="nav-link botica-menu-item" href="/auditoria">
+                            <span class="bmi-icon">📜</span>
+                            <span class="bmi-label">Auditoría</span>
+                            <i class="bmi-chevron bi bi-chevron-right"></i>
+                        </a>
+                    </li>
                 </ul>
 
                 <!-- Acciones -->

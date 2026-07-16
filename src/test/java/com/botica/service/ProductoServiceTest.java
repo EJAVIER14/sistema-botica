@@ -66,13 +66,26 @@ class ProductoServiceTest {
         );
 
         when(repo.existsByNombre("Ibuprofeno 400mg")).thenReturn(false);
-        when(repo.save(any(Producto.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // ═══ ACTUALIZADO: simula que la BD asigna un ID autogenerado en el primer save() ═══
+        // Esto es necesario porque crear() ahora guarda 2 veces: una para obtener el ID
+        // y otra para persistir el código generado a partir de ese ID (BOT-000X).
+        when(repo.save(any(Producto.class))).thenAnswer(invocation -> {
+            Producto p = invocation.getArgument(0);
+            if (p.getId() == null) {
+                p.setId(15L);
+            }
+            return p;
+        });
 
         Producto resultado = productoService.crear(dto);
 
         assertEquals("Ibuprofeno 400mg", resultado.getNombre());
         assertEquals(3.20, resultado.getPrecio());
-        verify(repo, times(1)).save(any(Producto.class));
+        assertEquals("BOT-0015", resultado.getCodigo());
+
+        // ═══ ACTUALIZADO: ahora se guarda 2 veces (antes era 1) ═══
+        verify(repo, times(2)).save(any(Producto.class));
     }
 
     @Test
@@ -162,7 +175,7 @@ class ProductoServiceTest {
         verify(repo, never()).save(any(Producto.class));
     }
 
-    // ═══════════ NUEVOS: Presentaciones de venta ═══════════
+    // ═══════════ Presentaciones de venta ═══════════
 
     @Test
     @DisplayName("Debe calcular correctamente las unidades a descontar al vender por BLISTER")

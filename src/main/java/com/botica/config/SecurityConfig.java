@@ -18,6 +18,15 @@ public class SecurityConfig {
     @Autowired
     private CustomUserDetailsService userDetailsService;
 
+    @Autowired
+    private AuditoriaAuthenticationSuccessHandler successHandler;
+
+    @Autowired
+    private AuditoriaAuthenticationFailureHandler failureHandler;
+
+    @Autowired
+    private AuditoriaLogoutSuccessHandler logoutSuccessHandler;
+
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -37,6 +46,7 @@ public class SecurityConfig {
                         .requestMatchers("/usuarios/**").hasRole("ADMIN")
                         .requestMatchers("/reportes/**").hasRole("ADMIN")
                         .requestMatchers("/inventario/**").hasRole("ADMIN")
+                        .requestMatchers("/auditoria/**").hasRole("ADMIN")
 
                         // ADMIN y ALMACENERO
                         .requestMatchers("/proveedores/**").hasAnyRole("ADMIN", "ALMACENERO")
@@ -55,13 +65,13 @@ public class SecurityConfig {
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/", true)
-                        .failureUrl("/login?error=true")
+                        .successHandler(successHandler)
+                        .failureHandler(failureHandler)
                         .permitAll()
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login")
+                        .logoutSuccessHandler(logoutSuccessHandler)
                         .permitAll()
                 )
                 .exceptionHandling(ex -> ex
