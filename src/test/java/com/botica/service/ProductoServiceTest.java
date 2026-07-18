@@ -40,12 +40,12 @@ class ProductoServiceTest {
         ProductoDTO dto = new ProductoDTO(
                 "Paracetamol 500mg",
                 "Analgésico y antipirético",
-                5.50,
                 100,
                 LocalDate.now().plusYears(1),
                 "Analgésicos",
                 "LT-2026-001",
-                3.50
+                3.50,
+                40.0
         );
 
         when(repo.existsByNombre("Paracetamol 500mg")).thenReturn(true);
@@ -56,17 +56,17 @@ class ProductoServiceTest {
     }
 
     @Test
-    @DisplayName("Debe guardar el producto correctamente si el nombre no existe")
+    @DisplayName("Debe guardar el producto correctamente si el nombre no existe, calculando el precio segun el margen")
     void deberiaGuardarProductoSiNoExisteElNombre() {
         ProductoDTO dto = new ProductoDTO(
                 "Ibuprofeno 400mg",
                 "Antiinflamatorio",
-                3.20,
                 50,
                 LocalDate.now().plusMonths(8),
                 "Antiinflamatorios",
                 "LT-2026-002",
-                2.00
+                2.00,  // costo
+                60.0   // margen 60%
         );
 
         when(repo.existsByNombre("Ibuprofeno 400mg")).thenReturn(false);
@@ -82,24 +82,26 @@ class ProductoServiceTest {
         Producto resultado = productoService.crear(dto);
 
         assertEquals("Ibuprofeno 400mg", resultado.getNombre());
-        assertEquals(3.20, resultado.getPrecio());
+        assertEquals(2.00, resultado.getCosto());
+        assertEquals(60.0, resultado.getMargenGanancia());
+        assertEquals(3.20, resultado.getPrecio()); // 2.00 x 1.60 = 3.20
         assertEquals("BOT-0015", resultado.getCodigo());
 
         verify(repo, times(2)).save(any(Producto.class));
     }
 
     @Test
-    @DisplayName("Debe lanzar excepción al crear un producto con precio negativo")
-    void deberiaLanzarExcepcionSiElPrecioEsNegativo() {
+    @DisplayName("Debe lanzar excepción al crear un producto con costo negativo")
+    void deberiaLanzarExcepcionSiElCostoEsNegativo() {
         ProductoDTO dto = new ProductoDTO(
                 "Amoxicilina 500mg",
                 "Antibiótico",
-                -10.0,
                 30,
                 LocalDate.now().plusMonths(6),
                 "Antibióticos",
                 "LT-2026-003",
-                4.00
+                -10.0,
+                20.0
         );
 
         assertThrows(PrecioInvalidoException.class, () -> productoService.crear(dto));
@@ -108,17 +110,36 @@ class ProductoServiceTest {
     }
 
     @Test
-    @DisplayName("Debe lanzar excepción al crear un producto con precio igual a cero")
-    void deberiaLanzarExcepcionSiElPrecioEsCero() {
+    @DisplayName("Debe lanzar excepción al crear un producto con costo igual a cero")
+    void deberiaLanzarExcepcionSiElCostoEsCero() {
         ProductoDTO dto = new ProductoDTO(
                 "Vitamina C 1g",
                 "Suplemento",
-                0.0,
                 30,
                 LocalDate.now().plusMonths(6),
                 "Suplementos",
                 "LT-2026-004",
-                1.00
+                0.0,
+                20.0
+        );
+
+        assertThrows(PrecioInvalidoException.class, () -> productoService.crear(dto));
+
+        verify(repo, never()).save(any(Producto.class));
+    }
+
+    @Test
+    @DisplayName("Debe lanzar excepción al crear un producto con margen de ganancia negativo")
+    void deberiaLanzarExcepcionSiElMargenEsNegativo() {
+        ProductoDTO dto = new ProductoDTO(
+                "Loratadina 10mg",
+                "Antihistamínico",
+                30,
+                LocalDate.now().plusMonths(6),
+                "Otro",
+                "LT-2026-008",
+                2.50,
+                -15.0
         );
 
         assertThrows(PrecioInvalidoException.class, () -> productoService.crear(dto));
@@ -132,12 +153,12 @@ class ProductoServiceTest {
         ProductoDTO dto = new ProductoDTO(
                 "Omeprazol 20mg",
                 "Protector gástrico",
-                4.00,
                 -5,
                 LocalDate.now().plusMonths(10),
                 "Gastroprotectores",
                 "LT-2026-005",
-                2.50
+                2.50,
+                60.0
         );
 
         assertThrows(StockInvalidoException.class, () -> productoService.crear(dto));
@@ -151,12 +172,12 @@ class ProductoServiceTest {
         ProductoDTO dto = new ProductoDTO(
                 "   ",
                 "Descripcion cualquiera",
-                5.0,
                 10,
                 LocalDate.now().plusMonths(6),
                 "Otro",
                 "LT-2026-006",
-                3.00
+                3.00,
+                50.0
         );
 
         assertThrows(NombreInvalidoException.class, () -> productoService.crear(dto));
@@ -170,12 +191,12 @@ class ProductoServiceTest {
         ProductoDTO dto = new ProductoDTO(
                 "Producto Vencido",
                 "Descripcion cualquiera",
-                5.0,
                 10,
                 LocalDate.now().minusDays(1),
                 "Otro",
                 "LT-2026-007",
-                3.00
+                3.00,
+                50.0
         );
 
         when(repo.existsByNombre("Producto Vencido")).thenReturn(false);
@@ -183,6 +204,20 @@ class ProductoServiceTest {
         assertThrows(FechaVencimientoInvalidaException.class, () -> productoService.crear(dto));
 
         verify(repo, never()).save(any(Producto.class));
+    }
+
+    // ═══════════ NUEVO: Fórmula de precio (costo + margen) ═══════════
+
+    @Test
+    @DisplayName("Debe calcular el precio de venta correctamente segun el costo y el margen de ganancia")
+    void deberiaCalcularPrecioVentaSegunCostoYMargen() {
+        double precio1 = productoService.calcularPrecioVenta(2.00, 60.0);
+        double precio2 = productoService.calcularPrecioVenta(5.00, 40.0);
+        double precio3 = productoService.calcularPrecioVenta(1.50, 0.0);
+
+        assertEquals(3.20, precio1); // 2.00 x 1.60
+        assertEquals(7.00, precio2); // 5.00 x 1.40
+        assertEquals(1.50, precio3); // 0% de margen = mismo costo
     }
 
     // ═══════════ Presentaciones de venta ═══════════
@@ -197,7 +232,7 @@ class ProductoServiceTest {
 
         int unidades = productoService.calcularUnidades(producto, Presentacion.BLISTER, 2);
 
-        assertEquals(20, unidades); // 2 blisters x 10 unidades c/u
+        assertEquals(20, unidades);
     }
 
     @Test
@@ -210,7 +245,7 @@ class ProductoServiceTest {
 
         int unidades = productoService.calcularUnidades(producto, Presentacion.CAJA, 1);
 
-        assertEquals(100, unidades); // 1 caja = 100 unidades
+        assertEquals(100, unidades);
     }
 
     @Test
@@ -221,14 +256,14 @@ class ProductoServiceTest {
 
         int unidades = productoService.calcularUnidades(producto, Presentacion.UNIDAD, 5);
 
-        assertEquals(5, unidades); // 5 pastillas sueltas
+        assertEquals(5, unidades);
     }
 
     @Test
     @DisplayName("Debe calcular el precio total correctamente segun la presentacion")
     void deberiaCalcularPrecioTotalSegunPresentacion() {
         Producto producto = new Producto();
-        producto.setPrecio(0.50); // precio por unidad
+        producto.setPrecio(0.50);
         producto.setUnidadesPorBlister(10);
         producto.setUnidadesPorCaja(100);
 
@@ -236,9 +271,9 @@ class ProductoServiceTest {
         double precioCaja = productoService.calcularPrecioTotal(producto, Presentacion.CAJA, 1);
         double precioUnidad = productoService.calcularPrecioTotal(producto, Presentacion.UNIDAD, 3);
 
-        assertEquals(5.0, precioBlister);   // 10 unidades x 0.50
-        assertEquals(50.0, precioCaja);     // 100 unidades x 0.50
-        assertEquals(1.5, precioUnidad);    // 3 unidades x 0.50
+        assertEquals(5.0, precioBlister);
+        assertEquals(50.0, precioCaja);
+        assertEquals(1.5, precioUnidad);
     }
 
     @Test
@@ -252,7 +287,6 @@ class ProductoServiceTest {
 
         when(repo.findById(1L)).thenReturn(Optional.of(producto));
 
-        // Intenta vender 1 blister (10 unidades) pero solo hay 5 en stock
         assertThrows(StockInsuficienteException.class,
                 () -> productoService.venderPorPresentacion(1L, Presentacion.BLISTER, 1));
 
@@ -273,7 +307,7 @@ class ProductoServiceTest {
 
         Producto resultado = productoService.venderPorPresentacion(2L, Presentacion.BLISTER, 3);
 
-        assertEquals(70, resultado.getStock()); // 100 - (3 blisters x 10) = 70
+        assertEquals(70, resultado.getStock());
         verify(repo, times(1)).save(any(Producto.class));
     }
 }

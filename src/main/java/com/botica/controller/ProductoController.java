@@ -61,23 +61,26 @@ public class ProductoController {
         return "productos/formulario";
     }
 
+    // ═══ ACTUALIZADO: el DTO ya no recibe precio directo, ahora recibe costo + margenGanancia ═══
     @PostMapping("/guardar")
     public String guardar(@ModelAttribute Producto producto, Model model) {
         if (producto.getId() == null) {
+            // Producto NUEVO: pasa por las validaciones de negocio (crear())
             try {
                 ProductoDTO dto = new ProductoDTO(
                         producto.getNombre(),
                         producto.getDescripcion(),
-                        producto.getPrecio(),
                         producto.getStock(),
                         producto.getFechaVencimiento(),
                         producto.getCategoria(),
                         producto.getLote(),
-                        producto.getCosto()
+                        producto.getCosto(),
+                        producto.getMargenGanancia()
                 );
 
                 Producto creado = service.crear(dto);
 
+                // Las presentaciones no forman parte del DTO validado; se completan aparte
                 creado.setUnidadesPorBlister(producto.getUnidadesPorBlister());
                 creado.setUnidadesPorCaja(producto.getUnidadesPorCaja());
                 service.guardar(creado);
@@ -90,6 +93,11 @@ public class ProductoController {
                 return "productos/formulario";
             }
         } else {
+            // Producto EXISTENTE: se mantiene la edición directa
+            // El precio se recalcula igual, en caso de que cambien costo o margen al editar
+            if (producto.getCosto() != null && producto.getMargenGanancia() != null) {
+                producto.setPrecio(service.calcularPrecioVenta(producto.getCosto(), producto.getMargenGanancia()));
+            }
             service.guardar(producto);
         }
 
@@ -119,6 +127,7 @@ public class ProductoController {
         return "redirect:/inventario";
     }
 
+    // Descargar plantilla Excel
     @GetMapping("/plantilla-excel")
     public ResponseEntity<byte[]> descargarPlantilla() throws Exception {
         byte[] excel = service.generarPlantillaExcel();
@@ -129,6 +138,7 @@ public class ProductoController {
                 .body(excel);
     }
 
+    // Importar productos desde Excel
     @PostMapping("/importar-excel")
     public String importarExcel(
             @RequestParam("archivo") MultipartFile archivo,

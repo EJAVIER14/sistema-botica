@@ -54,7 +54,7 @@ public class ProductoService {
         return repo.save(p);
     }
 
-    // ═══ crear producto validando nombre, duplicado, precio, stock y fecha de vencimiento ═══
+    // ═══ ACTUALIZADO: el precio ya no se recibe, se calcula a partir de costo + margen ═══
     public Producto crear(ProductoDTO dto) {
         if (dto.nombre() == null || dto.nombre().isBlank()) {
             throw new NombreInvalidoException();
@@ -64,8 +64,12 @@ public class ProductoService {
             throw new ProductoDuplicadoException(dto.nombre());
         }
 
-        if (dto.precio() == null || dto.precio() <= 0) {
-            throw new PrecioInvalidoException(dto.precio());
+        if (dto.costo() == null || dto.costo() <= 0) {
+            throw new PrecioInvalidoException(dto.costo());
+        }
+
+        if (dto.margenGanancia() == null || dto.margenGanancia() < 0) {
+            throw new PrecioInvalidoException(dto.margenGanancia());
         }
 
         if (dto.stock() == null || dto.stock() < 0) {
@@ -76,23 +80,28 @@ public class ProductoService {
             throw new FechaVencimientoInvalidaException(dto.fechaVencimiento());
         }
 
+        double precioCalculado = calcularPrecioVenta(dto.costo(), dto.margenGanancia());
+
         Producto producto = new Producto();
         producto.setNombre(dto.nombre());
         producto.setDescripcion(dto.descripcion());
-        producto.setPrecio(dto.precio());
+        producto.setCosto(dto.costo());
+        producto.setMargenGanancia(dto.margenGanancia());
+        producto.setPrecio(precioCalculado);
         producto.setStock(dto.stock());
         producto.setFechaVencimiento(dto.fechaVencimiento());
         producto.setCategoria(dto.categoria());
-        // ═══ NUEVO ═══
         producto.setLote(dto.lote());
-        producto.setCosto(dto.costo());
 
-        // Primer guardado: obtenemos el ID autogenerado
         Producto guardado = repo.save(producto);
-
-        // Generamos el código basado en el ID y guardamos de nuevo
         guardado.setCodigo(generarCodigo(guardado.getId()));
         return repo.save(guardado);
+    }
+
+    // ═══ NUEVO: fórmula de precio de venta = costo × (1 + margen/100) ═══
+    public double calcularPrecioVenta(double costo, double margenPorcentaje) {
+        double precio = costo * (1 + margenPorcentaje / 100.0);
+        return Math.round(precio * 100.0) / 100.0; // redondeo a 2 decimales
     }
 
     private String generarCodigo(Long id) {
@@ -176,7 +185,6 @@ public class ProductoService {
         headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
         Row header = sheet.createRow(0);
-        // ═══ ACTUALIZADO: se agregaron columnas Lote y Costo ═══
         String[] cols = {"Nombre", "Descripcion", "Categoria", "Costo", "Precio", "Stock", "Lote", "FechaVencimiento(AAAA-MM-DD)"};
         for (int i = 0; i < cols.length; i++) {
             Cell cell = header.createCell(i);
@@ -185,7 +193,6 @@ public class ProductoService {
             sheet.setColumnWidth(i, 5000);
         }
 
-        // Fila de ejemplo
         Row ejemplo = sheet.createRow(1);
         ejemplo.createCell(0).setCellValue("Paracetamol 500mg");
         ejemplo.createCell(1).setCellValue("Analgésico y antipirético");
@@ -202,7 +209,7 @@ public class ProductoService {
         return out.toByteArray();
     }
 
-    // ═══ IMPORTAR DESDE EXCEL ═══
+    // ═══ IMPORTAR DESDE EXCEL (mantiene precio directo, no pasa por crear()) ═══
     public ResultadoImportacion importarExcel(MultipartFile archivo) throws IOException {
         ResultadoImportacion resultado = new ResultadoImportacion();
         Workbook wb = new XSSFWorkbook(new ByteArrayInputStream(archivo.getBytes()));
@@ -220,7 +227,6 @@ public class ProductoService {
                 producto.setNombre(nombre);
                 producto.setDescripcion(obtenerTexto(row.getCell(1)));
                 producto.setCategoria(obtenerTexto(row.getCell(2)));
-                // ═══ ACTUALIZADO: nuevo orden de columnas con Costo, Precio, Stock, Lote ═══
                 producto.setCosto(obtenerNumero(row.getCell(3)));
                 producto.setPrecio(obtenerNumero(row.getCell(4)));
                 producto.setStock((int) obtenerNumero(row.getCell(5)));

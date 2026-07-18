@@ -26,6 +26,7 @@
             background: white; box-shadow: 0 0 0 4px rgba(46,125,50,0.08);
         }
         .field-hint { font-size: 11px; color: #9e9e9e; margin-top: 5px; }
+        .field-hint i { color: #2E7D32; }
         .section-divider { border: none; border-top: 1px solid #f0f0f0; margin: 20px 0; }
         .btn-guardar {
             padding: 13px 32px; border-radius: 12px;
@@ -100,6 +101,7 @@
         body.modo-oscuro .presentacion-box { background-color: #1b3320 !important; border-color: #2E7D32 !important; }
         body.modo-oscuro .codigo-pill { background-color: #1b3320 !important; color: #81C784 !important; border-color: #2E7D32 !important; }
         body.modo-oscuro .codigo-label { color: #9e9e9e !important; }
+        body.modo-oscuro #precioCalculado { background-color: #1b3320 !important; color: #81C784 !important; border-color: #2E7D32 !important; }
 
         /* ═══ RESPONSIVE MÓVIL ═══ */
         @media (max-width: 767.98px) {
@@ -203,7 +205,7 @@
 
                         <hr class="section-divider"/>
 
-                        <!-- ═══ NUEVO: Lote y Costo ═══ -->
+                        <!-- Lote y Costo -->
                         <div class="row g-3 mb-4">
                             <div class="col-6">
                                 <label class="field-label">Número de lote</label>
@@ -215,8 +217,9 @@
                                 <label class="field-label">Costo de compra (S/) <span>*</span></label>
                                 <div style="position:relative">
                                     <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#9e9e9e;font-weight:700">S/</span>
-                                    <input type="number" class="form-input" th:field="*{costo}"
-                                           style="padding-left:32px" step="0.01" placeholder="0.00" required/>
+                                    <input type="number" class="form-input" id="costoInput" th:field="*{costo}"
+                                           style="padding-left:32px" step="0.01" placeholder="0.00" required
+                                           oninput="calcularPrecioVenta()"/>
                                 </div>
                                 <div class="field-hint">Precio al que la farmacia compró el producto</div>
                             </div>
@@ -224,17 +227,31 @@
 
                         <hr class="section-divider"/>
 
-                        <!-- Precio y Stock -->
+                        <!-- Margen de ganancia → Precio de venta calculado -->
                         <div class="row g-3 mb-4">
                             <div class="col-6">
-                                <label class="field-label">Precio por unidad (S/) <span>*</span></label>
-                                <div style="position:relative">
-                                    <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#9e9e9e;font-weight:700">S/</span>
-                                    <input type="number" class="form-input" th:field="*{precio}"
-                                           style="padding-left:32px" step="0.01" placeholder="0.00" required/>
-                                </div>
-                                <div class="field-hint">Precio de 1 unidad/pastilla suelta</div>
+                                <label class="field-label">Margen de ganancia (%) <span>*</span></label>
+                                <input type="number" class="form-input" id="margenInput" th:field="*{margenGanancia}"
+                                       step="0.1" min="0" placeholder="Ej: 40" required
+                                       oninput="calcularPrecioVenta()"/>
+                                <div class="field-hint">Porcentaje que se aplica sobre el costo</div>
                             </div>
+                            <div class="col-6">
+                                <label class="field-label">Precio de venta (S/)</label>
+                                <div style="position:relative">
+                                    <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#2E7D32;font-weight:700">S/</span>
+                                    <input type="number" class="form-input" id="precioCalculado" th:field="*{precio}"
+                                           style="padding-left:32px;background:#e8f5e9;font-weight:800;color:#1B5E20;border-color:#c8e6c9"
+                                           step="0.01" readonly/>
+                                </div>
+                                <div class="field-hint"><i class="bi bi-calculator"></i> Se calcula automáticamente: costo × (1 + margen/100)</div>
+                            </div>
+                        </div>
+
+                        <hr class="section-divider"/>
+
+                        <!-- Stock -->
+                        <div class="row g-3 mb-4">
                             <div class="col-6">
                                 <label class="field-label">Stock inicial <span>*</span></label>
                                 <input type="number" class="form-input" th:field="*{stock}"
@@ -287,6 +304,14 @@
 </div>
 
 <script>
+    function calcularPrecioVenta() {
+        const costo = parseFloat(document.getElementById('costoInput').value) || 0;
+        const margen = parseFloat(document.getElementById('margenInput').value) || 0;
+        const precio = costo * (1 + margen / 100);
+        document.getElementById('precioCalculado').value = precio.toFixed(2);
+    }
+    document.addEventListener('DOMContentLoaded', calcularPrecioVenta);
+
     if (localStorage.getItem('tema') === 'oscuro') { document.body.classList.add('modo-oscuro'); }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

@@ -25,11 +25,14 @@ public class Producto {
     private LocalDate fechaVencimiento;
     private String categoria;
 
-    // ═══ NUEVO: trazabilidad del lote de fabricación ═══
+    // Trazabilidad del lote de fabricación
     private String lote;
 
-    // ═══ NUEVO: costo de compra (precio al que la farmacia adquirió el producto) ═══
+    // Costo de compra (precio al que la farmacia adquirió el producto)
     private Double costo;
+
+    // ═══ NUEVO: porcentaje de margen aplicado sobre el costo para calcular el precio de venta ═══
+    private Double margenGanancia;
 
     // Presentaciones de venta
     private Integer unidadesPorBlister;
