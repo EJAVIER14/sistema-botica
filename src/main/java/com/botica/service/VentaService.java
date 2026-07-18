@@ -1,5 +1,6 @@
 package com.botica.service;
 
+import com.botica.exception.ProductoVencidoException;
 import com.botica.model.DetalleVenta;
 import com.botica.model.Presentacion;
 import com.botica.model.Producto;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +52,6 @@ public class VentaService {
         return ventaRepository.findById(id).orElse(null);
     }
 
-    // ═══ ACTUALIZADO: ahora recibe la presentación (UNIDAD / BLISTER / CAJA) por cada línea ═══
     public Venta registrarVenta(
             Venta venta,
             List<Long> productoIds,
@@ -60,6 +61,19 @@ public class VentaService {
         venta.setFecha(LocalDateTime.now());
         venta.setDetalles(new ArrayList<>());
         stockBajoProductos.clear();
+
+        // ═══ NUEVO: valida que NINGÚN producto del carrito esté vencido, ANTES de descontar stock ═══
+        // Se hace en una pasada previa para no dejar la venta a medias (algunos productos descontados
+        // y otros no) si se encuentra un producto vencido a mitad del carrito.
+        for (Long productoId : productoIds) {
+            Producto producto = productoService.buscarPorId(productoId);
+            if (producto == null) continue;
+
+            if (producto.getFechaVencimiento() != null
+                    && producto.getFechaVencimiento().isBefore(LocalDate.now())) {
+                throw new ProductoVencidoException(producto.getNombre(), producto.getFechaVencimiento());
+            }
+        }
 
         double subtotal = 0.0;
 
@@ -72,8 +86,6 @@ public class VentaService {
             if (productoAntes == null) continue;
             int stockAnterior = productoAntes.getStock();
 
-            // Descuenta el stock en unidades reales, valida stock suficiente,
-            // y lanza StockInsuficienteException si no alcanza
             Producto productoActualizado = productoService.venderPorPresentacion(
                     productoId, presentacion, cantidad);
 
@@ -85,7 +97,9 @@ public class VentaService {
                     "VENTA", venta.getCliente()
             );
 
-            if (productoActualizado.getStock() <= 10) {
+            // ═══ ACTUALIZADO: ahora compara contra el stockMinimo propio del producto ═══
+            int minimo = productoActualizado.getStockMinimo() != null ? productoActualizado.getStockMinimo() : 10;
+            if (productoActualizado.getStock() <= minimo) {
                 stockBajoProductos.add(
                         productoActualizado.getNombre() + " (stock: " + productoActualizado.getStock() + ")"
                 );

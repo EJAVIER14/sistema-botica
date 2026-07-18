@@ -277,6 +277,13 @@
 
 <nav th:replace="~{fragments/navbar :: navbar}"></nav>
 
+<!-- ═══ NUEVO: mostrar toast si la venta falló (ej. producto vencido) ═══ -->
+<script th:if="${error}" th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        mostrarToast(/*[[${error}]]*/ '', 'error', 'Venta rechazada');
+    });
+</script>
+
 <!-- Datos de productos -->
 <script th:inline="javascript">
     const todosProductos = /*[[${productos}]]*/ [];

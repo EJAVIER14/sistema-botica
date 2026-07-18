@@ -1,5 +1,6 @@
 package com.botica.controller;
 
+import com.botica.exception.ProductoVencidoException;
 import com.botica.model.Presentacion;
 import com.botica.model.Venta;
 import com.botica.service.ProductoService;
@@ -48,6 +49,7 @@ public class VentaController {
         return "ventas/formulario";
     }
 
+    // ═══ ACTUALIZADO: captura ProductoVencidoException y regresa al formulario con el error ═══
     @PostMapping("/guardar")
     public String guardar(
             @ModelAttribute Venta venta,
@@ -58,13 +60,16 @@ public class VentaController {
 
         venta.setDetalles(new ArrayList<>());
 
-        // Temporal: mientras el formulario no envíe la presentación,
-        // se asume UNIDAD para no romper el flujo actual de ventas.
         if (presentaciones == null || presentaciones.isEmpty()) {
             presentaciones = new ArrayList<>(Collections.nCopies(productoIds.size(), Presentacion.UNIDAD));
         }
 
-        ventaService.registrarVenta(venta, productoIds, cantidades, presentaciones);
+        try {
+            ventaService.registrarVenta(venta, productoIds, cantidades, presentaciones);
+        } catch (ProductoVencidoException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/ventas/nueva";
+        }
 
         List<String> stockBajo = ventaService.getStockBajoProductos();
         if (!stockBajo.isEmpty()) {
