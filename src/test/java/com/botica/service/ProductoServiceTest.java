@@ -43,7 +43,9 @@ class ProductoServiceTest {
                 5.50,
                 100,
                 LocalDate.now().plusYears(1),
-                "Analgésicos"
+                "Analgésicos",
+                "LT-2026-001",
+                3.50
         );
 
         when(repo.existsByNombre("Paracetamol 500mg")).thenReturn(true);
@@ -62,14 +64,13 @@ class ProductoServiceTest {
                 3.20,
                 50,
                 LocalDate.now().plusMonths(8),
-                "Antiinflamatorios"
+                "Antiinflamatorios",
+                "LT-2026-002",
+                2.00
         );
 
         when(repo.existsByNombre("Ibuprofeno 400mg")).thenReturn(false);
 
-        // ═══ ACTUALIZADO: simula que la BD asigna un ID autogenerado en el primer save() ═══
-        // Esto es necesario porque crear() ahora guarda 2 veces: una para obtener el ID
-        // y otra para persistir el código generado a partir de ese ID (BOT-000X).
         when(repo.save(any(Producto.class))).thenAnswer(invocation -> {
             Producto p = invocation.getArgument(0);
             if (p.getId() == null) {
@@ -84,7 +85,6 @@ class ProductoServiceTest {
         assertEquals(3.20, resultado.getPrecio());
         assertEquals("BOT-0015", resultado.getCodigo());
 
-        // ═══ ACTUALIZADO: ahora se guarda 2 veces (antes era 1) ═══
         verify(repo, times(2)).save(any(Producto.class));
     }
 
@@ -97,7 +97,9 @@ class ProductoServiceTest {
                 -10.0,
                 30,
                 LocalDate.now().plusMonths(6),
-                "Antibióticos"
+                "Antibióticos",
+                "LT-2026-003",
+                4.00
         );
 
         assertThrows(PrecioInvalidoException.class, () -> productoService.crear(dto));
@@ -114,7 +116,9 @@ class ProductoServiceTest {
                 0.0,
                 30,
                 LocalDate.now().plusMonths(6),
-                "Suplementos"
+                "Suplementos",
+                "LT-2026-004",
+                1.00
         );
 
         assertThrows(PrecioInvalidoException.class, () -> productoService.crear(dto));
@@ -131,7 +135,9 @@ class ProductoServiceTest {
                 4.00,
                 -5,
                 LocalDate.now().plusMonths(10),
-                "Gastroprotectores"
+                "Gastroprotectores",
+                "LT-2026-005",
+                2.50
         );
 
         assertThrows(StockInvalidoException.class, () -> productoService.crear(dto));
@@ -148,7 +154,9 @@ class ProductoServiceTest {
                 5.0,
                 10,
                 LocalDate.now().plusMonths(6),
-                "Otro"
+                "Otro",
+                "LT-2026-006",
+                3.00
         );
 
         assertThrows(NombreInvalidoException.class, () -> productoService.crear(dto));
@@ -165,7 +173,9 @@ class ProductoServiceTest {
                 5.0,
                 10,
                 LocalDate.now().minusDays(1),
-                "Otro"
+                "Otro",
+                "LT-2026-007",
+                3.00
         );
 
         when(repo.existsByNombre("Producto Vencido")).thenReturn(false);
