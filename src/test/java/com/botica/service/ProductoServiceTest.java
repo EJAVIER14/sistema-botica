@@ -45,7 +45,8 @@ class ProductoServiceTest {
                 "Analgésicos",
                 "LT-2026-001",
                 3.50,
-                40.0
+                40.0,
+                10
         );
 
         when(repo.existsByNombre("Paracetamol 500mg")).thenReturn(true);
@@ -66,7 +67,8 @@ class ProductoServiceTest {
                 "Antiinflamatorios",
                 "LT-2026-002",
                 2.00,  // costo
-                60.0   // margen 60%
+                60.0,  // margen 60%
+                15     // stock minimo
         );
 
         when(repo.existsByNombre("Ibuprofeno 400mg")).thenReturn(false);
@@ -85,7 +87,40 @@ class ProductoServiceTest {
         assertEquals(2.00, resultado.getCosto());
         assertEquals(60.0, resultado.getMargenGanancia());
         assertEquals(3.20, resultado.getPrecio()); // 2.00 x 1.60 = 3.20
+        assertEquals(15, resultado.getStockMinimo());
         assertEquals("BOT-0015", resultado.getCodigo());
+
+        verify(repo, times(2)).save(any(Producto.class));
+    }
+
+    @Test
+    @DisplayName("Debe usar el stock minimo por defecto (10) si no se especifica en el DTO")
+    void deberiaUsarStockMinimoPorDefectoSiEsNulo() {
+        ProductoDTO dto = new ProductoDTO(
+                "Diclofenaco 50mg",
+                "Antiinflamatorio",
+                40,
+                LocalDate.now().plusMonths(5),
+                "Antiinflamatorios",
+                "LT-2026-009",
+                1.80,
+                50.0,
+                null // no se especifica stock minimo
+        );
+
+        when(repo.existsByNombre("Diclofenaco 50mg")).thenReturn(false);
+
+        when(repo.save(any(Producto.class))).thenAnswer(invocation -> {
+            Producto p = invocation.getArgument(0);
+            if (p.getId() == null) {
+                p.setId(20L);
+            }
+            return p;
+        });
+
+        Producto resultado = productoService.crear(dto);
+
+        assertEquals(10, resultado.getStockMinimo()); // valor por defecto
 
         verify(repo, times(2)).save(any(Producto.class));
     }
@@ -101,7 +136,8 @@ class ProductoServiceTest {
                 "Antibióticos",
                 "LT-2026-003",
                 -10.0,
-                20.0
+                20.0,
+                10
         );
 
         assertThrows(PrecioInvalidoException.class, () -> productoService.crear(dto));
@@ -120,7 +156,8 @@ class ProductoServiceTest {
                 "Suplementos",
                 "LT-2026-004",
                 0.0,
-                20.0
+                20.0,
+                10
         );
 
         assertThrows(PrecioInvalidoException.class, () -> productoService.crear(dto));
@@ -139,7 +176,8 @@ class ProductoServiceTest {
                 "Otro",
                 "LT-2026-008",
                 2.50,
-                -15.0
+                -15.0,
+                10
         );
 
         assertThrows(PrecioInvalidoException.class, () -> productoService.crear(dto));
@@ -158,7 +196,8 @@ class ProductoServiceTest {
                 "Gastroprotectores",
                 "LT-2026-005",
                 2.50,
-                60.0
+                60.0,
+                10
         );
 
         assertThrows(StockInvalidoException.class, () -> productoService.crear(dto));
@@ -177,7 +216,8 @@ class ProductoServiceTest {
                 "Otro",
                 "LT-2026-006",
                 3.00,
-                50.0
+                50.0,
+                10
         );
 
         assertThrows(NombreInvalidoException.class, () -> productoService.crear(dto));
@@ -196,7 +236,8 @@ class ProductoServiceTest {
                 "Otro",
                 "LT-2026-007",
                 3.00,
-                50.0
+                50.0,
+                10
         );
 
         when(repo.existsByNombre("Producto Vencido")).thenReturn(false);
@@ -206,7 +247,7 @@ class ProductoServiceTest {
         verify(repo, never()).save(any(Producto.class));
     }
 
-    // ═══════════ NUEVO: Fórmula de precio (costo + margen) ═══════════
+    // ═══════════ Fórmula de precio (costo + margen) ═══════════
 
     @Test
     @DisplayName("Debe calcular el precio de venta correctamente segun el costo y el margen de ganancia")

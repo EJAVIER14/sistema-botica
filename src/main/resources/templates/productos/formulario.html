@@ -250,13 +250,19 @@
 
                         <hr class="section-divider"/>
 
-                        <!-- Stock -->
+                        <!-- ═══ ACTUALIZADO: Stock + Stock mínimo ═══ -->
                         <div class="row g-3 mb-4">
                             <div class="col-6">
                                 <label class="field-label">Stock inicial <span>*</span></label>
                                 <input type="number" class="form-input" th:field="*{stock}"
                                        placeholder="0" min="0" required/>
                                 <div class="field-hint">Unidades sueltas disponibles</div>
+                            </div>
+                            <div class="col-6">
+                                <label class="field-label">Stock mínimo (punto de reorden)</label>
+                                <input type="number" class="form-input" th:field="*{stockMinimo}"
+                                       placeholder="10" min="0"/>
+                                <div class="field-hint"><i class="bi bi-bell-fill"></i> Se alertará cuando el stock baje de este número</div>
                             </div>
                         </div>
 

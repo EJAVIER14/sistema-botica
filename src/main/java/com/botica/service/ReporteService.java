@@ -60,8 +60,9 @@ public class ReporteService {
         return todas.subList(Math.max(0, size - 5), size);
     }
 
+    // ═══ ACTUALIZADO: ahora usa el stockMinimo de cada producto en vez de un 10 fijo ═══
     public Long stockCritico() {
-        return (long) productoRepository.findByStockLessThan(10).size();
+        return (long) productoRepository.findProductosConStockBajoSuMinimo().size();
     }
 
     public Long productosPorVencer() {
@@ -74,7 +75,6 @@ public class ReporteService {
         List<Venta> ventas = ventasEntreFechas(inicio, fin);
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM");
 
-        // Inicializar todos los días del período en 0
         Map<String, Double> resultado = new LinkedHashMap<>();
         LocalDate dia = inicio;
         while (!dia.isAfter(fin)) {
@@ -82,7 +82,6 @@ public class ReporteService {
             dia = dia.plusDays(1);
         }
 
-        // Sumar ventas por día
         for (Venta v : ventas) {
             String key = v.getFecha().toLocalDate().format(fmt);
             resultado.merge(key, v.getTotal(), Double::sum);

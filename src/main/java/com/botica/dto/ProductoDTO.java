@@ -10,5 +10,6 @@ public record ProductoDTO(
         String categoria,
         String lote,
         Double costo,
-        Double margenGanancia
+        Double margenGanancia,
+        Integer stockMinimo
 ) {}

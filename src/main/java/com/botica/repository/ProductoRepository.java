@@ -44,7 +44,7 @@ public interface ProductoRepository
     // Para buscar un producto directamente por su código (útil en el POS)
     Producto findByCodigo(String codigo);
 
-    // ═══ NUEVO: búsqueda combinada con filtro opcional de texto y categoría ═══
+    // Búsqueda combinada con filtro opcional de texto y categoría
     @Query("SELECT p FROM Producto p WHERE " +
             "(:buscar IS NULL OR :buscar = '' OR " +
             " LOWER(p.nombre) LIKE LOWER(CONCAT('%', :buscar, '%')) OR " +
@@ -55,7 +55,11 @@ public interface ProductoRepository
             @Param("categoria") String categoria,
             Pageable pageable);
 
-    // ═══ NUEVO: lista de categorías distintas existentes, para el dropdown ═══
+    // Lista de categorías distintas existentes, para el dropdown
     @Query("SELECT DISTINCT p.categoria FROM Producto p WHERE p.categoria IS NOT NULL ORDER BY p.categoria")
     List<String> listarCategoriasDistintas();
+
+    // ═══ NUEVO: productos cuyo stock está por debajo de SU PROPIO stockMinimo ═══
+    @Query("SELECT p FROM Producto p WHERE p.stock < p.stockMinimo")
+    List<Producto> findProductosConStockBajoSuMinimo();
 }

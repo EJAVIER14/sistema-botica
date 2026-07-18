@@ -31,8 +31,11 @@ public class Producto {
     // Costo de compra (precio al que la farmacia adquirió el producto)
     private Double costo;
 
-    // ═══ NUEVO: porcentaje de margen aplicado sobre el costo para calcular el precio de venta ═══
+    // Porcentaje de margen aplicado sobre el costo para calcular el precio de venta
     private Double margenGanancia;
+
+    // ═══ NUEVO: punto de reorden configurable por producto (antes era un 10 fijo para todos) ═══
+    private Integer stockMinimo = 10;
 
     // Presentaciones de venta
     private Integer unidadesPorBlister;

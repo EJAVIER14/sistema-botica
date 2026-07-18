@@ -61,7 +61,7 @@ public class ProductoController {
         return "productos/formulario";
     }
 
-    // ═══ ACTUALIZADO: el DTO ya no recibe precio directo, ahora recibe costo + margenGanancia ═══
+    // ═══ ACTUALIZADO: el DTO ahora también recibe stockMinimo ═══
     @PostMapping("/guardar")
     public String guardar(@ModelAttribute Producto producto, Model model) {
         if (producto.getId() == null) {
@@ -75,7 +75,8 @@ public class ProductoController {
                         producto.getCategoria(),
                         producto.getLote(),
                         producto.getCosto(),
-                        producto.getMargenGanancia()
+                        producto.getMargenGanancia(),
+                        producto.getStockMinimo()
                 );
 
                 Producto creado = service.crear(dto);

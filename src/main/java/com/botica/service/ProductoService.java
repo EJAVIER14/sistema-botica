@@ -54,7 +54,7 @@ public class ProductoService {
         return repo.save(p);
     }
 
-    // ═══ ACTUALIZADO: el precio ya no se recibe, se calcula a partir de costo + margen ═══
+    // ═══ ACTUALIZADO: ahora también recibe y guarda stockMinimo ═══
     public Producto crear(ProductoDTO dto) {
         if (dto.nombre() == null || dto.nombre().isBlank()) {
             throw new NombreInvalidoException();
@@ -92,13 +92,15 @@ public class ProductoService {
         producto.setFechaVencimiento(dto.fechaVencimiento());
         producto.setCategoria(dto.categoria());
         producto.setLote(dto.lote());
+        // ═══ NUEVO: si no se especifica, se mantiene el valor por defecto de 10 (definido en la entidad) ═══
+        producto.setStockMinimo(dto.stockMinimo() != null ? dto.stockMinimo() : 10);
 
         Producto guardado = repo.save(producto);
         guardado.setCodigo(generarCodigo(guardado.getId()));
         return repo.save(guardado);
     }
 
-    // ═══ NUEVO: fórmula de precio de venta = costo × (1 + margen/100) ═══
+    // ═══ fórmula de precio de venta = costo × (1 + margen/100) ═══
     public double calcularPrecioVenta(double costo, double margenPorcentaje) {
         double precio = costo * (1 + margenPorcentaje / 100.0);
         return Math.round(precio * 100.0) / 100.0; // redondeo a 2 decimales

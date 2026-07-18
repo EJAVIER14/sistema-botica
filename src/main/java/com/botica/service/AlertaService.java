@@ -13,14 +13,12 @@ public class AlertaService {
     @Autowired
     private ProductoRepository repo;
 
-    // Stock mínimo configurado en 10 unidades
-    private static final int STOCK_MINIMO = 10;
-
     // Días de anticipación para alertar vencimiento
     private static final int DIAS_ANTICIPACION = 30;
 
+    // ═══ ACTUALIZADO: ahora compara el stock de cada producto contra SU PROPIO stockMinimo ═══
     public List<Producto> productosStockBajo() {
-        return repo.findByStockLessThan(STOCK_MINIMO);
+        return repo.findProductosConStockBajoSuMinimo();
     }
 
     public List<Producto> productosPorVencer() {
