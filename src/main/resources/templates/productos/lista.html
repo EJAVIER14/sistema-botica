@@ -29,6 +29,7 @@
         .id-text { color: #9e9e9e; font-size: 12px; font-weight: 600; }
         .nombre-text { font-weight: 600; color: #212121; font-size: 14px; }
         .codigo-text { font-size: 10.5px; color: #2E7D32; font-weight: 700; font-family: monospace; }
+        .lote-text { font-size: 10.5px; color: #757575; font-weight: 500; }
         .venc-text { font-size: 13px; color: #616161; }
         .search-box { border-radius: 12px; border: 2px solid #e0e0e0; padding: 10px 16px 10px 40px; }
         .search-box:focus { border-color: #2E7D32; box-shadow: 0 0 0 3px rgba(46,125,50,0.1); outline: none; }
@@ -95,6 +96,7 @@
         }
         .producto-card-mobile .pc-nombre { font-weight: 700; font-size: 14.5px; color: #212121; }
         .producto-card-mobile .pc-codigo { font-size: 10px; color: #2E7D32; font-weight: 700; font-family: monospace; }
+        .producto-card-mobile .pc-lote { font-size: 10px; color: #757575; font-weight: 500; }
         .producto-card-mobile .pc-desc { font-size: 11.5px; color: #9e9e9e; }
         .producto-card-mobile .pc-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .producto-card-mobile .pc-acciones { display: flex; gap: 6px; }
@@ -114,6 +116,7 @@
         body.modo-oscuro .nombre-text, body.modo-oscuro .pc-nombre { color: #f0f0f0 !important; }
         body.modo-oscuro .venc-text { color: #b0b0b0 !important; }
         body.modo-oscuro .id-text { color: #888 !important; }
+        body.modo-oscuro .lote-text, body.modo-oscuro .pc-lote { color: #9e9e9e !important; }
         body.modo-oscuro .text-muted { color: #9e9e9e !important; }
         body.modo-oscuro .search-box,
         body.modo-oscuro .categoria-select { background-color: #1e1e1e !important; color: #e0e0e0 !important; border-color: #333 !important; }
@@ -249,6 +252,8 @@
                                 <div>
                                     <div class="nombre-text" th:text="${producto.nombre}"></div>
                                     <div class="codigo-text" th:text="${producto.codigo}"></div>
+                                    <div th:if="${producto.lote != null and producto.lote != ''}"
+                                         class="lote-text" th:text="'Lote: ' + ${producto.lote}"></div>
                                     <div style="font-size:11px;color:#9e9e9e" th:text="${producto.descripcion != null ? producto.descripcion : ''}"></div>
                                 </div>
                             </div>
@@ -335,6 +340,8 @@
                 <div class="flex-fill">
                     <div class="pc-nombre" th:text="${producto.nombre}"></div>
                     <div class="pc-codigo" th:text="${producto.codigo}"></div>
+                    <div th:if="${producto.lote != null and producto.lote != ''}"
+                         class="pc-lote" th:text="'Lote: ' + ${producto.lote}"></div>
                     <div class="pc-desc" th:text="${producto.descripcion != null ? producto.descripcion : ''}"></div>
                 </div>
                 <span class="badge badge-cat"
@@ -419,7 +426,7 @@
                            onchange="document.getElementById('nombreArchivo').textContent = this.files[0]?.name || ''"/>
 
                     <div class="alert alert-warning mt-3 small mb-0">
-                        <i class="bi bi-exclamation-triangle-fill me-1"></i>Las columnas deben respetar el orden: Nombre, Descripción, Categoría, Precio, Stock, Fecha de vencimiento (AAAA-MM-DD)
+                        <i class="bi bi-exclamation-triangle-fill me-1"></i>Las columnas deben respetar el orden: Nombre, Descripción, Categoría, Costo, Precio, Stock, Lote, Fecha de vencimiento (AAAA-MM-DD)
                     </div>
                 </div>
                 <div class="modal-footer">

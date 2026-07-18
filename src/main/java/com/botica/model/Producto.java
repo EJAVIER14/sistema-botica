@@ -14,7 +14,7 @@ public class Producto {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // ═══ NUEVO: código único de producto (ej: BOT-0001) ═══
+    // Código único de producto (ej: BOT-0001)
     @Column(unique = true, length = 20)
     private String codigo;
 
@@ -25,7 +25,13 @@ public class Producto {
     private LocalDate fechaVencimiento;
     private String categoria;
 
-    // ═══ presentaciones de venta ═══
+    // ═══ NUEVO: trazabilidad del lote de fabricación ═══
+    private String lote;
+
+    // ═══ NUEVO: costo de compra (precio al que la farmacia adquirió el producto) ═══
+    private Double costo;
+
+    // Presentaciones de venta
     private Integer unidadesPorBlister;
     private Integer unidadesPorCaja;
 }

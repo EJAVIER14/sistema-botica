@@ -71,7 +71,9 @@ public class ProductoController {
                         producto.getPrecio(),
                         producto.getStock(),
                         producto.getFechaVencimiento(),
-                        producto.getCategoria()
+                        producto.getCategoria(),
+                        producto.getLote(),
+                        producto.getCosto()
                 );
 
                 Producto creado = service.crear(dto);

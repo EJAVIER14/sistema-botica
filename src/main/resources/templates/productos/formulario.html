@@ -203,6 +203,27 @@
 
                         <hr class="section-divider"/>
 
+                        <!-- ═══ NUEVO: Lote y Costo ═══ -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-6">
+                                <label class="field-label">Número de lote</label>
+                                <input type="text" class="form-input" th:field="*{lote}"
+                                       placeholder="Ej: LT-2026-014"/>
+                                <div class="field-hint">Para trazabilidad ante retiros de fabricante</div>
+                            </div>
+                            <div class="col-6">
+                                <label class="field-label">Costo de compra (S/) <span>*</span></label>
+                                <div style="position:relative">
+                                    <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#9e9e9e;font-weight:700">S/</span>
+                                    <input type="number" class="form-input" th:field="*{costo}"
+                                           style="padding-left:32px" step="0.01" placeholder="0.00" required/>
+                                </div>
+                                <div class="field-hint">Precio al que la farmacia compró el producto</div>
+                            </div>
+                        </div>
+
+                        <hr class="section-divider"/>
+
                         <!-- Precio y Stock -->
                         <div class="row g-3 mb-4">
                             <div class="col-6">

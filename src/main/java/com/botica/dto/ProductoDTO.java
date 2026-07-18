@@ -8,5 +8,7 @@ public record ProductoDTO(
         Double precio,
         Integer stock,
         LocalDate fechaVencimiento,
-        String categoria
+        String categoria,
+        String lote,
+        Double costo
 ) {}

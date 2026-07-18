@@ -41,13 +41,11 @@ public class ProductoService {
         return repo.findAll();
     }
 
-    // ═══ ACTUALIZADO: ahora recibe categoría y usa la búsqueda combinada ═══
     public Page<Producto> listarPaginado(int page, int size, String buscar, String categoria) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by("id").descending());
         return repo.buscarConFiltros(buscar, categoria, pageRequest);
     }
 
-    // ═══ NUEVO: categorías existentes para poblar el dropdown de filtro ═══
     public List<String> listarCategorias() {
         return repo.listarCategoriasDistintas();
     }
@@ -85,6 +83,9 @@ public class ProductoService {
         producto.setStock(dto.stock());
         producto.setFechaVencimiento(dto.fechaVencimiento());
         producto.setCategoria(dto.categoria());
+        // ═══ NUEVO ═══
+        producto.setLote(dto.lote());
+        producto.setCosto(dto.costo());
 
         // Primer guardado: obtenemos el ID autogenerado
         Producto guardado = repo.save(producto);
@@ -94,7 +95,6 @@ public class ProductoService {
         return repo.save(guardado);
     }
 
-    // ═══ genera el código con formato BOT-0001 ═══
     private String generarCodigo(Long id) {
         return String.format("BOT-%04d", id);
     }
@@ -176,7 +176,8 @@ public class ProductoService {
         headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
         Row header = sheet.createRow(0);
-        String[] cols = {"Nombre", "Descripcion", "Categoria", "Precio", "Stock", "FechaVencimiento(AAAA-MM-DD)"};
+        // ═══ ACTUALIZADO: se agregaron columnas Lote y Costo ═══
+        String[] cols = {"Nombre", "Descripcion", "Categoria", "Costo", "Precio", "Stock", "Lote", "FechaVencimiento(AAAA-MM-DD)"};
         for (int i = 0; i < cols.length; i++) {
             Cell cell = header.createCell(i);
             cell.setCellValue(cols[i]);
@@ -189,9 +190,11 @@ public class ProductoService {
         ejemplo.createCell(0).setCellValue("Paracetamol 500mg");
         ejemplo.createCell(1).setCellValue("Analgésico y antipirético");
         ejemplo.createCell(2).setCellValue("Analgésico");
-        ejemplo.createCell(3).setCellValue(2.50);
-        ejemplo.createCell(4).setCellValue(50);
-        ejemplo.createCell(5).setCellValue("2027-12-31");
+        ejemplo.createCell(3).setCellValue(1.50);
+        ejemplo.createCell(4).setCellValue(2.50);
+        ejemplo.createCell(5).setCellValue(50);
+        ejemplo.createCell(6).setCellValue("LT-2026-014");
+        ejemplo.createCell(7).setCellValue("2027-12-31");
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         wb.write(out);
@@ -217,15 +220,17 @@ public class ProductoService {
                 producto.setNombre(nombre);
                 producto.setDescripcion(obtenerTexto(row.getCell(1)));
                 producto.setCategoria(obtenerTexto(row.getCell(2)));
-                producto.setPrecio(obtenerNumero(row.getCell(3)));
-                producto.setStock((int) obtenerNumero(row.getCell(4)));
+                // ═══ ACTUALIZADO: nuevo orden de columnas con Costo, Precio, Stock, Lote ═══
+                producto.setCosto(obtenerNumero(row.getCell(3)));
+                producto.setPrecio(obtenerNumero(row.getCell(4)));
+                producto.setStock((int) obtenerNumero(row.getCell(5)));
+                producto.setLote(obtenerTexto(row.getCell(6)));
 
-                String fechaTexto = obtenerTexto(row.getCell(5));
+                String fechaTexto = obtenerTexto(row.getCell(7));
                 if (fechaTexto != null && !fechaTexto.trim().isEmpty()) {
                     producto.setFechaVencimiento(LocalDate.parse(fechaTexto.trim()));
                 }
 
-                // También genera el código tras guardar
                 Producto guardado = repo.save(producto);
                 guardado.setCodigo(generarCodigo(guardado.getId()));
                 repo.save(guardado);
@@ -257,7 +262,6 @@ public class ProductoService {
         return 0;
     }
 
-    // Clase auxiliar para resultado de importación
     public static class ResultadoImportacion {
         public int exitosos = 0;
         public List<String> errores = new ArrayList<>();
