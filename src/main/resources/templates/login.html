@@ -10,6 +10,13 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
+        /* ═══ Protección extra contra scroll horizontal en móvil ═══ */
+        html, body {
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100%;
+        }
+
         body {
             min-height: 100vh;
             display: flex;
@@ -19,7 +26,6 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             padding: 24px;
             position: relative;
-            overflow: hidden;
         }
 
         /* Formas geométricas sutiles de fondo */
@@ -30,6 +36,7 @@
             border-radius: 50%;
             background: rgba(255,255,255,0.035);
             top: -220px; right: -180px;
+            pointer-events: none;
         }
         body::after {
             content: '';
@@ -38,6 +45,7 @@
             border-radius: 50%;
             background: rgba(255,255,255,0.03);
             bottom: -160px; left: -120px;
+            pointer-events: none;
         }
 
         .login-wrapper {
@@ -80,11 +88,12 @@
             border-radius: 20px;
             padding: 36px 34px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+            width: 100%;
         }
 
         .login-header { margin-bottom: 28px; text-align: center; }
         .login-header h2 { font-size: 21px; font-weight: 800; color: #0D2B4E; margin-bottom: 5px; letter-spacing: -0.3px; }
-        .login-header p { color: #8a94a3; font-size: 13px; }
+        .login-header p { color: #8a94a3; font-size: 13px; line-height: 1.5; }
 
         .form-label { font-weight: 600; color: #3a4453; font-size: 12.5px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.3px; display: block; }
 
@@ -225,11 +234,26 @@
             font-size: 11.5px;
         }
 
+        /* ═══════════════════ RESPONSIVE MÓVIL / TABLET ═══════════════════ */
         @media (max-width: 480px) {
-            .login-card { padding: 28px 22px; border-radius: 18px; }
-            .brand-header { margin-bottom: 22px; }
-            .brand-logo { width: 56px; height: 56px; font-size: 26px; }
-            .login-header h2 { font-size: 19px; }
+            body { padding: 16px; }
+            .login-wrapper { max-width: 100%; }
+            .login-card { padding: 26px 20px; border-radius: 18px; }
+            .brand-header { margin-bottom: 20px; }
+            .brand-logo { width: 54px; height: 54px; font-size: 24px; margin-bottom: 10px; }
+            .brand-header h1 { font-size: 19px; }
+            .brand-header p { font-size: 12px; }
+            .login-header { margin-bottom: 22px; }
+            .login-header h2 { font-size: 18px; }
+            .login-header p { font-size: 12px; }
+            .form-input { padding: 12px 14px 12px 40px; font-size: 13.5px; }
+            .btn-login { padding: 13px; font-size: 13.5px; }
+            .roles-info { padding: 13px; }
+            .rol-item { font-size: 11.5px; }
+        }
+
+        @media (max-width: 340px) {
+            .login-card { padding: 22px 16px; }
         }
     </style>
 </head>
