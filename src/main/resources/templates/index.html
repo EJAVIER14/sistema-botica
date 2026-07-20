@@ -3,430 +3,346 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Iniciar Sesión - Sistema Botica</title>
+    <title>Sistema Botica</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        html, body {
-            overflow-x: hidden;
-            width: 100%;
-            max-width: 100%;
-        }
-
         body {
-            min-height: 100vh;
-            display: flex;
-            background: #f5f7fa;
+            background: #f4f6f9;
+            transition: background 0.3s, color 0.3s;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
+        h4, h5, .fw-bold { font-family: 'Inter', sans-serif; }
 
-        /* ═══ Panel izquierdo ═══ */
-        .panel-izquierdo {
-            flex: 1;
+        /* ═══ Encabezado ═══ */
+        .header-banner {
+            background: linear-gradient(135deg, #0D2B4E, #1C5FA8);
+            border-radius: 18px;
+            padding: 22px 26px;
+            color: #fff;
+            margin-bottom: 22px;
+            box-shadow: 0 8px 24px rgba(13,43,78,0.25);
             position: relative;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 60px 40px;
-            color: white;
-            background: linear-gradient(160deg, #0D2B4E 0%, #14417A 45%, #1C5FA8 100%);
             overflow: hidden;
         }
-
-        .panel-izquierdo::before {
+        .header-banner::after {
             content: '';
             position: absolute;
-            width: 500px; height: 500px;
+            width: 220px; height: 220px;
             border-radius: 50%;
-            background: rgba(255,255,255,0.04);
-            top: -180px; right: -160px;
+            background: rgba(255,255,255,0.05);
+            top: -100px; right: -60px;
         }
-        .panel-izquierdo::after {
-            content: '';
-            position: absolute;
-            width: 340px; height: 340px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.035);
-            bottom: -140px; left: -100px;
+        .header-banner h4 { color: #fff !important; font-weight: 800; letter-spacing: -0.3px; position: relative; z-index: 1; }
+        .header-banner p { color: rgba(255,255,255,0.75) !important; position: relative; z-index: 1; }
+        .header-banner .btn-nueva-venta {
+            background: #fff;
+            color: #0D2B4E;
+            font-weight: 700;
+            border: none;
+            position: relative; z-index: 1;
         }
+        .header-banner .btn-nueva-venta:hover { background: #eef4fa; color: #0D2B4E; }
 
-        .panel-content { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; }
-
-        .panel-izquierdo .logo-grande {
-            width: 92px; height: 92px;
-            border-radius: 24px;
-            background: rgba(255,255,255,0.12);
-            border: 1px solid rgba(255,255,255,0.18);
+        /* ═══ Tarjetas de estadísticas ═══ */
+        .card-stat {
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            transition: transform 0.2s, background 0.3s, color 0.3s, box-shadow 0.2s;
+        }
+        .card-stat:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(0,0,0,0.08); }
+        .card-stat .icono {
+            width: 52px; height: 52px;
+            border-radius: 14px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 42px;
-            margin-bottom: 24px;
-            animation: float 4s ease-in-out infinite;
-            backdrop-filter: blur(6px);
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
-        }
-
-        .panel-izquierdo h1 {
-            font-size: 30px;
-            font-weight: 800;
-            margin-bottom: 10px;
-            letter-spacing: -0.5px;
-        }
-
-        .panel-izquierdo p {
-            font-size: 15px;
-            color: rgba(255,255,255,0.72);
-            text-align: center;
-            max-width: 320px;
-            line-height: 1.6;
-        }
-
-        .features {
-            margin-top: 44px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            width: 100%;
-            max-width: 340px;
-        }
-
-        .feature-item {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,255,255,0.09);
-            padding: 13px 18px;
-            border-radius: 12px;
-            transition: background 0.2s;
-        }
-
-        .feature-item i {
-            font-size: 16px;
-            width: 32px; height: 32px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 9px;
-            display: flex; align-items: center; justify-content: center;
+            font-size: 22px;
             flex-shrink: 0;
         }
-        .feature-item p { margin: 0; font-size: 13.5px; color: rgba(255,255,255,0.88); text-align: left; max-width: none; }
+        .icono-blue   { background: #e3f0fb; color: #1C5FA8; }
+        .icono-cyan   { background: #e5f6f8; color: #0891b2; }
+        .icono-red    { background: #fce4ec; color: #C62828; }
+        .icono-amber  { background: #fff8e1; color: #F9A825; }
 
-        /* ═══ Panel derecho - formulario ═══ */
-        .panel-derecho {
-            width: 460px;
-            min-height: 100vh;
-            background: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 50px 48px;
-            box-shadow: -8px 0 40px rgba(0,0,0,0.06);
-        }
-
-        .login-header { margin-bottom: 36px; }
-        .login-header h2 { font-size: 25px; font-weight: 800; color: #0D2B4E; margin-bottom: 6px; letter-spacing: -0.3px; }
-        .login-header p { color: #8a94a3; font-size: 13.5px; }
-
-        .form-label { font-weight: 600; color: #3a4453; font-size: 12.5px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.3px; display: block; }
-
-        .input-group-custom {
-            position: relative;
-            margin-bottom: 20px;
-        }
-
-        .input-icon {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 15px;
-            color: #a3aebc;
-            z-index: 1;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 13px 16px 13px 42px;
-            border: 1.5px solid #e4e8ee;
-            border-radius: 11px;
-            font-size: 14px;
-            transition: all 0.2s;
-            background: #fafbfc;
-            color: #1f2937;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: #1C5FA8;
-            background: white;
-            box-shadow: 0 0 0 4px rgba(28,95,168,0.08);
-        }
-
-        .show-pass {
-            position: absolute;
-            right: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            font-size: 15px;
-            color: #a3aebc;
-            background: none;
-            border: none;
-            padding: 0;
-        }
-
-        .forgot-password {
-            text-align: right;
-            margin-bottom: 22px;
-        }
-
-        .forgot-password a {
+        .card-stat .stat-label {
             font-size: 12.5px;
-            color: #1C5FA8;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        .forgot-password a:hover { text-decoration: underline; }
-
-        .btn-login {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #0D2B4E, #1C5FA8);
-            color: white;
-            border: none;
-            border-radius: 11px;
-            font-size: 14.5px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-top: 4px;
+            font-weight: 500;
             letter-spacing: 0.2px;
-            box-shadow: 0 4px 16px rgba(28,95,168,0.28);
-            display: flex; align-items: center; justify-content: center; gap: 8px;
         }
+        .card-stat h4 { font-weight: 800; letter-spacing: -0.5px; }
 
-        .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(28,95,168,0.38);
+        .card-alerta {
+            border-radius: 16px; border: none;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            transition: background 0.3s, color 0.3s;
         }
-        .btn-login:active { transform: translateY(0); }
+        .badge-vencido { background: #e53935; font-size: 10.5px; font-weight: 600; padding: 5px 8px; }
+        .badge-stock   { background: #f57c00; font-size: 10.5px; font-weight: 600; padding: 5px 8px; }
+        .badge-dias    { background: #f9a825; color:#333; font-size: 10.5px; font-weight: 600; padding: 5px 8px; }
+        .venta-row { border-left: 3px solid #1C5FA8; padding-left: 12px; margin-bottom: 10px; }
 
-        .error-box {
-            background: #fdeded;
-            border: 1px solid #f5c2c2;
-            color: #b42318;
-            padding: 12px 16px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .divider {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin: 26px 0 18px;
-            color: #b7bfc9;
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .divider::before, .divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: #edf0f3;
-        }
-
-        .roles-info {
-            background: #f4f8fc;
-            border: 1px solid #e5edf5;
-            border-radius: 12px;
-            padding: 16px;
-        }
-        .roles-info p { font-size: 11.5px; color: #1C5FA8; font-weight: 700; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.4px; }
-
-        .rol-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 6px;
-            font-size: 12.5px;
-            color: #56606f;
-            width: 100%;
-            background: none;
-            border: none;
-            padding: 6px 4px;
-            border-radius: 8px;
+        .acceso-card {
+            border-radius: 16px; border: none;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+            transition: all 0.2s, background 0.3s, color 0.3s;
             cursor: pointer;
-            text-align: left;
-            transition: background-color 0.15s;
         }
-        .rol-item:hover { background-color: #e9f1fa; }
-        .rol-item:active { background-color: #dde9f6; }
-        .rol-item:last-child { margin-bottom: 0; }
-        .rol-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-        .rol-item .rol-hint {
-            margin-left: auto;
-            font-size: 10px;
-            color: #a3aebc;
-            font-weight: 600;
+        .acceso-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 22px rgba(0,0,0,0.1);
+        }
+        .acceso-icono {
+            width: 48px; height: 48px;
+            border-radius: 12px;
+            display: flex; align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin: 0 auto 8px;
+        }
+        .acceso-card small { font-size: 13px; font-weight: 600; }
+
+        .section-title {
+            font-size: 12.5px;
             text-transform: uppercase;
-            letter-spacing: 0.3px;
+            letter-spacing: 1px;
+            color: #9aa5b1;
+            font-weight: 700;
         }
 
-        .login-footer {
-            margin-top: 32px;
-            text-align: center;
-            color: #bdc5cf;
-            font-size: 12px;
-        }
+        /* ═══ MODO OSCURO ═══ */
+        body.modo-oscuro { background: #111418; color: #e0e0e0; }
+        body.modo-oscuro .card-stat,
+        body.modo-oscuro .card-alerta,
+        body.modo-oscuro .acceso-card,
+        body.modo-oscuro .card-header { background: #1a1f28 !important; color: #e0e0e0; }
+        body.modo-oscuro .text-dark { color: #e0e0e0 !important; }
+        body.modo-oscuro .text-muted { color: #9aa5b1 !important; }
+        body.modo-oscuro .border-bottom { border-color: #2a3038 !important; }
+        body.modo-oscuro .card-header.bg-white { background: #1a1f28 !important; border-bottom: 1px solid #2a3038 !important; }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .panel-izquierdo { display: none; }
-            .panel-derecho { width: 100%; padding: 40px 24px; }
-        }
+        /* ═══════════════════ MÓVIL ═══════════════════ */
+        @media (max-width: 767.98px) {
+            .container-fluid { padding-left: 14px !important; padding-right: 14px !important; }
 
-        @media (max-width: 420px) {
-            .panel-derecho { padding: 32px 20px; }
-            .login-header h2 { font-size: 22px; }
-            .form-input { padding: 12px 14px 12px 40px; font-size: 13.5px; }
-            .btn-login { padding: 13px; font-size: 14px; }
-            .roles-info { padding: 14px; }
+            .header-banner { padding: 18px; border-radius: 16px; }
+            .header-banner .d-flex { flex-direction: column; align-items: stretch !important; gap: 12px; }
+            .header-banner h4 { font-size: 19px; }
+            .header-banner .btn-nueva-venta { width: 100%; padding: 10px; }
+
+            .card-stat { border-radius: 14px; }
+            .card-stat .card-body, .card-stat.p-3 { padding: 12px !important; }
+            .card-stat .icono { width: 42px; height: 42px; font-size: 18px; border-radius: 12px; }
+            .card-stat .stat-label { font-size: 11px; margin-bottom: 2px !important; }
+            .card-stat h4 { font-size: 17px; }
+
+            .section-title { font-size: 11.5px; }
+
+            .acceso-icono { width: 44px; height: 44px; font-size: 18px; }
+            .acceso-card small { font-size: 12px; }
         }
     </style>
 </head>
 <body>
 
-<!-- Panel izquierdo decorativo (oculto en móvil) -->
-<div class="panel-izquierdo">
-    <div class="panel-content">
-        <div class="logo-grande">💊</div>
-        <h1>Sistema Botica</h1>
-        <p>Gestión integral de inventario, ventas y proveedores para tu farmacia</p>
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
 
-        <div class="features">
-            <div class="feature-item">
-                <i class="bi bi-box-seam-fill"></i>
-                <p>Control de inventario en tiempo real</p>
+<div class="container-fluid py-4 px-4">
+
+    <!-- Encabezado -->
+    <div class="header-banner">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="fw-bold mb-0"><i class="bi bi-bar-chart-fill me-1"></i> Resumen del Día</h4>
+                <p class="small mb-0" id="fecha-hoy"></p>
             </div>
-            <div class="feature-item">
-                <i class="bi bi-cart-check-fill"></i>
-                <p>Registro de ventas con boleta digital</p>
+            <a href="/ventas/nueva" class="btn btn-nueva-venta px-4 rounded-pill shadow-sm">
+                <i class="bi bi-plus-lg me-1"></i>Nueva Venta
+            </a>
+        </div>
+    </div>
+
+    <!-- Tarjetas resumen -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card card-stat p-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="icono icono-blue"><i class="bi bi-cash-coin"></i></div>
+                    <div>
+                        <p class="text-muted stat-label mb-1">Ingresos hoy</p>
+                        <h4 class="fw-bold mb-0" style="color:#1C5FA8" th:text="'S/ ' + ${totalHoy}"></h4>
+                    </div>
+                </div>
             </div>
-            <div class="feature-item">
-                <i class="bi bi-bell-fill"></i>
-                <p>Alertas de stock bajo y vencimientos</p>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card card-stat p-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="icono icono-cyan"><i class="bi bi-cart-check-fill"></i></div>
+                    <div>
+                        <p class="text-muted stat-label mb-1">Ventas hoy</p>
+                        <h4 class="fw-bold mb-0" style="color:#0891b2" th:text="${ventasHoy}"></h4>
+                    </div>
+                </div>
             </div>
-            <div class="feature-item">
-                <i class="bi bi-file-earmark-bar-graph-fill"></i>
-                <p>Reportes exportables en PDF y Excel</p>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card card-stat p-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="icono icono-red"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                    <div>
+                        <p class="text-muted stat-label mb-1">Stock crítico</p>
+                        <h4 class="fw-bold text-danger mb-0" th:text="${stockCritico}"></h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card card-stat p-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="icono icono-amber"><i class="bi bi-calendar-event-fill"></i></div>
+                    <div>
+                        <p class="text-muted stat-label mb-1">Por vencer (30d)</p>
+                        <h4 class="fw-bold text-warning mb-0" th:text="${porVencer}"></h4>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Panel derecho - formulario -->
-<div class="panel-derecho">
+    <!-- Alertas y Ventas -->
+    <div class="row g-3 mb-4">
 
-    <div class="login-header">
-        <h2>Bienvenido de nuevo</h2>
-        <p>Ingresa tus credenciales para acceder al sistema</p>
-    </div>
-
-    <div class="error-box" th:if="${error}">
-        <i class="bi bi-exclamation-circle-fill"></i>
-        <span th:text="${error}"></span>
-    </div>
-
-    <form th:action="@{/login}" method="post">
-
-        <label class="form-label">Nombre de usuario</label>
-        <div class="input-group-custom">
-            <i class="bi bi-person-fill input-icon"></i>
-            <input type="text" name="username" id="username" class="form-input"
-                   placeholder="Ej: admin" autofocus/>
+        <!-- Alertas -->
+        <div class="col-md-5">
+            <div class="card card-alerta h-100">
+                <div class="card-header bg-white border-0 pt-3 pb-0 px-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="section-title"><i class="bi bi-bell-fill me-1"></i>Alertas Activas</span>
+                        <a href="/alertas" class="text-decoration-none small fw-bold" style="color:#1C5FA8">Ver todas →</a>
+                    </div>
+                </div>
+                <div class="card-body px-4 py-2">
+                    <div th:each="p : ${alertasVencidos}" class="d-flex align-items-center gap-2 py-2 border-bottom">
+                        <span class="badge badge-vencido">Vencido</span>
+                        <span class="small fw-bold flex-fill" th:text="${p.nombre}"></span>
+                        <span class="text-muted" style="font-size:11px" th:text="${p.fechaVencimiento}"></span>
+                    </div>
+                    <div th:each="p : ${alertasStock}" class="d-flex align-items-center gap-2 py-2 border-bottom">
+                        <span class="badge badge-stock">Stock</span>
+                        <span class="small fw-bold flex-fill" th:text="${p.nombre}"></span>
+                        <span class="text-muted" style="font-size:11px" th:text="${p.stock} + ' und.'"></span>
+                    </div>
+                    <div th:each="p : ${alertasVencimiento}" class="d-flex align-items-center gap-2 py-2 border-bottom">
+                        <span class="badge badge-dias">30 días</span>
+                        <span class="small fw-bold flex-fill" th:text="${p.nombre}"></span>
+                        <span class="text-muted" style="font-size:11px" th:text="${p.fechaVencimiento}"></span>
+                    </div>
+                    <div class="py-3 text-center small" style="color:#1C5FA8"
+                         th:if="${#lists.isEmpty(alertasVencidos)} and ${#lists.isEmpty(alertasStock)} and ${#lists.isEmpty(alertasVencimiento)}">
+                        ✅ No hay alertas activas
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <label class="form-label">Contraseña</label>
-        <div class="input-group-custom">
-            <i class="bi bi-lock-fill input-icon"></i>
-            <input type="password" name="password" id="password"
-                   class="form-input" placeholder="Tu contraseña"/>
-            <button type="button" class="show-pass" onclick="togglePass()">
-                <i class="bi bi-eye-fill" id="icono-ojo"></i>
-            </button>
+        <!-- Últimas Ventas -->
+        <div class="col-md-7">
+            <div class="card card-alerta h-100">
+                <div class="card-header bg-white border-0 pt-3 pb-0 px-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="section-title"><i class="bi bi-cart-fill me-1"></i>Últimas Ventas</span>
+                        <a href="/ventas" class="text-decoration-none small fw-bold" style="color:#1C5FA8">Ver todas →</a>
+                    </div>
+                </div>
+                <div class="card-body px-4 py-2">
+                    <div th:each="v : ${ultimasVentas}" class="venta-row py-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="fw-bold small" th:text="'Venta #' + ${v.id}"></span>
+                                <span class="text-muted small ms-2" th:text="${v.cliente}"></span>
+                            </div>
+                            <div class="text-end">
+                                <span class="fw-bold" style="color:#1C5FA8" th:text="'S/ ' + ${v.total}"></span>
+                                <div class="text-muted" style="font-size:11px"
+                                     th:text="${#temporals.format(v.fecha,'HH:mm')}"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="py-3 text-center text-muted small"
+                         th:if="${#lists.isEmpty(ultimasVentas)}">
+                        No hay ventas registradas hoy
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <div class="forgot-password">
-            <a th:href="@{/olvide-password}">¿Olvidaste tu contraseña?</a>
-        </div>
-
-        <button type="submit" class="btn-login">
-            Iniciar Sesión <i class="bi bi-arrow-right"></i>
-        </button>
-
-    </form>
-
-    <div class="divider">Roles disponibles</div>
-
-    <div class="roles-info">
-        <p><i class="bi bi-shield-lock-fill me-1"></i>Toca un rol para autocompletar</p>
-        <button type="button" class="rol-item" onclick="rellenarUsuario('Admin')">
-            <div class="rol-dot" style="background:#c62828"></div>
-            <span><strong>ADMIN</strong> — Acceso completo al sistema</span>
-            <span class="rol-hint">usar</span>
-        </button>
-        <button type="button" class="rol-item" onclick="rellenarUsuario('Cajero')">
-            <div class="rol-dot" style="background:#1C5FA8"></div>
-            <span><strong>CAJERO</strong> — Ventas y alertas</span>
-            <span class="rol-hint">usar</span>
-        </button>
-        <button type="button" class="rol-item" onclick="rellenarUsuario('almacen')">
-            <div class="rol-dot" style="background:#e65100"></div>
-            <span><strong>ALMACENERO</strong> — Productos y proveedores</span>
-            <span class="rol-hint">usar</span>
-        </button>
     </div>
 
-    <div class="login-footer">
-        © 2026 Sistema Botica · Todos los derechos reservados
+    <!-- Accesos Rápidos -->
+    <p class="section-title mb-3"><i class="bi bi-lightning-charge-fill me-1"></i>Accesos Rápidos</p>
+    <div class="row g-3">
+        <div class="col-4 col-md-2">
+            <a href="/productos" class="text-decoration-none">
+                <div class="card acceso-card p-3 text-center">
+                    <div class="acceso-icono bg-primary bg-opacity-10 text-primary"><i class="bi bi-box-seam-fill"></i></div>
+                    <small class="fw-bold text-dark">Productos</small>
+                </div>
+            </a>
+        </div>
+        <div class="col-4 col-md-2">
+            <a href="/ventas/nueva" class="text-decoration-none">
+                <div class="card acceso-card p-3 text-center">
+                    <div class="acceso-icono bg-info bg-opacity-10 text-info"><i class="bi bi-cart-plus-fill"></i></div>
+                    <small class="fw-bold text-dark">Nueva Venta</small>
+                </div>
+            </a>
+        </div>
+        <div class="col-4 col-md-2">
+            <a href="/proveedores" class="text-decoration-none">
+                <div class="card acceso-card p-3 text-center">
+                    <div class="acceso-icono bg-warning bg-opacity-10 text-warning"><i class="bi bi-truck"></i></div>
+                    <small class="fw-bold text-dark">Proveedores</small>
+                </div>
+            </a>
+        </div>
+        <div class="col-4 col-md-2">
+            <a href="/usuarios" class="text-decoration-none">
+                <div class="card acceso-card p-3 text-center">
+                    <div class="acceso-icono bg-secondary bg-opacity-10 text-secondary"><i class="bi bi-people-fill"></i></div>
+                    <small class="fw-bold text-dark">Usuarios</small>
+                </div>
+            </a>
+        </div>
+        <div class="col-4 col-md-2">
+            <a href="/alertas" class="text-decoration-none">
+                <div class="card acceso-card p-3 text-center">
+                    <div class="acceso-icono bg-danger bg-opacity-10 text-danger"><i class="bi bi-bell-fill"></i></div>
+                    <small class="fw-bold text-dark">Alertas</small>
+                </div>
+            </a>
+        </div>
+        <div class="col-4 col-md-2">
+            <a href="/reportes" class="text-decoration-none">
+                <div class="card acceso-card p-3 text-center">
+                    <div class="acceso-icono bg-primary bg-opacity-10 text-primary"><i class="bi bi-graph-up-arrow"></i></div>
+                    <small class="fw-bold text-dark">Reportes</small>
+                </div>
+            </a>
+        </div>
     </div>
+
 </div>
 
 <script>
-    function togglePass() {
-        const input = document.getElementById('password');
-        const icono = document.getElementById('icono-ojo');
-        if (input.type === 'password') {
-            input.type = 'text';
-            icono.classList.remove('bi-eye-fill');
-            icono.classList.add('bi-eye-slash-fill');
-        } else {
-            input.type = 'password';
-            icono.classList.remove('bi-eye-slash-fill');
-            icono.classList.add('bi-eye-fill');
-        }
-    }
+    const fecha = new Date();
+    const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('fecha-hoy').textContent =
+        fecha.toLocaleDateString('es-PE', opciones).toUpperCase();
 
-    function rellenarUsuario(username) {
-        document.getElementById('username').value = username;
-        const passwordInput = document.getElementById('password');
-        passwordInput.value = '';
-        passwordInput.focus();
+    if (localStorage.getItem('tema') === 'oscuro') {
+        document.body.classList.add('modo-oscuro');
     }
 </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
