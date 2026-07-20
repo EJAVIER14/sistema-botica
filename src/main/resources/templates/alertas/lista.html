@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -74,8 +75,8 @@
         <p class="small mb-0">Monitoreo del estado de productos</p>
     </div>
 
-    <!-- Estadísticas -->
-    <div class="row g-3 mb-4">
+    <!-- ═══ Estadísticas: ADMIN y CAJERO ven las 3 (incluye Vencidos) ═══ -->
+    <div class="row g-3 mb-4" sec:authorize="hasAnyRole('ADMIN', 'CAJERO')">
         <div class="col-4">
             <div class="card stat-card p-3">
                 <div class="d-flex align-items-center gap-3">
@@ -105,6 +106,32 @@
                     <div>
                         <p class="text-muted small mb-1">Vencidos</p>
                         <h3 class="fw-bold mb-0" style="color:#9C27B0" th:text="${#lists.size(vencidos)}"></h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ Estadísticas: ALMACENERO solo ve 2 (sin Vencidos), ocupando el ancho completo ═══ -->
+    <div class="row g-3 mb-4" sec:authorize="hasRole('ALMACENERO') and !hasAnyRole('ADMIN', 'CAJERO')">
+        <div class="col-6">
+            <div class="card stat-card p-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icono" style="background:#fce4ec;color:#c62828"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                    <div>
+                        <p class="text-muted small mb-1">Stock bajo</p>
+                        <h3 class="fw-bold text-danger mb-0" th:text="${#lists.size(stockBajo)}"></h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="card stat-card p-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icono" style="background:#fff8e1;color:#f57f17"><i class="bi bi-calendar-event-fill"></i></div>
+                    <div>
+                        <p class="text-muted small mb-1">Por vencer</p>
+                        <h3 class="fw-bold text-warning mb-0" th:text="${#lists.size(porVencer)}"></h3>
                     </div>
                 </div>
             </div>
@@ -213,8 +240,8 @@
         </div>
     </div>
 
-    <!-- Vencidos -->
-    <div class="card card-main mb-4">
+    <!-- ═══ Vencidos: SOLO visible para ADMIN y CAJERO ═══ -->
+    <div class="card card-main mb-4" sec:authorize="hasAnyRole('ADMIN', 'CAJERO')">
         <div class="section-header" style="background:#f3e5f5;color:#6a1b9a">
             <i class="bi bi-x-octagon-fill"></i>Productos Vencidos
         </div>
