@@ -26,16 +26,24 @@
         .tabla-row:hover { background: #fafafa; }
         .tabla-th { padding: 12px 16px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; background: #f5f5f5; color: #616161; border: none; }
 
+        /* ═══ Botones de acción en cada fila ═══ */
+        .btn-accion-alerta {
+            width: 32px; height: 32px; padding: 0; border-radius: 8px;
+            font-size: 13px; display: inline-flex; align-items: center; justify-content: center;
+        }
+
         /* ═══ Tarjetas móvil para cada sección de alerta ═══ */
         .alerta-item-mobile {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 12px 16px; border-bottom: 1px solid #f0f0f0; gap: 10px;
+            padding: 12px 16px; border-bottom: 1px solid #f0f0f0;
         }
         .alerta-item-mobile:last-child { border-bottom: none; }
+        .aim-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
         .ai-icono { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .ai-nombre { font-weight: 700; font-size: 13.5px; color: #212121; }
         .ai-cat { font-size: 11px; color: #9e9e9e; }
         .ai-derecha { text-align: right; flex-shrink: 0; }
+        .aim-acciones { display: flex; gap: 6px; }
+        .aim-acciones .btn-accion-alerta { flex: 1; height: 34px; border-radius: 8px; }
 
         /* ═══ MODO OSCURO ═══ */
         body.modo-oscuro { background: #121212; color: #e0e0e0; }
@@ -153,7 +161,7 @@
                 <table class="table mb-0">
                     <thead>
                     <tr>
-                        <th class="tabla-th">Producto</th><th class="tabla-th">Categoría</th><th class="tabla-th">Stock</th><th class="tabla-th">Estado</th>
+                        <th class="tabla-th">Producto</th><th class="tabla-th">Categoría</th><th class="tabla-th">Stock</th><th class="tabla-th">Estado</th><th class="tabla-th">Acciones</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -167,6 +175,14 @@
                         <td><span class="badge bg-secondary bg-opacity-10 text-secondary" th:text="${p.categoria}"></span></td>
                         <td><span class="badge bg-danger" th:text="${p.stock} + ' unid.'"></span></td>
                         <td><span class="badge bg-danger bg-opacity-10 text-danger" style="font-size:11px"><i class="bi bi-exclamation-triangle-fill"></i> Stock bajo</span></td>
+                        <td>
+                            <div class="d-flex gap-1" sec:authorize="hasAnyRole('ADMIN','ALMACENERO')">
+                                <a th:href="@{/productos/entrada/{id}(id=${p.id})}"
+                                   class="btn btn-accion-alerta btn-success" title="Registrar entrada"><i class="bi bi-arrow-up"></i></a>
+                                <a th:href="@{/productos/editar/{id}(id=${p.id})}"
+                                   class="btn btn-accion-alerta btn-primary" title="Editar"><i class="bi bi-pencil-fill"></i></a>
+                            </div>
+                        </td>
                     </tr>
                     </tbody>
                 </table>
@@ -175,15 +191,23 @@
             <!-- Tarjetas (móvil) -->
             <div class="vista-mobile" th:unless="${#lists.isEmpty(stockBajo)}">
                 <div class="alerta-item-mobile" th:each="p : ${stockBajo}">
-                    <div class="d-flex align-items-center gap-2">
-                        <div class="ai-icono" style="background:#fce4ec;color:#c62828"><i class="bi bi-capsule"></i></div>
-                        <div>
-                            <div class="ai-nombre" th:text="${p.nombre}"></div>
-                            <div class="ai-cat" th:text="${p.categoria}"></div>
+                    <div class="aim-top">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="ai-icono" style="background:#fce4ec;color:#c62828"><i class="bi bi-capsule"></i></div>
+                            <div>
+                                <div class="ai-nombre" th:text="${p.nombre}"></div>
+                                <div class="ai-cat" th:text="${p.categoria}"></div>
+                            </div>
+                        </div>
+                        <div class="ai-derecha">
+                            <span class="badge bg-danger" th:text="${p.stock} + ' unid.'"></span>
                         </div>
                     </div>
-                    <div class="ai-derecha">
-                        <span class="badge bg-danger" th:text="${p.stock} + ' unid.'"></span>
+                    <div class="aim-acciones" sec:authorize="hasAnyRole('ADMIN','ALMACENERO')">
+                        <a th:href="@{/productos/entrada/{id}(id=${p.id})}"
+                           class="btn btn-accion-alerta btn-success"><i class="bi bi-arrow-up"></i> Entrada</a>
+                        <a th:href="@{/productos/editar/{id}(id=${p.id})}"
+                           class="btn btn-accion-alerta btn-primary"><i class="bi bi-pencil-fill"></i> Editar</a>
                     </div>
                 </div>
             </div>
@@ -204,7 +228,7 @@
                 <table class="table mb-0">
                     <thead>
                     <tr>
-                        <th class="tabla-th">Producto</th><th class="tabla-th">Categoría</th><th class="tabla-th">Vencimiento</th><th class="tabla-th">Estado</th>
+                        <th class="tabla-th">Producto</th><th class="tabla-th">Categoría</th><th class="tabla-th">Vencimiento</th><th class="tabla-th">Estado</th><th class="tabla-th">Acciones</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -218,6 +242,12 @@
                         <td><span class="badge bg-secondary bg-opacity-10 text-secondary" th:text="${p.categoria}"></span></td>
                         <td style="font-size:13px;color:#616161" th:text="${p.fechaVencimiento}"></td>
                         <td><span class="badge bg-warning bg-opacity-10 text-warning" style="font-size:11px"><i class="bi bi-calendar-event-fill"></i> Por vencer</span></td>
+                        <td>
+                            <div class="d-flex gap-1" sec:authorize="hasAnyRole('ADMIN','ALMACENERO')">
+                                <a th:href="@{/productos/editar/{id}(id=${p.id})}"
+                                   class="btn btn-accion-alerta btn-primary" title="Editar"><i class="bi bi-pencil-fill"></i></a>
+                            </div>
+                        </td>
                     </tr>
                     </tbody>
                 </table>
@@ -225,15 +255,21 @@
 
             <div class="vista-mobile" th:unless="${#lists.isEmpty(porVencer)}">
                 <div class="alerta-item-mobile" th:each="p : ${porVencer}">
-                    <div class="d-flex align-items-center gap-2">
-                        <div class="ai-icono" style="background:#fff8e1;color:#f57f17"><i class="bi bi-capsule"></i></div>
-                        <div>
-                            <div class="ai-nombre" th:text="${p.nombre}"></div>
-                            <div class="ai-cat" th:text="${p.categoria}"></div>
+                    <div class="aim-top">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="ai-icono" style="background:#fff8e1;color:#f57f17"><i class="bi bi-capsule"></i></div>
+                            <div>
+                                <div class="ai-nombre" th:text="${p.nombre}"></div>
+                                <div class="ai-cat" th:text="${p.categoria}"></div>
+                            </div>
+                        </div>
+                        <div class="ai-derecha">
+                            <div class="small text-muted" th:text="${p.fechaVencimiento}"></div>
                         </div>
                     </div>
-                    <div class="ai-derecha">
-                        <div class="small text-muted" th:text="${p.fechaVencimiento}"></div>
+                    <div class="aim-acciones" sec:authorize="hasAnyRole('ADMIN','ALMACENERO')">
+                        <a th:href="@{/productos/editar/{id}(id=${p.id})}"
+                           class="btn btn-accion-alerta btn-primary"><i class="bi bi-pencil-fill"></i> Editar</a>
                     </div>
                 </div>
             </div>
@@ -254,7 +290,7 @@
                 <table class="table mb-0">
                     <thead>
                     <tr>
-                        <th class="tabla-th">Producto</th><th class="tabla-th">Categoría</th><th class="tabla-th">Vencimiento</th><th class="tabla-th">Estado</th>
+                        <th class="tabla-th">Producto</th><th class="tabla-th">Categoría</th><th class="tabla-th">Vencimiento</th><th class="tabla-th">Estado</th><th class="tabla-th">Acciones</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -268,6 +304,15 @@
                         <td><span class="badge bg-secondary bg-opacity-10 text-secondary" th:text="${p.categoria}"></span></td>
                         <td style="font-size:13px;color:#c62828" th:text="${p.fechaVencimiento}"></td>
                         <td><span class="badge" style="background:#f3e5f5;color:#6a1b9a;font-size:11px"><i class="bi bi-x-octagon-fill"></i> Vencido</span></td>
+                        <td>
+                            <div class="d-flex gap-1" sec:authorize="hasRole('ADMIN')">
+                                <a th:href="@{/productos/editar/{id}(id=${p.id})}"
+                                   class="btn btn-accion-alerta btn-primary" title="Editar"><i class="bi bi-pencil-fill"></i></a>
+                                <a th:href="@{/productos/eliminar/{id}(id=${p.id})}"
+                                   class="btn btn-accion-alerta btn-danger" title="Dar de baja"
+                                   onclick="return confirm('¿Dar de baja este producto vencido? Esta acción no se puede deshacer.')"><i class="bi bi-trash-fill"></i></a>
+                            </div>
+                        </td>
                     </tr>
                     </tbody>
                 </table>
@@ -275,15 +320,24 @@
 
             <div class="vista-mobile" th:unless="${#lists.isEmpty(vencidos)}">
                 <div class="alerta-item-mobile" th:each="p : ${vencidos}">
-                    <div class="d-flex align-items-center gap-2">
-                        <div class="ai-icono" style="background:#f3e5f5;color:#6a1b9a"><i class="bi bi-capsule"></i></div>
-                        <div>
-                            <div class="ai-nombre" th:text="${p.nombre}"></div>
-                            <div class="ai-cat" th:text="${p.categoria}"></div>
+                    <div class="aim-top">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="ai-icono" style="background:#f3e5f5;color:#6a1b9a"><i class="bi bi-capsule"></i></div>
+                            <div>
+                                <div class="ai-nombre" th:text="${p.nombre}"></div>
+                                <div class="ai-cat" th:text="${p.categoria}"></div>
+                            </div>
+                        </div>
+                        <div class="ai-derecha">
+                            <div class="small" style="color:#c62828" th:text="${p.fechaVencimiento}"></div>
                         </div>
                     </div>
-                    <div class="ai-derecha">
-                        <div class="small" style="color:#c62828" th:text="${p.fechaVencimiento}"></div>
+                    <div class="aim-acciones" sec:authorize="hasRole('ADMIN')">
+                        <a th:href="@{/productos/editar/{id}(id=${p.id})}"
+                           class="btn btn-accion-alerta btn-primary"><i class="bi bi-pencil-fill"></i> Editar</a>
+                        <a th:href="@{/productos/eliminar/{id}(id=${p.id})}"
+                           class="btn btn-accion-alerta btn-danger"
+                           onclick="return confirm('¿Dar de baja este producto vencido? Esta acción no se puede deshacer.')"><i class="bi bi-trash-fill"></i> Dar de baja</a>
                     </div>
                 </div>
             </div>
