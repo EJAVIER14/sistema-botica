@@ -23,6 +23,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,7 +55,7 @@ public class ProductoService {
         return repo.save(p);
     }
 
-    // ═══ ACTUALIZADO: ahora también recibe y guarda stockMinimo ═══
+    // ═══ ACTUALIZADO: ahora también genera el lote automáticamente si viene vacío ═══
     public Producto crear(ProductoDTO dto) {
         if (dto.nombre() == null || dto.nombre().isBlank()) {
             throw new NombreInvalidoException();
@@ -91,23 +92,36 @@ public class ProductoService {
         producto.setStock(dto.stock());
         producto.setFechaVencimiento(dto.fechaVencimiento());
         producto.setCategoria(dto.categoria());
-        producto.setLote(dto.lote());
-        // ═══ NUEVO: si no se especifica, se mantiene el valor por defecto de 10 (definido en la entidad) ═══
         producto.setStockMinimo(dto.stockMinimo() != null ? dto.stockMinimo() : 10);
+
+        // Si el usuario escribió un lote manual, lo respetamos; si no, se genera automático después
+        producto.setLote(dto.lote());
 
         Producto guardado = repo.save(producto);
         guardado.setCodigo(generarCodigo(guardado.getId()));
+
+        // ═══ NUEVO: si no se especificó lote, se genera automáticamente basado en el ID ═══
+        if (guardado.getLote() == null || guardado.getLote().isBlank()) {
+            guardado.setLote(generarLote(guardado.getId()));
+        }
+
         return repo.save(guardado);
     }
 
-    // ═══ fórmula de precio de venta = costo × (1 + margen/100) ═══
-    public double calcularPrecioVenta(double costo, double margenPorcentaje) {
-        double precio = costo * (1 + margenPorcentaje / 100.0);
-        return Math.round(precio * 100.0) / 100.0; // redondeo a 2 decimales
-    }
-
+    // ═══ genera el código con formato BOT-0001 ═══
     private String generarCodigo(Long id) {
         return String.format("BOT-%04d", id);
+    }
+
+    // ═══ NUEVO: genera el lote con formato LT-2026-0001 (año actual + id) ═══
+    private String generarLote(Long id) {
+        int anioActual = Year.now().getValue();
+        return String.format("LT-%d-%04d", anioActual, id);
+    }
+
+    public double calcularPrecioVenta(double costo, double margenPorcentaje) {
+        double precio = costo * (1 + margenPorcentaje / 100.0);
+        return Math.round(precio * 100.0) / 100.0;
     }
 
     public Producto buscarPorId(Long id) {
@@ -211,7 +225,7 @@ public class ProductoService {
         return out.toByteArray();
     }
 
-    // ═══ IMPORTAR DESDE EXCEL (mantiene precio directo, no pasa por crear()) ═══
+    // ═══ IMPORTAR DESDE EXCEL (también genera lote automático si viene vacío) ═══
     public ResultadoImportacion importarExcel(MultipartFile archivo) throws IOException {
         ResultadoImportacion resultado = new ResultadoImportacion();
         Workbook wb = new XSSFWorkbook(new ByteArrayInputStream(archivo.getBytes()));
@@ -241,6 +255,11 @@ public class ProductoService {
 
                 Producto guardado = repo.save(producto);
                 guardado.setCodigo(generarCodigo(guardado.getId()));
+
+                if (guardado.getLote() == null || guardado.getLote().isBlank()) {
+                    guardado.setLote(generarLote(guardado.getId()));
+                }
+
                 repo.save(guardado);
 
                 resultado.exitosos++;

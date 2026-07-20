@@ -211,7 +211,7 @@
                                 <label class="field-label">Número de lote</label>
                                 <input type="text" class="form-input" th:field="*{lote}"
                                        placeholder="Ej: LT-2026-014"/>
-                                <div class="field-hint">Para trazabilidad ante retiros de fabricante</div>
+                                <div class="field-hint"><i class="bi bi-magic"></i> Déjalo vacío para generar uno automático, o ingresa el lote real del proveedor</div>
                             </div>
                             <div class="col-6">
                                 <label class="field-label">Costo de compra (S/) <span>*</span></label>
@@ -250,7 +250,7 @@
 
                         <hr class="section-divider"/>
 
-                        <!-- ═══ ACTUALIZADO: Stock + Stock mínimo ═══ -->
+                        <!-- Stock + Stock mínimo -->
                         <div class="row g-3 mb-4">
                             <div class="col-6">
                                 <label class="field-label">Stock inicial <span>*</span></label>
