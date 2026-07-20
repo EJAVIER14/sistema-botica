@@ -2,7 +2,10 @@ package com.botica.controller;
 
 import com.botica.dto.ProductoDTO;
 import com.botica.model.Producto;
+import com.botica.repository.UsuarioRepository;
 import com.botica.service.AlertaService;
+import com.botica.service.AuditoriaService;
+import com.botica.service.AvisoMantenimientoService;
 import com.botica.service.ProductoService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,6 +17,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -34,6 +38,20 @@ class ProductoControllerTest {
     @MockBean
     private AlertaService alertaService;
 
+    // ═══ NUEVO: requeridos para que el contexto de Spring cargue completo ═══
+    // GlobalAvisoMantenimientoAdvice es un @ControllerAdvice que Spring incluye
+    // automáticamente en cualquier @WebMvcTest, así que necesita este mock.
+    @MockBean
+    private AvisoMantenimientoService avisoMantenimientoService;
+
+    // SecurityConfig necesita CustomUserDetailsService, que a su vez necesita esto.
+    @MockBean
+    private UsuarioRepository usuarioRepository;
+
+    // Los 3 handlers de auditoría (login exitoso/fallido, logout) necesitan esto.
+    @MockBean
+    private AuditoriaService auditoriaService;
+
     @Test
     @WithMockUser(roles = {"ADMIN"})
     @DisplayName("GET /productos debe retornar la vista de lista con los productos")
@@ -43,8 +61,10 @@ class ProductoControllerTest {
         producto.setNombre("Paracetamol 500mg");
 
         Page<Producto> pagina = new PageImpl<>(List.of(producto));
-        // ═══ ACTUALIZADO: listarPaginado ahora recibe 4 parámetros (se agregó categoria) ═══
         when(productoService.listarPaginado(anyInt(), anyInt(), anyString(), anyString())).thenReturn(pagina);
+
+        // ═══ NUEVO: listar() ahora también llama a listarCategorias() para el dropdown ═══
+        when(productoService.listarCategorias()).thenReturn(Collections.emptyList());
 
         mockMvc.perform(get("/productos"))
                 .andExpect(status().isOk())
@@ -71,13 +91,14 @@ class ProductoControllerTest {
         productoCreado.setId(10L);
         productoCreado.setNombre("Ibuprofeno 400mg");
 
-        // El controller llama primero a crear(dto) para las validaciones de negocio
         when(productoService.crear(any(ProductoDTO.class))).thenReturn(productoCreado);
 
         mockMvc.perform(post("/productos/guardar")
                         .with(csrf())
                         .param("nombre", "Ibuprofeno 400mg")
-                        .param("precio", "3.50")
+                        // ═══ ACTUALIZADO: ahora se envían costo + margenGanancia en vez de precio directo ═══
+                        .param("costo", "2.50")
+                        .param("margenGanancia", "40")
                         .param("stock", "20")
                         .param("categoria", "Analgésico")
                         .param("fechaVencimiento", "2027-12-31"))
